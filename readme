@@ -1,0 +1,98 @@
+sudo apt-get install autoconf automake libtool -y
+git clone https://github.com/google/glog
+cd glog
+./autogen.sh
+./configure
+make -j 24
+sudo make install
+
+https://github.com/protocolbuffers/protobuf.git
+cd protobuf
+./autogen.sh
+./configure
+make
+//make check
+sudo make install
+
+
+
+//sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/aarch64-linux-gnu-gcc 40 --slave /usr/bin/g++ g++ /usr/bin/aarch64-linux-gnu-g++
+
+//sudo update-alternatives --config gcc
+
+//删除某个gcc版本的选项的话，可以使用
+//sudo update-alternatives --remove gcc /usr/bin/aarch64-linux-gnu-gcc
+
+sudo add-apt-repository ppa:linuxuprising/java
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt install oracle-java11-installer
+sudo apt install oracle-java8-installer
+
+
+sudo apt install libjansson-dev -y
+sudo apt install libjsoncpp-dev -y
+sudo apt install libcurl4-gnutls-dev -y
+sudo apt install libcurl4-openssl-dev
+//sudo apt install libgoogle-glog-dev -y
+
+
+protobuf资料             http://linghutf.github.io/2016/06/08/protobuf/
+
+//使用update-rc.d添加自启动
+//sudo update-rc.d ServiceCore defaults
+//
+//如果要删除这个服务, 则:
+//sudo update-rc.d ServiceCore remove
+
+
+
+安装
+sudo mkdir -p /usr/share/servicecore/bin
+sudo cp ServiceCore /usr/share/servicecore/bin
+sudo cp -r POC /usr/share/servicecore
+sudo cp servicecore.conf /etc/servicecore.conf
+
+SUPERVISOR守护进程
+sudo apt install supervisor -y
+sudo cp supervisor_core.conf /etc/supervisor/conf.d
+sudo supervisorctl reload
+
+
+如果你已经是 root 用户了，那么可以重新挂载待操作分区为可读写分区即可消除 “Read-only file system” 问题
+mount -o remount,rw /system
+在你对文件操作完毕之后，务必要把被操作分区的读写权限修改回只读。
+mount -o remount,ro /system
+
+
+
+
+rush的自启脚本是/system/bin/lazy-start.sh，在里面加入
+
+sleep 5
+svc power stayon true
+nohup /data/data/ru.meefik.linuxdeploy/files/bin/linuxdeploy -p linux start -m >/dev/null 2>&1 &
+
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.6.0.deb
+wget https://artifacts.elastic.co/downloads/kibana/kibana-6.6.0-amd64.deb
+wget https://artifacts.elastic.co/downloads/logstash/logstash-6.6.0.deb
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+
+apt update
+apt -y install elasticsearch
+
+echo "ccpy:\c"
+adb shell getprop ro.product.brand
+echo "ccid:\c" 
+adb shell service call iphonesubinfo 1 | sed -n '/[0-9]\./p' |sed ':a;N;s/\n/\t/;ba;'|sed 's/0x[0-9]\{8\}\|)//g'|sed 's/[0-9a-f]\{8\}//g' |sed 's/[[:punct:][:space:]]//g'
+echo "cmac:\c"
+adb shell cat /sys/class/net/wlan0/address
+echo "wlan:\c"
+adb shell ifconfig 2> /dev/null |sed 's/.*127.0.0.1.*//g'|sed -n '/Bcast\|broadcast/p' |sed 's/.*\(addr:\|inet \)\([0-9.]*\).*/\2/g'
+echo "tun0:\c"
+adb shell ifconfig tun0 2> /dev/null |sed -n '/inet addr:/p' |sed 's/.*addr:\([0-9.]*\).*/\1/g'
+//#default
+touch test.c |gcc -E -dM -c test.c >> marco_x86_64.txt
+
+

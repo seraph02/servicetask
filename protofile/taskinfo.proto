@@ -1,0 +1,38 @@
+package SCPROTO;
+
+message TaskInfo {
+    required string id = 1;
+    required int32 progress=2;
+    optional int32  ctime = 3;
+    optional int32  ptime = 4;
+    optional int32  rtime = 5;
+    optional int32  etime = 6;
+	enum TaskStatus {
+		Default=0;
+		Create=1;
+		Running=2;
+		Complete=3;
+		Stop=4;
+		TimeOut=5;
+	};
+    required TaskStatus status = 7;
+    optional string nodeid = 8;
+    repeated string info=9; 
+    repeated string key=10;
+    optional int32 type=11;
+    optional int32 datacount=12;
+    
+}
+
+message TaskPoc {
+    repeated string list=1;
+}
+
+message TaskResult {
+    required string info =1;
+    required string json =2;
+    repeated string filelist=3;
+    required string dataclassify=4;
+}
+
+

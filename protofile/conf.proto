@@ -1,0 +1,12 @@
+package SCPROTO;
+
+message ConfInfo {
+	optional string NetDISKPATH =1;
+	optional string POCPATH =2;
+	optional string ESHOST =3;
+	optional string ESPORT =4;
+	optional string LOGPATH=5;
+	optional string TASKTMPPATH =6;	
+
+}
+

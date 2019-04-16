@@ -1,0 +1,35 @@
+#!/bin/bash
+ 
+SERVERNAME="ServiceCore"
+ 
+start()
+{
+    echo "start $SERVERNAME"
+    /usr/share/servicecore/bin/$SERVERNAME -c /etc/servicecore.conf -D
+    echo "start $SERVERNAME ok!"
+    exit 0;
+}
+ 
+stop()
+{
+    echo "stop $SERVERNAME"
+    killall $SERVERNAME
+    echo "stop $SERVERNAME ok!"
+}
+ 
+case "$1" in
+start)
+    start
+    ;;
+stop)
+    stop
+    ;;
+restart)
+    stop
+    start
+    ;;
+*)
+    echo "usage: $0 start|stop|restart"
+    exit 0;
+esac
+exit
