@@ -4,6 +4,7 @@
 #include "manager_info.h"
 #include <jsoncpp2pb.h>
 #include "bin2ascii.h"
+#include <boost/algorithm/string.hpp>
 using namespace std;
 using google::protobuf::Message;
 using namespace SCPROTO;
@@ -13,12 +14,16 @@ inline int GetTaskTol(TaskInfo info)
 {
     return info.key().size()>0?info.key_size() * info.info_size():info.info_size();;
 }
+
 inline string GetKey(TaskInfo info)
 {
     if(info.key_size()<1) return "";
     int keyid = info.info_size()!=0?info.progress()/info.info_size():0;
     if(keyid>info.info_size()) keyid-=1;
-    return info.key(keyid).c_str();
+    string tmp = info.key(keyid);
+    boost::trim_left(tmp);//去掉字符串左边空格
+    boost::trim_right(tmp);//去掉字符串右边空格
+    return tmp;
 }
 inline string GetInfo(TaskInfo info)
 {
