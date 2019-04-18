@@ -22,3 +22,12 @@ ln -s NetFace.jar twitter
 ln -s NetFace.jar firechat
 ln -s NetFace.jar facebookMessage
 ln -s NetFace.jar alipay
+
+ln -s NetFace.jar dropbox
+ln -s NetFace.jar instagram
+ln -s NetFace.jar taobao
+ln -s NetFace.jar hotmail
+ln -s NetFace.jar gmail
+ln -s NetFace.jar yahoo
+ln -s NetFace.jar outlook
+ln -s NetFace.jar shenxun
