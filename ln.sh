@@ -20,7 +20,7 @@ ln -s NetFace.jar skype
 ln -s NetFace.jar tumblr
 ln -s NetFace.jar twitter
 ln -s NetFace.jar firechat
-ln -s NetFace.jar facebookMessage
+ln -s NetFace.jar messenger
 ln -s NetFace.jar alipay
 
 ln -s NetFace.jar dropbox
