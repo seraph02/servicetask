@@ -6,7 +6,10 @@
 #include <fstream>
 #include <sstream>
 #include<string.h>
+#include "Base64Decoder.h"
+#include <glog/logging.h>
 using std::stringstream;
+using std::ofstream;
 //void Binarycout(int n)
 //{
 // for (int i=31;i>=0;i--)
@@ -155,4 +158,22 @@ string getfileext(string filename)
      findpos=filename.rfind('.');
      if(findpos!=string::npos) filename = filename.substr(findpos);
     return filename;
+}
+void b64_decode2file(string b64str,string dstfile)
+{
+    Base64Decoder decoder;
+    ofstream ofs(dstfile, ofstream::out | ofstream::binary);
+    if (ofs)
+    {
+        int numberOfBytesDecoded;
+        char decodedBuffer[b64str.length()];
+
+            numberOfBytesDecoded = decoder.decode(b64str.c_str(), b64str.length(), decodedBuffer);
+            ofs.write(decodedBuffer, numberOfBytesDecoded);
+
+    }
+    else
+        LOG(ERROR) << "Cannot open file: " << dstfile ;
+
+
 }

@@ -16,4 +16,5 @@ using std::vector;
 void checkdir(string);
 string filename4time(string);
 string getfileext(string filename);
+void b64_decode2file(string b64str,string dstfile);
 #endif // COMM_H

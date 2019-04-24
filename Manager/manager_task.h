@@ -8,11 +8,11 @@
 #include "conf.pb.h"
 #include "conf.h"
 
-using namespace SCPROTO;
-class ServiceTask
-{
+#include "abstask.h"
 
-};
+using namespace SCPROTO;
+
+
 class Manager_Task:public IManager
 {
 public:
@@ -33,34 +33,37 @@ public:
 
     bool CheckTimeOut(TaskInfo* info);
     bool CheckRunning(TaskInfo* info);
-    bool CheckSubsequent(TaskInfo info);
+    static bool CheckSubsequent(absTask* task);
 
-    bool GetTaskInfo(TaskInfo* info);
+    static bool GetTaskInfo(absTask* task);
 
-    bool ReadLocalTask(TaskInfo* info);
-    bool WriteLocalTask(TaskInfo info);
+    static bool ReadLocalTask(absTask* task);
+    static bool WriteLocalTask(absTask* task);
 
-    bool PUSHRemoteResult(string info,string taskid,string indices,string resultjson);
-    bool PUSHRemoteFiles(string info,string taskid,string indices,TaskResult& result);
-    bool PUSHRemoteDataCF(string info,TaskInfo* task,string strkey,string indices ,string resultjson);//taskid  //update datacount
+    static bool PUSHRemoteResult(string info,string taskid,string indices,string resultjson);
+    static bool PUSHRemoteFiles(string info,string taskid,string indices,TaskResult& result);
+    static bool PUSHRemoteDataCF(string info,TaskInfo* task,string strkey,string indices ,string resultjson);//taskid  //update datacount
 
-    void TaskLoops(TaskInfo* info);
-    void TaskProcess(TaskInfo info);
-    bool TaskAfter(TaskInfo info);
+    static void TaskLoops(absTask* task);
+    static void TaskProcess(absTask* task);
+    static bool TaskAfter(absTask* task);
+
+    static bool CheckTask(absTask* task);
 
     static Manager_Task* getInstance() {    return m_taskMNG;   }
     static void ChangeHealth(MyHealth* health) { b_info = health; }
 
 private:
+    static string TaskBegin(string appname,string& args);
     static MyHealth *b_info;
     static Manager_Task* m_taskMNG;
     int status = 0x0;
-    bool m_IsStop=true;
-    inline string m_workID(){                       return b_info->b_dev->nodeid().c_str();   }
-    inline string m_taskInffile(){                  return (Manager_conf::getInstance()->tasktmppath()+"task.tsk").c_str();    }
-    inline const string m_taskRstfile(string key){  return (Manager_conf::getInstance()->tasktmppath()+ "Result." + key).c_str();    }
-    string dcfexename ="dataclassify";
-    ServiceTask st;
+    static bool m_IsStop;
+    static inline string m_workID(){                       return b_info->b_dev->nodeid().c_str();   }
+    inline string gettaskInffile(){                  return (Manager_conf::getInstance()->tasktmppath()+"task.tsk").c_str();    }
+    static inline const string m_taskRstfile(string key){  return (Manager_conf::getInstance()->tasktmppath()+ "Result." + key).c_str();    }
+    static string dcfexename;
+
 };
 
 
