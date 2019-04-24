@@ -5,7 +5,7 @@
 #include "manager_task.h"
 #include "jsoncpp2pb.h"
 #include "conf.h"
-
+#include "taskunit.h"
 using namespace SCPROTO;
 
 
@@ -33,5 +33,11 @@ void Manager_Core::SelfCHK_Heartbeat_Thread(void *arg)
 void Manager_Core::Work_Heartbeat_Thread(void *arg)
 {
 //    LOG(INFO)<<"work heartbeat "<<endl;
-    Manager_Task::getInstance()->run();
+//    Manager_Task::getInstance()->run();
+    string taskfilename = Manager_conf::getInstance()->tasktmppath()+"task.tsk";
+    TaskUnit taskunit;
+    taskunit.setfilename4task(taskfilename);
+    taskunit.gettask();
+    taskunit.run();
+//    taskunit.after();
 }

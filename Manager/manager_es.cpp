@@ -109,7 +109,7 @@ void Manager_ES::UpdateDevInfo(string nodeid,string putstrjson)
 void Manager_ES::UpdateTaskInfo(string taskid,string putstrjson)
 {
 
-
+    if(taskid.empty()) return;
 
     try
     {

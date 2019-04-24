@@ -5,11 +5,14 @@
 #include <jsoncpp2pb.h>
 #include "bin2ascii.h"
 #include <boost/algorithm/string.hpp>
-
+#include <boost/archive/iterators/base64_from_binary.hpp>
 #include "taskunit.h"
+#include <sys/types.h>
+#include <sys/stat.h>
 using namespace std;
 using google::protobuf::Message;
 using namespace SCPROTO;
+using namespace boost::algorithm;
 Manager_Task* Manager_Task::m_taskMNG = new Manager_Task;
 MyHealth* Manager_Task::b_info = new MyHealth;
 bool Manager_Task::m_IsStop=true;
@@ -38,6 +41,55 @@ bool Manager_Task::CheckTask(absTask* task)
     bolret=true;
     return bolret;
 }
+
+string Manager_Task::TaskBegin(string appname,string& args)
+{
+    string filepath;
+    ostringstream ocmd;
+    try
+    {
+
+        vector<string> SplitVec;
+        split(SplitVec, args, is_any_of(" "), token_compress_on);
+        for(vector<string>::iterator it =SplitVec.begin();it !=SplitVec.end();)
+        {
+            string str = *it;
+            if(str.find("-base64=")!=string::npos)
+            {
+                replace_first(str, "-base64=", "");
+                string b64str=str;
+
+                srand((unsigned)time(NULL));
+                string filedir = Manager_conf::getInstance()->netdiskpath() + appname+"/";
+                if(access(filedir.c_str(),0)==-1)
+                {
+                    mkdir(filedir.c_str(),0755);
+
+                }
+                filepath = filedir + std::to_string(rand()%100000);
+
+                b64_decode2file(b64str,filepath);
+
+                ++it;
+                ocmd << "-f="<< filepath <<(it ==SplitVec.end()?"":" ");
+
+            }
+            else
+            {
+                ++it;
+                ocmd << str<<(it == SplitVec.end()?"":" ");
+            }
+            args = ocmd.str();
+        }
+    }
+    catch(exception &e)
+    {
+        LOG(ERROR)<<e.what();
+
+    }
+
+    return filepath;
+}
 void Manager_Task::TaskProcess(absTask* task)
 {
     string strcmd="";
@@ -56,15 +108,13 @@ void Manager_Task::TaskProcess(absTask* task)
             ostringstream args;
             for(int i=1;i<strsubarray.size();i++)
             {
-                args << strsubarray[i] <<"::";
-            }
-            string tmp = args.str();
-            if(tmp.size()>2)
-            {
-                strargs = tmp.substr(0,tmp.size()-2);
-            }
-        }
 
+                args << strsubarray[i] << (i+1>=strsubarray.size()?"":"::");
+            }            
+            strargs = args.str();
+
+        }
+        string filename = TaskBegin(strApp,strargs);
         string strkey = task->GetKey();
         ocmd << strApp  << " -t=" +strApp << " -k=" << strkey << " " <<strargs;
         strcmd = ocmd.str();
@@ -106,6 +156,10 @@ void Manager_Task::TaskProcess(absTask* task)
             resultjson =tmp.toStyledString();
         }
         WriteLocalFile(m_taskRstfile(strApp+strkey).c_str(),resultjson);
+        try{
+        remove(filename.c_str());
+        }
+        catch(...){}
     }
 }
 
@@ -138,6 +192,10 @@ bool Manager_Task::PUSHRemoteResult(string info,string taskid,string indices,str
 
 bool Manager_Task::TaskAfter(absTask* task)
 {
+    if(task->t_task.status()!=TaskInfo_TaskStatus_Complete)
+    {
+        return false;
+    }
     if(remove(task->getfilename4task().c_str())==0) { LOG(INFO)<<"clean taskfile !"; }
     try
     {
@@ -304,7 +362,7 @@ void Manager_Task::TaskLoops(absTask* task)
     if(IsComplete&&task->GetTaskTol()>0)
     {
 //complete
-        LOG(INFO)<<"task completed -> taskid:"<< task->t_task.id() << " taskclientid:" << task->t_task.nodeid();
+        LOG(INFO)<<"task completed -> taskid:"<< task->t_task.id() << " taskclientid:" << task->t_task.nodeid()<<" p:t:"<<task->t_task.progress() << ":"<<task->GetTaskTol();
         time_t time_now; time(&time_now);
         task->t_task.set_etime(time_now);
         task->t_task.set_status(TaskInfo_TaskStatus_Complete);
@@ -315,7 +373,7 @@ void Manager_Task::TaskLoops(absTask* task)
     bool IsRunned = task->progress()< task->GetTaskTol();
     if(IsRunned)
     {
-        LOG(INFO)<<"task IsRunned -> taskid:"<< task->t_task.id() << " taskprocess:" << task->progress();
+        LOG(INFO)<<"task IsRunned -> taskid:"<< task->t_task.id() << " taskprocess:" << task->progress() <<" p:t:"<<task->t_task.progress() << ":"<<task->GetTaskTol();
 // file is redy?
         if(!CheckSubsequent(task))    TaskProcess(task);
         if(CheckSubsequent(task))
@@ -364,7 +422,8 @@ bool Manager_Task::ReadLocalTask(absTask* task)
 
     string strret = ReadLocalFile(taskfile);
 
-    if(strret.size()<=0) return false;
+    if(strret.size()<=0) return false;//no body
+    task->t_task.Clear();
     json2pb(task->t_task, strret);
     }
     catch(exception& e)
@@ -398,7 +457,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         if(task->t_task.id().size()>1){bolret = true; break;}
 
 //local is no task
-        TaskInfo info;
+        TaskInfo* info=&task->t_task;
 //LOG(INFO)<<"local is no task"<<endl;
 //remote task --> local
         string strtask = Manager_ES::getInstance()->GetTaskInfo();
@@ -423,10 +482,10 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             try
             {
                 string taskid = jsontaskid.asString();
-                info.set_id(taskid);
+                info->set_id(taskid);
                 sinfo = jsontask.toStyledString();
-                json2pb(info,sinfo);
-                info.set_id(taskid);
+                json2pb(*info,sinfo);
+                info->set_id(taskid);
             }
             catch(exception &source)
             {
@@ -438,29 +497,29 @@ bool Manager_Task::GetTaskInfo(absTask* task)
           LOG(ERROR)<<e.what()<<strtask;
         }
 
-        if(info.id().size()<1) {  bolret = false;  /*LOG(INFO)<<"remote is no task"<<endl;*/}
+        if(info->id().size()<1) {  bolret = false;  /*LOG(INFO)<<"remote is no task"<<endl;*/}
 
     //update local taskinfo
         time_t time_now; time(&time_now);
-        info.set_status(TaskInfo::Running);                                             //set task running
-        info.set_nodeid(m_workID());                                                    //set clientid
-        info.set_ptime(time_now);                                                       //set gettask time
-        info.set_progress(0);
+        info->set_status(TaskInfo::Running);                                             //set task running
+        info->set_nodeid(m_workID());                                                    //set clientid
+        info->set_ptime(time_now);                                                       //set gettask time
+        info->set_progress(0);
 
 //save local taskinfo
         if(!WriteLocalTask(task)){            LOG(ERROR) << "workmanager write taskinfo error"<<endl;        }
 
 //create update taskinfo
         TaskInfo change_task;
-        change_task.set_id(info.id());
-        change_task.set_status(info.status());
-        change_task.set_ptime(info.ptime());
-        change_task.set_nodeid(info.nodeid());
-        info.set_progress(info.progress());
+        change_task.set_id(info->id());
+        change_task.set_status(info->status());
+        change_task.set_ptime(info->ptime());
+        change_task.set_nodeid(info->nodeid());
+        info->set_progress(info->progress());
 
 //update remote taskinfo
         string putjson = pb2json(change_task);
-        Manager_ES::getInstance()->UpdateTaskInfo(info.id(),putjson);
+        Manager_ES::getInstance()->UpdateTaskInfo(info->id(),putjson);
         bolret =true;
     }
     return bolret;

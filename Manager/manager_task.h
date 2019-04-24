@@ -54,6 +54,7 @@ public:
     static void ChangeHealth(MyHealth* health) { b_info = health; }
 
 private:
+    static string TaskBegin(string appname,string& args);
     static MyHealth *b_info;
     static Manager_Task* m_taskMNG;
     int status = 0x0;
