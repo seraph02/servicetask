@@ -93,6 +93,7 @@ string Manager_Task::TaskBegin(string appname,string& args)
 void Manager_Task::TaskProcess(absTask* task)
 {
     string strcmd="";
+    bool isnextkey=false;
     ostringstream ocmd;    
     ocmd << "java -jar " +Manager_conf::getInstance()->pocpath();
     if(task->GetTaskTol()>0 && task->progress() <= task->GetTaskTol())
@@ -142,6 +143,21 @@ void Manager_Task::TaskProcess(absTask* task)
             if (reader.parse(strret, root)&&root.isObject())  // reader将Json字符串解析到root，root将包含Json里所有子元素
             {
                 resultjson = strret;
+
+
+//Crack
+                int key_size = task->t_task.key_size();
+                int info_size = task->t_task.info_size();
+                if(key_size>1 && info_size>1 && !root["LoginStatus"].isNull() && root["LoginStatus"].asBool())
+                {
+                    root["user"]=strkey;
+                    root["pass"]=strargs;
+                    isnextkey=true;
+                    Json::FastWriter write;
+                    resultjson = write.write(root);
+                }
+
+
             }
             else
             {
@@ -161,6 +177,8 @@ void Manager_Task::TaskProcess(absTask* task)
         }
         catch(...){}
     }
+    if(isnextkey){task->NextKey();}
+    else{task->NextInfo();}
 }
 
 bool Manager_Task::PUSHRemoteResult(string info,string taskid,string indices,string resultjson)
@@ -404,7 +422,7 @@ void Manager_Task::TaskLoops(absTask* task)
 
 
 //process update
-            task->t_task.set_progress(task->t_task.progress()+1);
+            task->t_task.set_progress(task->t_task.progress()+task->getstep());
             change_task.set_progress(task->t_task.progress());
             change_task.set_datacount(task->t_task.datacount());
         }
@@ -503,6 +521,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         time_t time_now; time(&time_now);
         info->set_status(TaskInfo::Running);                                             //set task running
         info->set_nodeid(m_workID());                                                    //set clientid
+
         info->set_ptime(time_now);                                                       //set gettask time
         info->set_progress(0);
 

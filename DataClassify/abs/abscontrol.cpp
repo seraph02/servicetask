@@ -12,10 +12,10 @@
 #include <glog/logging.h>
 #include "comm.h"
 #include "boost/algorithm/string/replace.hpp"
-#ifdef linux
+
 #include <unistd.h>
 #include <dirent.h>
-#endif
+
 #ifdef WIN32
 #include <direct.h>
 #include <io.h>
@@ -50,7 +50,7 @@ vector<string> getFiles(string cate_dir)
     _findclose(lf);
 #endif
 
-#ifdef linux
+
     DIR *dir;
     struct dirent *ptr;
     char base[1000];
@@ -86,7 +86,7 @@ vector<string> getFiles(string cate_dir)
         }
     }
     closedir(dir);
-#endif
+
 
     //排序，按从小到大排序
     sort(files.begin(), files.end());
@@ -288,7 +288,13 @@ void absControl::work()
             LOG(ERROR)<<e.what()<<"parse error"<<file<<">>"<<filebody;
             continue;
         }
-        if(filename.rfind("contacts")!=string::npos)
+        if(filename.rfind("dialog")!=string::npos)
+        {
+            ProcessDialog(jarray);
+        }else if(filename.rfind("channel")!=string::npos)
+        {
+            ProcessChannel(jarray);
+        }else if(filename.rfind("contacts")!=string::npos ||filename.rfind("contact")!=string::npos)
         {
             ProcessContacts(jarray);
         }
@@ -337,4 +343,38 @@ void absControl::ProcessMessage(Json::Value jbody)
     }
 
 
+}
+void absControl::ProcessDialog(Json::Value jbody)
+{
+    for(int ind =0;ind<jbody.size();ind++)
+    {
+        Json::Value jones = jbody[ind];
+        if(jones.isNull() || !jones.isObject()) continue;
+        filterdialog(jones);
+        jbody[ind]=jones;
+
+    }
+    Json::Value jelement;
+    jelement["type"]="dialog";
+    jelement["body"]=jbody;
+    Json::FastWriter jwrite;
+    string strcontacts = jwrite.write(jelement);
+    rst.putjson(strcontacts);
+}
+void absControl::ProcessChannel(Json::Value jbody)
+{
+    for(int ind =0;ind<jbody.size();ind++)
+    {
+        Json::Value jones = jbody[ind];
+        if(jones.isNull() || !jones.isObject()) continue;
+        filterchannel(jones);
+        jbody[ind]=jones;
+
+    }
+    Json::Value jelement;
+    jelement["type"]="channel";
+    jelement["body"]=jbody;
+    Json::FastWriter jwrite;
+    string strcontacts = jwrite.write(jelement);
+    rst.putjson(strcontacts);
 }

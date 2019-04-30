@@ -35,9 +35,9 @@ void Manager_Core::Work_Heartbeat_Thread(void *arg)
 //    LOG(INFO)<<"work heartbeat "<<endl;
 //    Manager_Task::getInstance()->run();
     string taskfilename = Manager_conf::getInstance()->tasktmppath()+"task.tsk";
-    TaskUnit taskunit;
-    taskunit.setfilename4task(taskfilename);
-    taskunit.gettask();
-    taskunit.run();
+    absTask* taskunit =new TaskUnit;
+    taskunit->setfilename4task(taskfilename);
+    taskunit->gettask();
+    taskunit->run();
 //    taskunit.after();
 }

@@ -9,6 +9,8 @@ public:
     VOXERControl(VOXER* voxer):app(voxer){}
 private:
     virtual void filtermessage(Json::Value& jones);
+    virtual void filteravatar(Json::Value& jones);
+
     VOXER* app;
 };
 

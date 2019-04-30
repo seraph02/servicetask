@@ -18,7 +18,7 @@ public:
 
 protected:
     string filename4task;
-
+    int step;
 protected:
 
 public:
@@ -28,6 +28,10 @@ public:
     static string GetAppName(string strinfo);
     int GetTaskTol();
     int progress();
+    void NextKey();
+    void NextInfo();
+    void setstep(int s){step=s;}
+    int getstep(){int s=step;step=0;return s;}
 };
 
 #endif // ABSTASK_H

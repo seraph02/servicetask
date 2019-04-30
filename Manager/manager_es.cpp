@@ -3,7 +3,7 @@
 #include "cpr/cpr.h"
 #include "urlcode.h"
 #include <elasticlient/client.h>
-
+#include<algorithm>
 using namespace std;
 using namespace elasticlient;
 Manager_ES* Manager_ES::esMNG = new Manager_ES;
@@ -154,8 +154,8 @@ string Manager_ES::GetTaskInfo()
 }
 bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
 {
-    bool bolret=false;
-
+    bool bolret=false;//lowercase
+    transform(indices.begin(), indices.end(), indices.begin(), towlower);
     indices = UrlEncode(indices.c_str());
     cpr::Response crsq;
     try

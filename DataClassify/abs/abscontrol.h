@@ -17,7 +17,11 @@ public:
 protected:
     virtual void filteravatar(Json::Value&){}
     virtual void filtermessage(Json::Value&){}
+    virtual void filterdialog(Json::Value&){}
+    virtual void filterchannel(Json::Value&){}
     virtual void ProcessContacts(Json::Value jbody);
+    virtual void ProcessDialog(Json::Value jbody);
+    virtual void ProcessChannel(Json::Value jbody);
     virtual void ProcessMessage(Json::Value jbody);
 protected:
     string body;

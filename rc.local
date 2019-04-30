@@ -2,4 +2,5 @@
 sysctl -p
 service supervisor start
 service apache2 start
+export LC_ALL="zh_CN.UTF-8"
 

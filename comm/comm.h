@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <chrono>
 
 using std::string;
 using std::vector;
@@ -17,4 +18,5 @@ void checkdir(string);
 string filename4time(string);
 string getfileext(string filename);
 void b64_decode2file(string b64str,string dstfile);
+std::tm* gettm(int64_t timestamp);
 #endif // COMM_H

@@ -2,7 +2,6 @@
 #define VOXER_H
 #include<iostream>
 #include "absapp.h"
-#include "abscontrol.h"
 
 
 class VOXER:public absAPP

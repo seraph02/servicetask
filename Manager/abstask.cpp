@@ -33,3 +33,15 @@ int absTask::progress()
 {
     return t_task.progress();
 }
+void absTask::NextKey()
+{
+    int progress = t_task.progress();
+    int infosize = t_task.info_size();
+    progress +=infosize-progress%infosize;
+    setstep(progress);
+}
+void absTask::NextInfo()
+{
+//    int progress = t_task.progress();
+    setstep(1);
+}

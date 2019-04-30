@@ -12,3 +12,17 @@ curl -XDELETE localhost:9200/task/taskinfo/id
 curl -XPUT "http://localhost:9200/config"
 curl -H "Content-Type: application/json" -XPOST 'http://localhost:9200/config/config/task?pretty=true' -d '{"list":["alipay","facebookmessage","firechat","imo","meetup","qq","quora","skype","tumblr","twitter","viber","wechat","yixin"]}'
 
+
+
+
+
+./esm -d http://192.168.1.57:9200 -y "keydamara032" --refresh -i=keydamara032.bin
+./esm -s http://192.168.1.59:9200 -x "keydamara032" --refresh -o=keydamara032.bin
+
+
+
+//health is red ,
+curl -XPUT "http://localhost:9200/_settings" -d' {  "number_of_replicas" : 0 } '
+
+
+
