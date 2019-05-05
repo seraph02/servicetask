@@ -51,7 +51,15 @@ void Manager_Info::run()
                     DevInfo changedev;
                     time_t time_now; time(&time_now);
                     changedev.set_etime(time_now);
+                    long ltime = this->health->b_dev->etime();
 
+                    std::tm* tmtoday = gettm(time_now*1000);
+                    std::tm* tm = gettm(ltime*1000);
+                    if(tm->tm_year==tmtoday->tm_year&&tm->tm_mon==tmtoday->tm_mon&&tm->tm_mday)  {        }
+                    else
+                    {
+                       changedev.set_json("");
+                    }
                     string putstrjson = pb2json(changedev);
                     Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
 
@@ -108,18 +116,7 @@ void Manager_Info::Updatetasklist(string appname)
     string strjson = this->health->b_dev->json();
     Json::Reader jsonread;
     Json::Value jsonlist;
-    long ltime = this->health->b_dev->etime();
-    time_t time_now;time(&time_now);
-    std::tm* tmtoday = gettm(time_now*1000);
-    std::tm* tm = gettm(ltime*1000);
-    if(tm->tm_year==tmtoday->tm_year&&tm->tm_mon==tmtoday->tm_mon&&tm->tm_mday)
-    {
 
-    }
-    else
-    {
-        strjson="";
-    }
 
     bool isok = jsonread.parse(strjson,jsonlist);
     bool isfind=false;

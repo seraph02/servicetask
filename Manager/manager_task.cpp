@@ -275,14 +275,15 @@ void resultAddfiles(TaskResult* result,string strjson)
 }
 bool Manager_Task::PUSHRemoteFiles(string info,string taskid,string indices,TaskResult& result)
 {
-    try
-    {
+
 
 //result file array
         if(result.filelist_size()>0)
         {
             for(int j=0;j<result.filelist_size();j++)
             {
+                try
+                {
                 //readfile
                 string filename = result.filelist(j);
                 string fileext = strrchr(filename.c_str(), '.');
@@ -300,18 +301,18 @@ bool Manager_Task::PUSHRemoteFiles(string info,string taskid,string indices,Task
 
                 std::string strpostdata=jfw.write(jsondata);
                 bool IsOK = Manager_ES::getInstance()->POSTTaskResult(indices,strpostdata);
-
+                }
+                catch(exception &e)
+                {
+                    LOG(ERROR)<<"result file array"<<e.what();
+                }
 
             }
 
 
 
         }
-    }
-    catch(exception &e)
-    {
-        LOG(ERROR)<<"result file array"<<e.what();
-    }
+
 }
 bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,string indices ,string resultjson)
 {

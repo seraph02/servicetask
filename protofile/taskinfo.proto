@@ -21,6 +21,7 @@ message TaskInfo {
     repeated string key=10;
     optional int32 type=11;
     optional int32 datacount=12;
+    optional string rootid=13;
     
 }
 
