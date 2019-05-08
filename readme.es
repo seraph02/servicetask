@@ -25,4 +25,9 @@ curl -H "Content-Type: application/json" -XPOST 'http://localhost:9200/config/co
 curl -XPUT "http://localhost:9200/_settings" -d' {  "number_of_replicas" : 0 } '
 
 
-
+curl -X POST "localhost:9200/twitter/_doc/_delete_by_query?conflicts=proceed" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "match_all": {}
+  }
+}

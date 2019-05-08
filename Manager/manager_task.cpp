@@ -326,8 +326,9 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
     string DataClassifycmd;
     DataClassifycmd = sscmd.str();
     LOG(INFO)<<"runshell :"<<DataClassifycmd.c_str();
-    string strret= RunShell(DataClassifycmd.c_str());
-//    LOG(INFO)<< " => " << strret;
+    RunShell(DataClassifycmd.c_str());
+    string strret= ReadLocalFile("datareslut");
+    LOG(INFO)<< " => " << strret;
     if(strret.compare("-1")==0 || strret.size()<3) return true;
 
 //            result.set_dataclassify(strret);
@@ -335,7 +336,7 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
 //result dataclassify
     if(strret.size()>10)
     {
-        task->set_datacount(task->datacount()+1);
+//        task->set_datacount(task->datacount()+1);
         Json::Value jdataclassify;
         Json::Reader jread;
         jread.parse(strret,jdataclassify);
@@ -353,8 +354,7 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
 
                 std::string strpostdata=jfw.write(jsondata);
                 Manager_ES::getInstance()->POSTTaskResult(indices,strpostdata);
-
-                task->set_datacount(task->datacount()+1);
+                if(type.compare("message")==0){  task->set_datacount(task->datacount()+1);}
 
             }
 
@@ -479,29 +479,23 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         TaskInfo* info=&task->t_task;
 //LOG(INFO)<<"local is no task"<<endl;
 //remote task --> local
-        string strtask = Manager_ES::getInstance()->GetTaskInfo();
+        string strtaskid = Manager_ES::getInstance()->GetNewTaskId();
+        if(strtaskid.empty()) break;
+        string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid);
         try
         {
             Json::Value jsonRoot; Json::Reader reader;
             if (!reader.parse(strtask, jsonRoot)) continue;
-            Json::Value hitslist = jsonRoot["hits"]["hits"];
-            Json::Value jsontask; Json::Value jsontaskid;
-            if(!hitslist.isArray()) continue;
-            for(int hiti=0;hiti<hitslist.size();hiti++)
-            {
-                Json::Value jsonite = hitslist[hiti];
-                jsontaskid = jsonite["_id"];
-                Json::Value source = jsonite["_source"];
-                if(source.isObject()) { jsontask = source; break;  }
-            }
-
+            task->version = jsonRoot["_version"].asInt();
+            Json::Value jsontaskid=jsonRoot["_id"];
+            Json::Value jsontask = jsonRoot["_source"];
             if(!jsontask.isObject()||!jsontaskid.isString()) continue;
 
             string sinfo;
             try
             {
                 string taskid = jsontaskid.asString();
-                info->set_id(taskid);
+
                 sinfo = jsontask.toStyledString();
                 json2pb(*info,sinfo);
                 info->set_id(taskid);
@@ -526,8 +520,6 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         info->set_ptime(time_now);                                                       //set gettask time
         info->set_progress(0);
 
-//save local taskinfo
-        if(!WriteLocalTask(task)){            LOG(ERROR) << "workmanager write taskinfo error"<<endl;        }
 
 //create update taskinfo
         TaskInfo change_task;
@@ -539,7 +531,16 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 
 //update remote taskinfo
         string putjson = pb2json(change_task);
-        Manager_ES::getInstance()->UpdateTaskInfo(info->id(),putjson);
+        int intret =Manager_ES::getInstance()->UpdateTaskInfo(info->id(),putjson,task->version);
+        if(intret==0)
+        {
+//save local taskinfo
+        if(!WriteLocalTask(task)){            LOG(ERROR) << "workmanager write taskinfo error"<<endl;        }
+        }
+        else
+        {
+            bolret=false;
+        }
         bolret =true;
     }
     return bolret;

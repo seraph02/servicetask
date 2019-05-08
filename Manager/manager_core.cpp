@@ -6,12 +6,16 @@
 #include "jsoncpp2pb.h"
 #include "conf.h"
 #include "taskunit.h"
+#include <glog/logging.h>
 using namespace SCPROTO;
 
 
-void Manager_Core::Init()
+bool Manager_Core::Init()
 {
+    if(m_info.b_dev->ip().empty()) return false;
     ConfInfo* conf = Manager_conf::getInstance();
+    LOG(INFO)<<m_info.b_dev->ip();
+    conf->set_eshost(m_info.b_dev->ip());
     Manager_ES::ChangeHosts({"http://"+conf->eshost()+":"+conf->esport()+"/"});
 
     Manager_Info::ChangeHealth(&m_info);

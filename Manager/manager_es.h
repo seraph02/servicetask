@@ -11,9 +11,12 @@ public:
     bool IsAction();
     string GetESInfo();
     string GetDevInfo(string nodeid);
-    string GetTaskInfo();
+    string GetTaskInfo(string docid);
+    string GetNewTaskId();
+    int UpdateTaskInfo(string taskid,string putstrjson);
+    int UpdateTaskInfo(string taskid,string putstrjson,int version);
     void UpdateDevInfo(string nodeid,string putstrjson);
-    void UpdateTaskInfo(string taskid,string putstrjson);
+
     bool POSTTaskResult(string indices,string strpostjson);
     virtual void Update(int status){}
     static Manager_ES* getInstance()

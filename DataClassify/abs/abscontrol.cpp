@@ -180,6 +180,8 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
             outfilename:   下载文件指定的文件名
 */
 int DOWNLOAD_FILE(const char* url, const char outfilename[FILENAME_MAX]){
+    try
+    {
     CURL *curl;
     FILE *fp;
     CURLcode res;
@@ -237,6 +239,11 @@ int DOWNLOAD_FILE(const char* url, const char outfilename[FILENAME_MAX]){
     }
     curl_global_cleanup();
     return 0;
+    }
+    catch(...)
+    {
+        return 1;
+    }
 
 }
 

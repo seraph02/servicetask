@@ -17,9 +17,10 @@ void FBMControl::filteravatar(Json::Value& jones)
         checkdir(path_dir);
         string fileext=getfileext(avatar);
         string path= path_dir + filename4time(fileext);
-        DOWNLOAD_FILE(avatar.c_str(),path.c_str());
-        jones["avatarUrl"]=(GetCurrPath()+path).c_str();
-
+        if(DOWNLOAD_FILE(avatar.c_str(),path.c_str())==0)
+        {
+            jones["avatarUrl"]=(GetCurrPath()+path).c_str();
+        }
     }
 }
 

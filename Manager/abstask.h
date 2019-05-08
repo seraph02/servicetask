@@ -26,6 +26,7 @@ public:
     string GetInfo();
     string GetKey();
     static string GetAppName(string strinfo);
+    int version=0;
     int GetTaskTol();
     int progress();
     void NextKey();

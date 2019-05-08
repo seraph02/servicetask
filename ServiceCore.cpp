@@ -107,12 +107,12 @@ int main(int argc, char* argv[])
     }
 
 
-    if(conf->tasktmppath().size()<1)  conf->set_tasktmppath("tasks/");
-    if(conf->logpath().size()<1) conf->set_logpath("log/");
-    if(conf->pocpath().size()<1) conf->set_pocpath("POC/");
+    if(conf->tasktmppath().size()<1)  conf->set_tasktmppath("../tasks/");
+    if(conf->logpath().size()<1) conf->set_logpath("../log/");
+    if(conf->pocpath().size()<1) conf->set_pocpath("../POC/");
     if(conf->eshost().size()<1) conf->set_eshost("localhost");
     if(conf->esport().size()<1) conf->set_esport("9200");
-    if(conf->netdiskpath().size()<1) conf->set_netdiskpath("netdisk/");
+    if(conf->netdiskpath().size()<1) conf->set_netdiskpath("/disk/data/");
 
 
 
@@ -165,9 +165,20 @@ int main(int argc, char* argv[])
 
     try
     {
-        Manager_Core::getInstance()->Init();
+        bool bolinit=false;
+        do
+        {
+            bolinit = Manager_Core::getInstance()->Init();
+            if(!bolinit)
+            {
+                sleep(5);
+            }
+        }
+        while(!bolinit);
 
-        while(1){}
+        while(1){
+            sleep(100);
+        }
 
 
     }

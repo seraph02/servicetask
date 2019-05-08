@@ -15,7 +15,7 @@ private:
     static void SelfCHK_Heartbeat_Thread(void *arg);		//selfchecking定时器任务函数
     static void Work_Heartbeat_Thread(void *arg);          //work定时器任务函数
 public:
-    void Init();
+    bool Init();
     static Manager_Core* getInstance() {
         return core;
     }

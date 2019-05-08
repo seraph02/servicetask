@@ -45,7 +45,7 @@ void MyHealth::SetDevInfo(DevInfo *info)
     try
     {
     string str_tmp = pb2json(*info);
-    json2pb(*b_dev,str_tmp);
+    SetDevInfo(str_tmp);
     }
     catch(...)
     {

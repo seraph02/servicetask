@@ -4,6 +4,7 @@
 #include "urlcode.h"
 #include <elasticlient/client.h>
 #include<algorithm>
+#include<jsoncpp/json/json.h>
 using namespace std;
 using namespace elasticlient;
 Manager_ES* Manager_ES::esMNG = new Manager_ES;
@@ -106,23 +107,46 @@ void Manager_ES::UpdateDevInfo(string nodeid,string putstrjson)
 //        cout<<"CURL ERROR :"<<e.what()<<endl;
     }
 }
-void Manager_ES::UpdateTaskInfo(string taskid,string putstrjson)
+int Manager_ES::UpdateTaskInfo(string taskid,string putstrjson)
 {
 
-    if(taskid.empty()) return;
+    if(taskid.empty()) return 1;
 
     try
     {
         Client es(m_hosts);
 
-        string strpath ="task/taskinfo/"+taskid+"/_update";
+//        string strpath ="task/taskinfo/"+taskid+"/_update";
         std::string strmsg="{ \"doc\" : " + putstrjson +" }";
         string strret ;
         cpr::Response crsp = es.index("task","taskinfo",taskid+"/_update",strmsg);
         if(crsp.status_code > 300 ||crsp.status_code <200)
         {
-            LOG(INFO)<<"error: curl: "<<crsp.status_code<<"/"<<strpath<<crsp.text<<" --> "<<strmsg;
-            return ;
+            LOG(INFO)<<"error: curl: "<<crsp.status_code<<"/"<<crsp.url<<crsp.text<<" --> "<<strmsg;
+            return crsp.status_code;
+        }
+        strret = crsp.text;
+    }
+    catch(exception& e)
+    {
+        LOG(ERROR)<<"CURL ERROR :"<<e.what();
+    }
+}
+int Manager_ES::UpdateTaskInfo(string taskid,string putstrjson,int version)
+{
+
+    if(taskid.empty()) return 1;
+
+    try
+    {
+        Client es(m_hosts);
+        std::string strmsg="{ \"doc\" : " + putstrjson +" }";
+        string strret ;
+        cpr::Response crsp = es.index("task","taskinfo",taskid+"/_update"+"?version="+to_string(version),strmsg);
+        if(crsp.status_code > 300 ||crsp.status_code <200)
+        {
+            LOG(INFO)<<"error: curl: "<<crsp.status_code<<"/"<<crsp.url<<crsp.text<<" --> "<<strmsg;
+            return crsp.status_code;
         }
         strret = crsp.text;
     }
@@ -132,7 +156,7 @@ void Manager_ES::UpdateTaskInfo(string taskid,string putstrjson)
     }
 }
 //get remote task
-string Manager_ES::GetTaskInfo()
+string Manager_ES::GetNewTaskId()
 {
     std::string strret;
     cpr::Response crsp;
@@ -140,6 +164,47 @@ string Manager_ES::GetTaskInfo()
     {
         Client es(m_hosts);
         crsp = es.get("task","taskinfo","_search?q=status:1&size=1");
+        if(crsp.status_code > 300 ||crsp.status_code <200)
+        {
+           LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
+        }
+//        strret = crsp.text;
+        string crsptext=crsp.text;
+        try
+        {
+            Json::Value jsonRoot; Json::Reader reader;
+            if (!reader.parse(crsptext.c_str(), jsonRoot)) return strret;
+ //           task->version = jsonRoot
+            Json::Value hitslist = jsonRoot["hits"]["hits"];
+            Json::Value jsontask; Json::Value jsontaskid;
+            if(!hitslist.isArray()) return strret;
+            for(int hiti=0;hiti<hitslist.size();hiti++)
+            {
+                Json::Value jsonite = hitslist[hiti];
+                jsontaskid = jsonite["_id"];
+                if(jsontaskid.isString())
+                {
+                    return jsontaskid.asCString();
+                }
+            }
+        }
+        catch(...)
+        {}
+    }
+    catch(exception &e)
+    {
+        LOG(ERROR)<<e.what()<<crsp.url<<"--"<<strret;
+    }
+    return strret;
+}
+string Manager_ES::GetTaskInfo(string docid)
+{
+    std::string strret;
+    cpr::Response crsp;
+    try
+    {
+        Client es(m_hosts);
+        crsp = es.get("task","taskinfo",docid);
         if(crsp.status_code > 300 ||crsp.status_code <200)
         {
            LOG(ERROR)<<crsp.url<<"--"<<crsp.text;

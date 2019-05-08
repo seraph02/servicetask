@@ -53,9 +53,9 @@ void Manager_Info::run()
                     changedev.set_etime(time_now);
                     long ltime = this->health->b_dev->etime();
 
-                    std::tm* tmtoday = gettm(time_now*1000);
-                    std::tm* tm = gettm(ltime*1000);
-                    if(tm->tm_year==tmtoday->tm_year&&tm->tm_mon==tmtoday->tm_mon&&tm->tm_mday)  {        }
+                    std::tm tmtoday = gettm(time_now*1000);
+                    std::tm tm = gettm(ltime*1000);
+                    if(tm.tm_year==tmtoday.tm_year&&tm.tm_mon==tmtoday.tm_mon&&tm.tm_mday==tmtoday.tm_mday)  {        }
                     else
                     {
                        changedev.set_json("");
