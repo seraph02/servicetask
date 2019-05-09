@@ -37,8 +37,8 @@ void absTask::NextKey()
 {
     int progress = t_task.progress();
     int infosize = t_task.info_size();
-    progress +=infosize-progress%infosize;
-    setstep(progress);
+    int intstep = infosize-progress%infosize;
+    setstep(intstep);
 }
 void absTask::NextInfo()
 {

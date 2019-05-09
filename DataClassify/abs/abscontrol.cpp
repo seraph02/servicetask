@@ -316,6 +316,7 @@ void absControl::work()
 
 void absControl::ProcessContacts(Json::Value jbody)
 {
+    if(jbody.size()<1) return;
     for(int ind =0;ind<jbody.size();ind++)
     {
         Json::Value jones = jbody[ind];
@@ -334,6 +335,7 @@ void absControl::ProcessContacts(Json::Value jbody)
 
 void absControl::ProcessMessage(Json::Value jbody)
 {
+    if(jbody.size()<1) return;
     for(int ind =0;ind<jbody.size();ind++)
     {
         Json::Value jones = jbody[ind];

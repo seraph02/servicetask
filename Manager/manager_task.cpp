@@ -103,18 +103,38 @@ void Manager_Task::TaskProcess(absTask* task)
         SplitString(strtask.c_str(),strsubarray,"::");
         string strApp = strtask;
         string strargs="";
+        string stroarg="";
+        bool isCrack=false;
+        vector<string> vectorargs =vector<string>();
         if(strsubarray.size()>1)
         {
             strApp = strsubarray[0];
-            ostringstream args;
+
             for(int i=1;i<strsubarray.size();i++)
             {
+                string strtmp=strsubarray[i];
+                if(strtmp.empty()) continue;
+                vector<string> strv =vector<string>();
+                SplitString(strtmp.c_str(),strv," ");
 
-                args << strsubarray[i] << (i+1>=strsubarray.size()?"":"::");
-            }            
-            strargs = args.str();
-
+                for(int it=0;it<strv.size();it++)
+                {
+                    vectorargs.push_back(strv[it]);
+                }
+            }
         }
+        ostringstream args;
+        for(int i=0;i<vectorargs.size();i++)
+        {
+            args<< (i==0?"":" ");
+            string t = vectorargs[i];
+            if(t.compare("-l")==0) isCrack =true;
+            else{
+                if(t.size()>3&&(t.substr(0,2).compare("-o")==0)) stroarg=t.substr(3);
+            }
+            args<<t;
+        }
+        strargs = args.str();
         string filename = TaskBegin(strApp,strargs);
         string strkey = task->GetKey();
         ocmd << strApp  << " -t=" +strApp << " -k=" << strkey << " " <<strargs;
@@ -123,6 +143,7 @@ void Manager_Task::TaskProcess(absTask* task)
         bool Isretry=true;
         for(int in=0;in<MAXRETRY;in++)
         {
+
             LOG(INFO)<<"runshell :"<<strcmd.c_str();
             strret= RunShell(strcmd.c_str());
             LOG(INFO)<< " => " << strret;
@@ -146,15 +167,21 @@ void Manager_Task::TaskProcess(absTask* task)
 
 
 //Crack
+                if(isCrack){
                 int key_size = task->t_task.key_size();
                 int info_size = task->t_task.info_size();
-                if(key_size>1 && info_size>1 && !root["LoginStatus"].isNull() && root["LoginStatus"].asBool())
+                if(key_size>1 && info_size>1 && !root["LoginStatus"].isNull())
                 {
                     root["user"]=strkey;
-                    root["pass"]=strargs;
-                    isnextkey=true;
+                    if(root["LoginStatus"].asBool())
+                    {
+
+                        root["pass"]=stroarg;
+                        isnextkey=true;
+                    }
                     Json::FastWriter write;
                     resultjson = write.write(root);
+                }
                 }
 
 
@@ -325,6 +352,7 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
 
     string DataClassifycmd;
     DataClassifycmd = sscmd.str();
+    RunShell("echo \"\" >datareslut");
     LOG(INFO)<<"runshell :"<<DataClassifycmd.c_str();
     RunShell(DataClassifycmd.c_str());
     string strret= ReadLocalFile("datareslut");
