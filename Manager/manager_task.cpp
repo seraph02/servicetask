@@ -170,7 +170,7 @@ void Manager_Task::TaskProcess(absTask* task)
                 if(isCrack){
                 int key_size = task->t_task.key_size();
                 int info_size = task->t_task.info_size();
-                if(key_size>1 && info_size>1 && !root["LoginStatus"].isNull())
+                if(key_size>=1 && info_size>=1 && !root["LoginStatus"].isNull())
                 {
                     root["user"]=strkey;
                     if(root["LoginStatus"].asBool())
