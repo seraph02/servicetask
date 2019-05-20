@@ -49,14 +49,15 @@ std::string RunShell(const char* cmd)
      {
 
     FILE *fstream = NULL;
-    char buff[1024];
+    char buff[2048];
     memset(buff, 0, sizeof(buff));
+
     if(NULL == (fstream = popen(cmd,"r")))
     {
         fprintf(stderr,"execute command failed: %s",strerror(errno));
         return "";
     }
-
+    setvbuf(fstream, buff, _IOFBF, sizeof(buff));
     while(NULL != fgets(buff, sizeof(buff), fstream))
     {
         buffer<<buff;

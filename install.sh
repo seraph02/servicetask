@@ -29,4 +29,5 @@ echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 sysctl -p
 service supervisor start
 
-
+ln -s /home/twd/source/build /var/www/html/r
+ln -s /home/twd/source/POC /var/www/html/s

@@ -95,7 +95,7 @@ void Manager_Task::TaskProcess(absTask* task)
     string strcmd="";
     bool isnextkey=false;
     ostringstream ocmd;    
-    ocmd << "java -jar " +Manager_conf::getInstance()->pocpath();
+    ocmd << "java -Dfile.encoding=utf-8 -jar " +Manager_conf::getInstance()->pocpath();
     if(task->GetTaskTol()>0 && task->progress() <= task->GetTaskTol())
     {
         string strtask = task->GetInfo();
