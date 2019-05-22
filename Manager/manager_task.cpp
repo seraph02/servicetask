@@ -237,7 +237,7 @@ bool Manager_Task::PUSHRemoteResult(string info,string taskid,string indices,str
 
 bool Manager_Task::TaskAfter(absTask* task)
 {
-    if(task->t_task.status()!=TaskInfo_TaskStatus_Complete)
+    if(task->t_task.status()!=TaskInfo_TaskStatus_Complete&&task->t_task.status()!=TaskInfo_TaskStatus_Stop)
     {
         return false;
     }
@@ -389,21 +389,30 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
         }
     }
 }
+bool Manager_Task::CheckTimeOut(absTask* task)
+{
+    time_t time_now; time(&time_now);
+    long l = time_now - task->t_task.ptime();
+    if(l>TIME_OUT) return true;
+    return false;
+}
 void Manager_Task::TaskLoops(absTask* task)
 {
     if(m_IsStop) return ;
+
     TaskInfo change_task;
     change_task.set_id(task->t_task.id());
 //check task
     if(task->t_task.nodeid().compare(m_workID())!=0){task->t_task.set_nodeid(m_workID());}
-/*    bool IsTimeOut = CheckTimeOut(info);//ptime and timenow
+
+    bool IsTimeOut = CheckTimeOut(task);//ptime and timenow
     if(IsTimeOut)
     {
 //timeout
-        LOG(INFO)<<"task timeout -> taskid:"<< info->id() << " taskclientid:" << info->nodeid();
-        info->set_status(TaskInfo_TaskStatus_TimeOut);
-        change_task->set_status(info->status());
-    }*/
+        LOG(INFO)<<"task timeout -> taskid:"<< task->t_task.id() << " taskclientid:" << task->t_task.nodeid();
+        task->t_task.set_status(TaskInfo_TaskStatus_TimeOut);
+        change_task.set_status(task->t_task.status());
+    }
 
     bool IsComplete = task->t_task.progress()>=task->GetTaskTol();
     if(IsComplete&&task->GetTaskTol()>0)
@@ -489,6 +498,48 @@ void Manager_Task::run()
 {
 
 }
+/*
+ *
+ *
+ *
+ *
+ */
+void* RemotTaskAttribute(string taskid,string key)
+{
+    string strtask = Manager_ES::getInstance()->GetTaskInfo(taskid);
+    try
+    {
+        Json::Value jsonRoot; Json::Reader reader;
+        if (!reader.parse(strtask, jsonRoot)) return NULL;
+        Json::Value jsontask = jsonRoot["_source"];
+        if(!jsontask.isObject()) return NULL;
+        return &jsontask[key];
+    }
+    catch(exception)
+    {
+      return NULL;
+    }
+}
+bool Manager_Task::IsChangeRemotStop(absTask* task)
+{
+    void* obj = RemotTaskAttribute(task->t_task.id(),"status");
+    if(obj!=NULL)
+    {
+        TaskInfo_TaskStatus status = *(TaskInfo_TaskStatus*)obj;
+//                cout<<status<<endl;
+        if(status == TaskInfo::Stop)
+        {
+            task->t_task.set_status(TaskInfo::Stop);
+            return true;
+        }
+    }
+    else
+    {
+        task->t_task.set_status(TaskInfo::Stop);
+        return true;
+    }
+    return false;
+}
 bool Manager_Task::GetTaskInfo(absTask* task)
 {
     if(m_IsStop) return false;
@@ -498,10 +549,17 @@ bool Manager_Task::GetTaskInfo(absTask* task)
     for(int i=0;i<count_retry+1;i++) //for 4    retry 3
     {
 //full local taskinfo
-
         bool bolret = ReadLocalTask(task);
 //LOG(INFO)<<"local task is ready"<<endl;
-        if(task->t_task.id().size()>1){bolret = true; break;}
+        if(task->t_task.id().size()>1)
+        {
+            bool ic = IsChangeRemotStop(task);
+            if(ic){ bolret=false;break;}
+
+            bolret = true;
+            break;
+        }
+
 
 //local is no task
         TaskInfo* info=&task->t_task;
@@ -525,6 +583,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             t_task.set_status(TaskInfo::Running);
             if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task),task->version)) continue;
             task->version+=1;
+
             string sinfo;
             try
             {
@@ -551,8 +610,8 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         info->set_status(TaskInfo::Running);                                             //set task running
         info->set_nodeid(m_workID());                                                    //set clientid
 
-        info->set_ptime(time_now);                                                       //set gettask time
-        info->set_progress(0);
+        info->set_ptime(time_now);                                                       //set gettask time        
+//        info->set_progress(0);
 
 
 //create update taskinfo

@@ -11,7 +11,7 @@
 #include "abstask.h"
 
 using namespace SCPROTO;
-
+#define TIME_OUT 3600
 
 class Manager_Task:public IManager
 {
@@ -31,10 +31,10 @@ public:
     virtual ~Manager_Task(){}
     inline bool CheckStatus(EType stype){ return ((status>>stype)&1); }
 
-    bool CheckTimeOut(TaskInfo* info);
+    static bool CheckTimeOut(absTask* task);
     bool CheckRunning(TaskInfo* info);
     static bool CheckSubsequent(absTask* task);
-
+    static bool IsChangeRemotStop(absTask* task);
     static bool GetTaskInfo(absTask* task);
 
     static bool ReadLocalTask(absTask* task);

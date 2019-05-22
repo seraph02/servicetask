@@ -5,18 +5,16 @@ TaskUnit::TaskUnit()
 {
 
 }
-void TaskUnit::gettask(){
-//m_taskInffile()
+void TaskUnit::gettask()
+{
 //open local
    Manager_Task::GetTaskInfo(this);
 }
 void TaskUnit::run()
 {
-
     try
     {
         if(t_task.id().empty()) return;
-
 //task run
 //devinfo.process++;
         Manager_Info::getInstance()->DevProcess();
@@ -25,22 +23,8 @@ void TaskUnit::run()
         while(t_task.status()<TaskInfo_TaskStatus_Complete)
         {
             Manager_Task::TaskLoops(this);
+            Manager_Task::IsChangeRemotStop(this);
         }
-        if(t_task.status()==TaskInfo_TaskStatus_Complete)
-        {
-//task after
-            bool Isafter = Manager_Task::TaskAfter(this);
-            if(Isafter)
-            {
-//devinfo.complete++;
-                Manager_Info::getInstance()->DevComplete();
-            }
-            else
-            {
-                Manager_Info::getInstance()->DevError();
-            }
-        }
-
     }
     catch(exception& e)
     {
@@ -48,6 +32,19 @@ void TaskUnit::run()
     }
 }
 void TaskUnit::after(){
-    Manager_Task::TaskAfter(this);
+    if(t_task.status()==TaskInfo_TaskStatus_Complete||t_task.status()==TaskInfo_TaskStatus_Stop)
+    {
+//task after
+        bool Isafter = Manager_Task::TaskAfter(this);
+        if(Isafter)
+        {
+//devinfo.complete++;
+            Manager_Info::getInstance()->DevComplete();
+        }
+        else
+        {
+            Manager_Info::getInstance()->DevError();
+        }
+    }
 }
 

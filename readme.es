@@ -72,3 +72,5 @@ curl -XPUT "http://192.168.7.13:9200/devices" -H 'Content-Type: application/json
 	"index.write.wait_for_active_shards": "2"
     }
 }'
+
+curl -XPOST http://192.168.1.131:9200/task/taskinfo/UE_53moBrOxxijhUjtXf/_update -d '{ "doc":{"status":4}}' -H 'Content-Type: application/json'
