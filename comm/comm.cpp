@@ -8,6 +8,10 @@
 #include<string.h>
 #include "Base64Decoder.h"
 #include <glog/logging.h>
+
+#include<sys/stat.h>
+#include <dirent.h>
+#include <algorithm>
 using std::stringstream;
 using std::ofstream;
 //void Binarycout(int n)
@@ -57,7 +61,6 @@ std::string RunShell(const char* cmd)
         fprintf(stderr,"execute command failed: %s",strerror(errno));
         return "";
     }
-    setvbuf(fstream, buff, _IOFBF, sizeof(buff));
     while(NULL != fgets(buff, sizeof(buff), fstream))
     {
         buffer<<buff;
@@ -187,3 +190,56 @@ std::tm gettm(int64_t timestamp)
 //    printf("%4d年%02d月%02d日 %02d:%02d:%02d\n",now->tm_year+1900,now->tm_mon+1,now->tm_mday,now->tm_hour,now->tm_min,now->tm_sec);
    return *std::gmtime(&tt);
 }
+string gettimenow()
+{
+    time_t time_now; time(&time_now);
+    stringstream out;
+    out<<time_now;
+
+    return  out.str();
+
+}
+/**
+ * @function: 获取cate_dir目录下的所有文件名
+ * @param: cate_dir - string类型
+ * @result：vector<string>类型
+*/
+vector<string> getFiles(string cate_dir)
+{
+    vector<string> files;//存放文件名
+
+    DIR *dir;
+    struct dirent *ptr;
+    char base[1000];
+
+    if ((dir=opendir(cate_dir.c_str())) == NULL)
+        {
+        perror("Open dir error...");
+                exit(1);
+        }
+    cate_dir = (cate_dir.length()>1&&(cate_dir[cate_dir.size()-1]=='/'|cate_dir[cate_dir.size()-1]=='\\')?cate_dir:cate_dir+'/');
+    while ((ptr=readdir(dir)) != NULL)
+    {
+        if(strcmp(ptr->d_name,".")==0 || strcmp(ptr->d_name,"..")==0)    ///current dir OR parrent dir
+                continue;
+        else if(ptr->d_type == 8)    ///file
+            //printf("d_name:%s/%s\n",basePath,ptr->d_name);
+            files.push_back(cate_dir + ptr->d_name);
+        else if(ptr->d_type == 10)    ///link file
+            //printf("d_name:%s/%s\n",basePath,ptr->d_name);
+            continue;
+        else if(ptr->d_type == 4)    ///dir
+        {
+            vector<string> tmp = getFiles(cate_dir+ptr->d_name);
+            files.insert(files.end(), tmp.begin(), tmp.end());
+
+        }
+    }
+    closedir(dir);
+
+
+    //排序，按从小到大排序
+    sort(files.begin(), files.end());
+    return files;
+}
+

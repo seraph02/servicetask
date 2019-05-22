@@ -38,10 +38,14 @@ void Manager_Core::Work_Heartbeat_Thread(void *arg)
 {
 //    LOG(INFO)<<"work heartbeat "<<endl;
 //    Manager_Task::getInstance()->run();
-    string taskfilename = Manager_conf::getInstance()->tasktmppath()+"task.tsk";
+
+    if(m_tasklist.size()>0) return;
+    string taskfilename = Manager_conf::getInstance()->tasktmppath();
     absTask* taskunit =new TaskUnit;
-    taskunit->setfilename4task(taskfilename);
+    m_tasklist.push_back(taskunit);
+    taskunit->setpath4task(taskfilename);
     taskunit->gettask();
     taskunit->run();
+    m_tasklist.remove(taskunit);
 //    taskunit.after();
 }

@@ -21,10 +21,7 @@ vi /system/vendor/bin/vendor_deploy.sh
 #!/vendor/bin/sh
 /system/bin/sh /system/bin/deploystart.sh
 
-
+mount -o remount,rw /system
 echo "service.adb.tcp.port=5555" >> /system/build.prop
-
-
-
 mount -o remount,ro /system
 

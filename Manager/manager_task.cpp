@@ -499,7 +499,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
     {
 //full local taskinfo
 
-        ReadLocalTask(task);
+        bool bolret = ReadLocalTask(task);
 //LOG(INFO)<<"local task is ready"<<endl;
         if(task->t_task.id().size()>1){bolret = true; break;}
 
@@ -509,6 +509,8 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 //remote task --> local
         string strtaskid = Manager_ES::getInstance()->GetNewTaskId();
         if(strtaskid.empty()) break;
+
+
         string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid);
         try
         {
@@ -518,7 +520,11 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             Json::Value jsontaskid=jsonRoot["_id"];
             Json::Value jsontask = jsonRoot["_source"];
             if(!jsontask.isObject()||!jsontaskid.isString()) continue;
-
+            TaskInfo t_task;
+            t_task.set_id(jsontaskid.asString());
+            t_task.set_status(TaskInfo::Running);
+            if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task),task->version)) continue;
+            task->version+=1;
             string sinfo;
             try
             {

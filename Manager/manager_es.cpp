@@ -104,14 +104,13 @@ int Manager_ES::UpdateTaskInfo(string taskid,string putstrjson,int version)
         Client es(m_hosts);
         std::string strmsg="{ \"doc\" : " + putstrjson +" }";
         std::string strver="?version="+to_string(version);
-        string strret ;
         cpr::Response crsp = es.index("task","taskinfo",taskid+"/_update"+(version==-1?"":strver),strmsg);
         if(crsp.status_code > 300 ||crsp.status_code <200)
         {
             LOG(INFO)<<"error: curl: "<<crsp.status_code<<"/"<<crsp.url<<crsp.text<<" --> "<<strmsg;
             return crsp.status_code;
         }
-        strret = crsp.text;
+        return 0;
     }
     catch(exception& e)
     {

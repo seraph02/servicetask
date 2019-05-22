@@ -2,7 +2,7 @@
 #include "bin2ascii.h"
 #include "jsoncpp/json/json.h"
 #include <algorithm>
-#include<sys/stat.h>
+
 #include <curl/curl.h>
 #include <fstream>
 #include <iostream>
@@ -13,100 +13,10 @@
 #include "comm.h"
 #include "boost/algorithm/string/replace.hpp"
 
-#include <unistd.h>
-#include <dirent.h>
-
-#ifdef WIN32
-#include <direct.h>
-#include <io.h>
-#endif
-#include <algorithm>
+#include<sys/stat.h>
 using namespace std;
 
-/**
- * @function: 获取cate_dir目录下的所有文件名
- * @param: cate_dir - string类型
- * @result：vector<string>类型
-*/
-vector<string> getFiles(string cate_dir)
-{
-    vector<string> files;//存放文件名
 
-#ifdef WIN32
-    _finddata_t file;
-    long lf;
-    //输入文件夹路径
-    if ((lf=_findfirst(cate_dir.c_str(), &file)) == -1) {
-        cout<<cate_dir<<" not found!!!"<<endl;
-    } else {
-        while(_findnext(lf, &file) == 0) {
-            //输出文件名
-            //cout<<file.name<<endl;
-            if (strcmp(file.name, ".") == 0 || strcmp(file.name, "..") == 0)
-                continue;
-            files.push_back(file.name);
-        }
-    }
-    _findclose(lf);
-#endif
-
-
-    DIR *dir;
-    struct dirent *ptr;
-    char base[1000];
-
-    if ((dir=opendir(cate_dir.c_str())) == NULL)
-        {
-        perror("Open dir error...");
-                exit(1);
-        }
-
-    while ((ptr=readdir(dir)) != NULL)
-    {
-        if(strcmp(ptr->d_name,".")==0 || strcmp(ptr->d_name,"..")==0)    ///current dir OR parrent dir
-                continue;
-        else if(ptr->d_type == 8)    ///file
-            //printf("d_name:%s/%s\n",basePath,ptr->d_name);
-            files.push_back(cate_dir +"/"+ ptr->d_name);
-        else if(ptr->d_type == 10)    ///link file
-            //printf("d_name:%s/%s\n",basePath,ptr->d_name);
-            continue;
-        else if(ptr->d_type == 4)    ///dir
-        {
-            vector<string> tmp = getFiles(cate_dir+"/"+ptr->d_name);
-//            files.resize(files.size()+tmp.size());
-            files.insert(files.end(), tmp.begin(), tmp.end());
-            /*
-                memset(base,'\0',sizeof(base));
-                strcpy(base,basePath);
-                strcat(base,"/");
-                strcat(base,ptr->d_nSame);
-                readFileList(base);
-            */
-        }
-    }
-    closedir(dir);
-
-
-    //排序，按从小到大排序
-    sort(files.begin(), files.end());
-    return files;
-}
-vector<string> path2files(string path)
-{
-    //is not exist
-    struct stat s;
-
-    if (stat(path.c_str(),&s)==0){
-      if(s.st_mode & S_IFDIR){
-        return getFiles(path);
-
-      }else if (s.st_mode & S_IFREG){
-          return {path};
-      }
-    }
-    return vector<string>{};
-}
 //struct myprint
 //{
 //    void operator()(string str) {cout<<str<<endl;}
@@ -386,4 +296,19 @@ void absControl::ProcessChannel(Json::Value jbody)
     Json::FastWriter jwrite;
     string strcontacts = jwrite.write(jelement);
     rst.putjson(strcontacts);
+}
+vector<string> path2files(string path)
+{
+    //is not exist
+    struct stat s;
+
+    if (stat(path.c_str(),&s)==0){
+      if(s.st_mode & S_IFDIR){
+        return getFiles(path);
+
+      }else if (s.st_mode & S_IFREG){
+          return {path};
+      }
+    }
+    return vector<string>{};
 }

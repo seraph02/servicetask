@@ -60,7 +60,7 @@ private:
     int status = 0x0;
     static bool m_IsStop;
     static inline string m_workID(){                       return b_info->b_dev->nodeid().c_str();   }
-    inline string gettaskInffile(){                  return (Manager_conf::getInstance()->tasktmppath()+"task.tsk").c_str();    }
+//    inline string gettaskInffile(){                  return (Manager_conf::getInstance()->tasktmppath()+"task.tsk").c_str();    }
     static inline const string m_taskRstfile(string key){  return (Manager_conf::getInstance()->tasktmppath()+ "Result." + key).c_str();    }
     static string dcfexename;
 
