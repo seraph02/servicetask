@@ -421,7 +421,7 @@ void Manager_Info::ChangeProxy(int proxyid)
         /* code */
         string strcmd="";
         ostringstream ocmd;    
-        ocmd << "java -jar " << CHANGEPROXYJARPATH <<"";
+        ocmd << "java -jar " << CHANGEPROXYJARPATH << " -i=" << proxyid;
         strcmd = ocmd.str();
         string strret= RunShell(strcmd.c_str());
         LOG(INFO)<< " => " << strret;
