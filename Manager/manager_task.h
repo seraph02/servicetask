@@ -19,12 +19,12 @@ public:
     void Update(int state)
     {
         status = state;
-        m_IsStop = !(CheckStatus(BaseStatus)&&CheckStatus(ProxyStatus)&&CheckStatus(ESStatus)&&CheckStatus(NetDiskStatus))&&CheckStatus(AdbStatus);
-        LOG(WARNING)   <<"status :"<< CheckStatus(AdbStatus) << "."
-                                   << CheckStatus(BaseStatus) << "."
-                                   << CheckStatus(ProxyStatus) << "."
-                                   << CheckStatus(ESStatus)<< "."
-                                   << CheckStatus(NetDiskStatus) << "."
+        m_IsStop = !(CheckStatus(Local)&&CheckStatus(Proxy)&&CheckStatus(ES)&&CheckStatus(NetDisk))&&CheckStatus(Adb);
+        LOG(WARNING)   <<"status :"<< CheckStatus(Adb) << "."
+                                   << CheckStatus(Local) << "."
+                                   << CheckStatus(Proxy) << "."
+                                   << CheckStatus(ES)<< "."
+                                   << CheckStatus(NetDisk) << "."
                                       ;
     }
     virtual void run();

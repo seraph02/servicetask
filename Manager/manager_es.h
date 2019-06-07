@@ -17,6 +17,9 @@ public:
     int UpdateTaskInfo(string taskid,string putstrjson,int version);
     void UpdateDevInfo(string nodeid,string putstrjson);
 
+    bool createLock4taskid(string taskid,string ownid);
+    bool deleteLock4taskid(string taskid);
+
     bool POSTTaskResult(string indices,string strpostjson);
     virtual void Update(int status){}
     static Manager_ES* getInstance()

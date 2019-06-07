@@ -11,7 +11,14 @@ using namespace std;
 using namespace SCPROTO;
 #define BaiDuURL "http://www.baidu.com/"
 #define GoogleURL "http://www.google.com/"
-
+#define MAX_TIMEOUT 6       //10s*6 = 1m
+#define MAX_PROXYCOUNT 10   
+#define CHANGEPROXYJARPATH  "changeproxy.jar"
+struct PROXYSTATUS
+{
+    int timeoutcount =0;
+    int id=0;
+};
 class Manager_Info : public IManager
 {
 public:
@@ -29,6 +36,7 @@ public:
     bool GetESInfo(CStatus* infoMNG);
     bool GetNetDiskInfo(CStatus* infoMNG);
     bool GetDevInfo(DevInfo* infoMNG);
+    void ChangeProxy(int proxyid);
     static Manager_Info* getInstance()
     {
         return infoMNG;
@@ -44,6 +52,8 @@ private:
 
     int status=0x0;
 
+    PROXYSTATUS proxystatus;
+    
     static MyHealth *health;
     static Manager_Info* infoMNG;
 };

@@ -568,6 +568,10 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         string strtaskid = Manager_ES::getInstance()->GetNewTaskId();
         if(strtaskid.empty()) break;
 
+        //es add doc lock 
+        bool islock = Manager_ES::getInstance()->createLock4taskid(strtaskid,info->nodeid());
+        if(!islock) break;
+
 
         string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid);
         try
@@ -583,7 +587,11 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             t_task.set_status(TaskInfo::Running);
             if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task),task->version)) continue;
             task->version+=1;
-
+            while(!Manager_ES::getInstance()->deleteLock4taskid(strtaskid))
+            {
+                LOG(ERROR)<<"delete lock "<<strtaskid<< " error ,sleep 2s";
+                sleep(2);
+            }
             string sinfo;
             try
             {
@@ -602,6 +610,8 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         {
           LOG(ERROR)<<e.what()<<strtask;
         }
+                //es add doc lock 
+        
 
         if(info->id().size()<1) {  bolret = false;  /*LOG(INFO)<<"remote is no task"<<endl;*/}
 
@@ -635,6 +645,8 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             bolret=false;
         }
         bolret =true;
+
+        
     }
     return bolret;
 }

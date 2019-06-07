@@ -23,13 +23,13 @@ void Manager_Info::run()
     //nodeid is null set off
         CStatus adb;
         adb.status =health->b_dev->nodeid().size()<2?Off:On;
-        health->SetState(AdbStatus,adb.status);
+        health->SetState(Adb,adb.status);
         CStatus netinfo;
         //get net info
         try
         {
             Manager_Info::getInstance()->GetNetInfo(&netinfo);
-            health->SetState(BaseStatus,netinfo.status);
+            health->SetState(Local,netinfo.status);
         }
         catch(exception & e)
         {
@@ -40,11 +40,11 @@ void Manager_Info::run()
         {
             CStatus es;
             Manager_Info::getInstance()->GetESInfo(&es);
-            health->SetState(ESStatus,es.status);
+            health->SetState(ES,es.status);
     //set devinfo 2 es devices/info/
             try
             {
-                if(health->CheckStatus(ESStatus))
+                if(health->CheckStatus(ES))
                 {
 
                     Manager_Info::getInstance()->GetDevInfo(health->b_dev);
@@ -71,28 +71,36 @@ void Manager_Info::run()
             }
 
     #ifdef PROXYOK
-            health->SetState(ProxyStatus,On);
+            health->SetState(Proxy,On);
     #else
             CStatus proxy;
             Manager_Info::getInstance()->GetProxyInfo(&proxy);
-            health->SetState(ProxyStatus,proxy.status);
+            health->SetState(Proxy,proxy.status);
+            proxystatus.timeoutcount++;
+            if(proxystatus.timeoutcount>MAX_TIMEOUT)
+            {
+                proxystatus.id = proxystatus.id>MAX_PROXYCOUNT?0:proxystatus.id+1;
+                ChangeProxy(proxystatus.id);
+                proxystatus.timeoutcount = 0;
+            }
+            
 
     #endif
             CStatus netdisk;
             Manager_Info::getInstance()->GetNetDiskInfo(&netdisk);
-            health->SetState(NetDiskStatus,netdisk.status);
+            health->SetState(NetDisk,netdisk.status);
         }
         else
         {
-            health->SetState(ProxyStatus,Off);
-            health->SetState(ESStatus,Off);
-            health->SetState(NetDiskStatus,Off);
+            health->SetState(Proxy,Off);
+            health->SetState(ES,Off);
+            health->SetState(NetDisk,Off);
         }
 }
 void Manager_Info::Update(int state)
 {
     status = state;
-    bool isChange = CheckStatus(DevStatus);
+    bool isChange = CheckStatus(Dev);
     if(isChange)
     {
         DevInfo* info = new DevInfo;
@@ -102,7 +110,7 @@ void Manager_Info::Update(int state)
         info->set_complete(health->b_dev->complete());
         string putstrjson = pb2json(*info);
         Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
-        health->SetState(DevStatus,Off);
+        health->SetState(Dev,Off);
         }
         catch(exception &e)
         {
@@ -196,7 +204,7 @@ bool Manager_Info::GetNetInfo(CStatus* info)
 
 
     string response;
-    CURLcode nRes =HttpGet(BaiDuURL,response,300);
+    CURLcode nRes =HttpGet(BaiDuURL,response,500);
     if(nRes==CURLE_OK)
     {
       ret = true;
@@ -224,7 +232,7 @@ bool Manager_Info::GetProxyInfo(CStatus* info)
     {
 
     string response;
-    CURLcode nRes =HttpGet(GoogleURL,response,300);
+    CURLcode nRes =HttpGet(GoogleURL,response,500);
     if(nRes==CURLE_OK)
     {
       ret = true;
@@ -316,7 +324,7 @@ Json::Value GetJsonDev(string src)
 }
 bool Manager_Info::GetDevInfo(DevInfo* info)
 {
-    if(!CheckStatus(ESStatus)) return false;
+    if(!CheckStatus(ES)) return false;
 
     string strret="";
 //get remote devinfo
@@ -393,17 +401,36 @@ bool Manager_Info::GetNetDiskInfo(CStatus* info)
 void Manager_Info::DevProcess()
 {
     this->health->b_dev->set_process(this->health->b_dev->process()+1);
-    this->health->SetState(DevStatus,On);
+    this->health->SetState(Dev,On);
 }
 void Manager_Info::DevComplete()
 {
     this->health->b_dev->set_complete(this->health->b_dev->complete()+1);
-    this->health->SetState(DevStatus,On);
+    this->health->SetState(Dev,On);
 }
 void Manager_Info::DevError()
 {
     this->health->b_dev->set_error(this->health->b_dev->error()+1);
-    this->health->SetState(DevStatus,On);
+    this->health->SetState(Dev,On);
 }
 
+void Manager_Info::ChangeProxy(int proxyid)
+{
+    try
+    {
+        /* code */
+        string strcmd="";
+        ostringstream ocmd;    
+        ocmd << "java -jar " << CHANGEPROXYJARPATH <<"";
+        strcmd = ocmd.str();
+        string strret= RunShell(strcmd.c_str());
+        LOG(INFO)<< " => " << strret;
+    }
+    catch(const std::exception& e)
+    {
+        LOG(ERROR) << e.what() << '\n';
+    }
+    
 
+
+}

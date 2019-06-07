@@ -10,12 +10,12 @@
 
 enum EType
 {
-    AdbStatus,
-    BaseStatus,
-    ProxyStatus,
-    ESStatus,
-    NetDiskStatus,
-    DevStatus,
+    Adb,
+    Local,
+    Proxy,
+    ES,
+    NetDisk,
+    Dev,
 
 
 };

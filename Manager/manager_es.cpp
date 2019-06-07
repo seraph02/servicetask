@@ -34,13 +34,13 @@ string Manager_ES::GetESInfo()
     try
     {
         Client es(m_hosts);
-        cpr::Response crsq = es.performRequest(elasticlient::Client::HTTPMethod::GET,"","");
-        if(crsq.status_code > 300 ||crsq.status_code <200)
+        cpr::Response crsp = es.performRequest(elasticlient::Client::HTTPMethod::GET,"","");
+        if(crsp.status_code > 300 ||crsp.status_code <200)
         {
-//            LOG(ERROR)<<"error: curl: "<<crsq.url<<":"<<crsq.status_code<<":"<<crsq.error.message;
+//            LOG(ERROR)<<"error: curl: "<<crsp.url<<":"<<crsp.status_code<<":"<<crsp.error.message;
             return strret;
         }
-        strret = crsq.text;
+        strret = crsp.text;
     }catch(exception &e)
     {
         LOG(ERROR)<<e.what();
@@ -184,21 +184,69 @@ bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
     bool bolret=false;//lowercase
     transform(indices.begin(), indices.end(), indices.begin(), towlower);
     indices = UrlEncode(indices.c_str());
-    cpr::Response crsq;
+    cpr::Response crsp;
     try
     {
         Client es(m_hosts);
-        crsq = es.index(indices,"data","?pretty=true",strpostdata);
-        if(crsq.status_code > 300 ||crsq.status_code <200)
+        crsp = es.index(indices,"data","?pretty=true",strpostdata);
+        if(crsp.status_code > 300 ||crsp.status_code <200)
         {
-            LOG(INFO)<<"error: curl: "<<"/"<<crsq.url<<crsq.text;
+            LOG(INFO)<<"error: curl: "<<"/"<<crsp.url<<crsp.text;
             return bolret;
         }
         bolret = true;
     }
     catch(exception &e)
     {
-        LOG(ERROR)<<e.what()<<crsq.status_code;
+        LOG(ERROR)<<e.what()<<crsp.status_code;
     }
     return bolret;
+}
+
+bool Manager_ES::createLock4taskid(string taskid,string ownid)
+{
+    bool bolret =false;
+    if(taskid.empty()||ownid.empty()) return bolret;
+    cpr::Response crsp;
+    try
+    {
+        string url ="/fs/lock/"+taskid+"/_create";
+        string body="{ \"process_id\": \""+ownid+"\"    }";
+        Client es(m_hosts);
+        crsp = es.performRequest(elasticlient::Client::HTTPMethod::PUT,url,body);
+        if(crsp.status_code > 300 ||crsp.status_code <200)
+        {
+           LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
+        }
+		else  bolret = true;
+    }
+    catch (const std::exception&)
+    {
+        
+    }
+
+    return bolret; 
+}
+bool Manager_ES::deleteLock4taskid(string taskid)
+{
+    bool bolret =false;
+    if(taskid.empty()) return bolret;
+    cpr::Response crsp;
+    try
+    {  
+
+        Client es(m_hosts);
+        crsp = es.remove("fs","lock",taskid);
+        if(crsp.status_code > 300 ||crsp.status_code <200)
+        {
+           LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
+        }else    bolret = true;
+    }
+    catch (const std::exception&)
+    {
+        
+    }
+
+
+    return bolret; 
 }
