@@ -544,6 +544,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 {
     if(m_IsStop) return false;
 //    sleep(10);
+    LOG(INFO)<<"GETTASKINFO";
     int count_retry=3;
     bool bolret = false;
     for(int i=0;i<count_retry+1;i++) //for 4    retry 3
@@ -566,14 +567,17 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 //LOG(INFO)<<"local is no task"<<endl;
 //remote task --> local
         string strtaskid = Manager_ES::getInstance()->GetNewTaskId();
+        
         if(strtaskid.empty()) break;
-
+        LOG(INFO)<<"TASKID "<<strtaskid;
         //es add doc lock 
-        bool islock = Manager_ES::getInstance()->createLock4taskid(strtaskid,info->nodeid());
+        bool islock = Manager_ES::getInstance()->createLock4taskid(strtaskid,m_workID());
+        LOG(INFO)<<"LOCK TASKID "<<strtaskid<< " "<<m_workID();
         if(!islock) break;
 
 
         string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid);
+        LOG(INFO)<<"TASKINFO";
         try
         {
             Json::Value jsonRoot; Json::Reader reader;
@@ -592,6 +596,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
                 LOG(ERROR)<<"delete lock "<<strtaskid<< " error ,sleep 2s";
                 sleep(2);
             }
+            LOG(INFO)<<"UNLOCK TASKID "<<strtaskid<< " "<<info->nodeid();
             string sinfo;
             try
             {

@@ -24,6 +24,11 @@ void Manager_Info::run()
         CStatus adb;
         adb.status =health->b_dev->nodeid().size()<2?Off:On;
         health->SetState(Adb,adb.status);
+        
+        CStatus netdisk;
+        Manager_Info::getInstance()->GetNetDiskInfo(&netdisk);
+        health->SetState(NetDisk,netdisk.status);
+
         CStatus netinfo;
         //get net info
         try
@@ -76,19 +81,23 @@ void Manager_Info::run()
             CStatus proxy;
             Manager_Info::getInstance()->GetProxyInfo(&proxy);
             health->SetState(Proxy,proxy.status);
-            proxystatus.timeoutcount++;
-            if(proxystatus.timeoutcount>MAX_TIMEOUT)
+            if(proxy.status==On) proxystatus.timeoutcount =0;
+            if(proxystatus.timeoutcount>=MAX_TIMEOUT)
             {
                 proxystatus.id = proxystatus.id>MAX_PROXYCOUNT?0:proxystatus.id+1;
                 ChangeProxy(proxystatus.id);
                 proxystatus.timeoutcount = 0;
             }
-            
+            else
+            {
+                LOG(ERROR)<<"proxy timeout "<<proxystatus.timeoutcount;
+                proxystatus.timeoutcount++;
+                
+            }
+                     
 
     #endif
-            CStatus netdisk;
-            Manager_Info::getInstance()->GetNetDiskInfo(&netdisk);
-            health->SetState(NetDisk,netdisk.status);
+
         }
         else
         {
@@ -424,7 +433,7 @@ void Manager_Info::ChangeProxy(int proxyid)
         ocmd << "java -jar " << CHANGEPROXYJARPATH << " -i=" << proxyid;
         strcmd = ocmd.str();
         string strret= RunShell(strcmd.c_str());
-        LOG(INFO)<< " => " << strret;
+        LOG(INFO)<< strcmd << " => " << strret;
     }
     catch(const std::exception& e)
     {

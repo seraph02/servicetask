@@ -205,12 +205,13 @@ bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
 
 bool Manager_ES::createLock4taskid(string taskid,string ownid)
 {
+    LOG(INFO)<<"ES CREATELOCK,ID "<<taskid<<" own "<<ownid;
     bool bolret =false;
     if(taskid.empty()||ownid.empty()) return bolret;
     cpr::Response crsp;
     try
     {
-        string url ="/fs/lock/"+taskid+"/_create";
+        string url ="fs/lock/"+taskid+"/_create";
         string body="{ \"process_id\": \""+ownid+"\"    }";
         Client es(m_hosts);
         crsp = es.performRequest(elasticlient::Client::HTTPMethod::PUT,url,body);

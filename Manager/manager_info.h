@@ -11,7 +11,7 @@ using namespace std;
 using namespace SCPROTO;
 #define BaiDuURL "http://www.baidu.com/"
 #define GoogleURL "http://www.google.com/"
-#define MAX_TIMEOUT 6       //10s*6 = 1m
+#define MAX_TIMEOUT 2       //about 3m
 #define MAX_PROXYCOUNT 10   
 #define CHANGEPROXYJARPATH  "changeproxy.jar"
 struct PROXYSTATUS
