@@ -2,6 +2,7 @@
 #define ABSCONTROL_H
 #include"absresult.h"
 #include <jsoncpp/json/json.h>
+#include <sstream>
 class absControl
 {
 public:
@@ -27,6 +28,16 @@ protected:
     string body;
     vector<string> files;
     absresult rst;
+    string dt = gettimetag();
+private:
+    string gettimetag()
+    {
+        ostringstream oss;//创建一个流
+        time_t time_now; time(&time_now);
+        oss<<time_now;
+        return oss.str();
+
+    }
 };
 int DOWNLOAD_FILE(const char* url,const char* outfilename);
 vector<string> path2files(string path);

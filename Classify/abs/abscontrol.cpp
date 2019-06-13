@@ -237,6 +237,7 @@ void absControl::ProcessContacts(Json::Value jbody)
     }
     Json::Value jelement;
     jelement["type"]="contacts";
+    jelement["tag"]= dt;
     jelement["body"]=jbody;
     Json::FastWriter jwrite;
     string strcontacts = jwrite.write(jelement);
@@ -254,6 +255,7 @@ void absControl::ProcessMessage(Json::Value jbody)
 
         Json::Value jelement;
         jelement["type"]="message";
+        jelement["tag"]= dt;
         jelement["body"]=jones;
         Json::FastWriter jwrite;
         string strones = jwrite.write(jelement);
@@ -275,6 +277,7 @@ void absControl::ProcessDialog(Json::Value jbody)
     }
     Json::Value jelement;
     jelement["type"]="dialog";
+    jelement["tag"]= dt;
     jelement["body"]=jbody;
     Json::FastWriter jwrite;
     string strcontacts = jwrite.write(jelement);
@@ -292,6 +295,7 @@ void absControl::ProcessChannel(Json::Value jbody)
     }
     Json::Value jelement;
     jelement["type"]="channel";
+    jelement["tag"]= dt;
     jelement["body"]=jbody;
     Json::FastWriter jwrite;
     string strcontacts = jwrite.write(jelement);
