@@ -24,6 +24,8 @@ void TaskUnit::run()
         {
             Manager_Task::TaskLoops(this);
             Manager_Task::IsChangeRemotStop(this);
+            Manager_Task::IsChangeRemotDelete(this);
+
         }
     }
     catch(exception& e)

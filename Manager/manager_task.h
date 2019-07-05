@@ -35,6 +35,7 @@ public:
     bool CheckRunning(TaskInfo* info);
     static bool CheckSubsequent(absTask* task);
     static bool IsChangeRemotStop(absTask* task);
+    static bool IsChangeRemotDelete(absTask* task);
     static bool GetTaskInfo(absTask* task);
 
     static bool ReadLocalTask(absTask* task);

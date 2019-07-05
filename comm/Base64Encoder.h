@@ -1,10 +1,9 @@
 #ifndef BASE64_ENCODER_H
 #define BASE64_ENCODER_H
 #include <string>
-extern "C"
-{
+
 #include "cencode.h"
-}
+
 class Base64Encoder
 {
 public:

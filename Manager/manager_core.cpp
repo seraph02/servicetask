@@ -27,6 +27,7 @@ bool Manager_Core::Init()
     m_WorkTimer->AsyncLoop(10000,Work_Heartbeat_Thread,this);
 
 
+    return true;
 }
 
 void Manager_Core::SelfCHK_Heartbeat_Thread(void *arg)

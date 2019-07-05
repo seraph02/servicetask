@@ -302,8 +302,8 @@ void resultAddfiles(TaskResult* result,string strjson)
 }
 bool Manager_Task::PUSHRemoteFiles(string info,string taskid,string indices,TaskResult& result)
 {
-
-
+    try
+    {
 //result file array
         if(result.filelist_size()>0)
         {
@@ -339,6 +339,12 @@ bool Manager_Task::PUSHRemoteFiles(string info,string taskid,string indices,Task
 
 
         }
+    }
+    catch(...)
+    {
+
+    }
+    return true;
 
 }
 bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,string indices ,string resultjson)
@@ -388,6 +394,7 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
 
         }
     }
+    return true;
 }
 bool Manager_Task::CheckTimeOut(absTask* task)
 {
@@ -396,6 +403,7 @@ bool Manager_Task::CheckTimeOut(absTask* task)
     if(l>TIME_OUT) return true;
     return false;
 }
+
 void Manager_Task::TaskLoops(absTask* task)
 {
     if(m_IsStop) return ;
@@ -504,9 +512,9 @@ void Manager_Task::run()
  *
  *
  */
-void* RemotTaskAttribute(string taskid,string key)
+void* RemotTaskAttribute(string taskid,string key,int& retcode)
 {
-    string strtask = Manager_ES::getInstance()->GetTaskInfo(taskid);
+    string strtask = Manager_ES::getInstance()->GetTaskInfo(taskid,retcode);
     try
     {
         Json::Value jsonRoot; Json::Reader reader;
@@ -520,9 +528,25 @@ void* RemotTaskAttribute(string taskid,string key)
       return NULL;
     }
 }
+bool Manager_Task::IsChangeRemotDelete(absTask* task)
+{
+    int retcode =0;
+    void* obj = RemotTaskAttribute(task->t_task.id(),"status",retcode);
+    if(retcode == 404)
+    {
+        task->t_task.set_status(TaskInfo::Complete);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
+}
 bool Manager_Task::IsChangeRemotStop(absTask* task)
 {
-    void* obj = RemotTaskAttribute(task->t_task.id(),"status");
+    int retcode =0;
+    void* obj = RemotTaskAttribute(task->t_task.id(),"status",retcode);
     if(obj!=NULL)
     {
         TaskInfo_TaskStatus status = *(TaskInfo_TaskStatus*)obj;
@@ -569,6 +593,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         vector<string> vectask = Manager_ES::getInstance()->GetNewTaskId();
         
         if(vectask.empty()) break;
+        LOG(INFO)<<"vectask size" << vectask.size();
         string strtaskid;
         bool havetask=false;
         for(vector<string>::iterator it =vectask.begin();it !=vectask.end();)
@@ -590,8 +615,8 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 
 
 
-
-        string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid);
+        int retcode =0;
+        string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid,retcode);
         LOG(INFO)<<"TASKINFO";
         try
         {

@@ -1,10 +1,9 @@
 #ifndef BASE64_DECODER_H
 #define BASE64_DECODER_H
 #include <string>
-extern "C"
-{
+
 #include "cdecode.h"
-}
+
 class Base64Decoder
 {
 public:

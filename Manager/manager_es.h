@@ -11,7 +11,7 @@ public:
     bool IsAction();
     string GetESInfo();
     string GetDevInfo(string nodeid);
-    string GetTaskInfo(string docid);
+    string GetTaskInfo(string docid,int& statuscode);
     vector<string> GetNewTaskId();
     int UpdateTaskInfo(string taskid,string putstrjson);
     int UpdateTaskInfo(string taskid,string putstrjson,int version);

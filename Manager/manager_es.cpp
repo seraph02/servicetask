@@ -34,6 +34,7 @@ string Manager_ES::GetESInfo()
 
     try
     {
+        if(m_hosts.size()<1) return "";
         Client es(m_hosts);
         cpr::Response crsp = es.performRequest(elasticlient::Client::HTTPMethod::GET,"","");
         if(crsp.status_code > 300 ||crsp.status_code <200)
@@ -163,7 +164,7 @@ vector<string> Manager_ES::GetNewTaskId()
     }
     return vecret;
 }
-string Manager_ES::GetTaskInfo(string docid)
+string Manager_ES::GetTaskInfo(string docid,int& statuscode)
 {
     std::string strret;
     cpr::Response crsp;
