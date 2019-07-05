@@ -544,7 +544,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 {
     if(m_IsStop) return false;
 //    sleep(10);
-    LOG(INFO)<<"GETTASKINFO";
+//    LOG(INFO)<<"GETTASKINFO";
     int count_retry=3;
     bool bolret = false;
     for(int i=0;i<count_retry+1;i++) //for 4    retry 3
@@ -566,14 +566,29 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         TaskInfo* info=&task->t_task;
 //LOG(INFO)<<"local is no task"<<endl;
 //remote task --> local
-        string strtaskid = Manager_ES::getInstance()->GetNewTaskId();
+        vector<string> vectask = Manager_ES::getInstance()->GetNewTaskId();
         
-        if(strtaskid.empty()) break;
-        LOG(INFO)<<"TASKID "<<strtaskid;
-        //es add doc lock 
-        bool islock = Manager_ES::getInstance()->createLock4taskid(strtaskid,m_workID());
-        LOG(INFO)<<"LOCK TASKID "<<strtaskid<< " "<<m_workID();
-        if(!islock) break;
+        if(vectask.empty()) break;
+        string strtaskid;
+        bool havetask=false;
+        for(vector<string>::iterator it =vectask.begin();it !=vectask.end();)
+        {
+            string str = *it;
+            LOG(INFO)<<"TASKID "<<str;
+            //es add doc lock 
+            bool islock = Manager_ES::getInstance()->createLock4taskid(str,m_workID());
+            LOG(INFO)<<"LOCK TASKID "<<str<< " "<<m_workID();
+            if(islock) 
+            {
+                strtaskid = str;
+                havetask = true;
+                break;
+            }  
+        }
+
+        if(!havetask) break;
+
+
 
 
         string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid);
@@ -581,22 +596,17 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         try
         {
             Json::Value jsonRoot; Json::Reader reader;
-            if (!reader.parse(strtask, jsonRoot)) continue;
+            if (!reader.parse(strtask, jsonRoot)) break;
             task->version = jsonRoot["_version"].asInt();
             Json::Value jsontaskid=jsonRoot["_id"];
             Json::Value jsontask = jsonRoot["_source"];
-            if(!jsontask.isObject()||!jsontaskid.isString()) continue;
+            if(!jsontask.isObject()||!jsontaskid.isString()) break;
             TaskInfo t_task;
             t_task.set_id(jsontaskid.asString());
             t_task.set_status(TaskInfo::Running);
-            if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task),task->version)) continue;
+            if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task),task->version)) break;
             task->version+=1;
-            while(!Manager_ES::getInstance()->deleteLock4taskid(strtaskid))
-            {
-                LOG(ERROR)<<"delete lock "<<strtaskid<< " error ,sleep 2s";
-                sleep(2);
-            }
-            LOG(INFO)<<"UNLOCK TASKID "<<strtaskid<< " "<<info->nodeid();
+
             string sinfo;
             try
             {
@@ -651,6 +661,12 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         }
         bolret =true;
 
+        while(!Manager_ES::getInstance()->deleteLock4taskid(strtaskid))
+        {
+            LOG(ERROR)<<"delete lock "<<strtaskid<< " error ,sleep 2s";
+            sleep(2);
+        }
+        LOG(INFO)<<"UNLOCK TASKID "<<strtaskid<< " "<<info->nodeid();
         
     }
     return bolret;

@@ -15,6 +15,7 @@ Manager_Info* Manager_Info::infoMNG = new Manager_Info;
 MyHealth* Manager_Info::health = new MyHealth;
 Manager_Info::~Manager_Info()
 {
+
 }
 void Manager_Info::run()
 {
@@ -90,7 +91,7 @@ void Manager_Info::run()
             }
             else
             {
-                LOG(ERROR)<<"proxy timeout "<<proxystatus.timeoutcount;
+ //               LOG(ERROR)<<"proxy timeout "<<proxystatus.timeoutcount;
                 proxystatus.timeoutcount++;
                 
             }

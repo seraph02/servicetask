@@ -12,7 +12,7 @@ public:
     string GetESInfo();
     string GetDevInfo(string nodeid);
     string GetTaskInfo(string docid);
-    string GetNewTaskId();
+    vector<string> GetNewTaskId();
     int UpdateTaskInfo(string taskid,string putstrjson);
     int UpdateTaskInfo(string taskid,string putstrjson,int version);
     void UpdateDevInfo(string nodeid,string putstrjson);
