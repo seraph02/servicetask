@@ -46,6 +46,7 @@ void Manager_Core::Work_Heartbeat_Thread(void *arg)
     m_tasklist.push_back(taskunit);
     taskunit->setpath4task(taskfilename);
     taskunit->gettask();
+    taskunit->showtask();
     taskunit->run();
     taskunit->after();
     m_tasklist.remove(taskunit);

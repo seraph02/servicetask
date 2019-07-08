@@ -31,6 +31,7 @@ public:
         }
         return taskpath+t_task.id()+".tsk";
     }
+    void showtask();
 
 protected:
     string taskpath;

@@ -521,6 +521,7 @@ void* RemotTaskAttribute(string taskid,string key,int& retcode)
         if (!reader.parse(strtask, jsonRoot)) return NULL;
         Json::Value jsontask = jsonRoot["_source"];
         if(!jsontask.isObject()) return NULL;
+        if(jsontask[key].isString()) return static_cast<void*>(new std::string(jsontask[key].asString()));
         return &jsontask[key];
     }
     catch(exception)
@@ -564,6 +565,33 @@ bool Manager_Task::IsChangeRemotStop(absTask* task)
     }
     return false;
 }
+bool Manager_Task::IsChangeTaskOwn(absTask* task)
+{
+    bool bolret = false;
+    int retcode =0;
+    void* obj = RemotTaskAttribute(task->t_task.id(),"nodeid",retcode);
+    if(obj!=NULL)
+    {
+        std::string *sp = static_cast<std::string*>(obj);
+        // You could use 'sp' directly, or this, which does a copy.
+        std::string nodeid = *sp;
+//                cout<<status<<endl;
+        if(m_workID().compare(nodeid)==0)
+        {
+            bolret = false;
+        }
+        else
+        {
+            bolret=true;
+            task->t_task.set_status(TaskInfo::Complete);
+        }
+
+
+        delete sp;
+        return bolret;
+    }
+    return bolret;
+}
 bool Manager_Task::GetTaskInfo(absTask* task)
 {
     if(m_IsStop) return false;
@@ -596,7 +624,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         LOG(INFO)<<"vectask size" << vectask.size();
         string strtaskid;
         bool havetask=false;
-        for(vector<string>::iterator it =vectask.begin();it !=vectask.end();)
+        for(vector<string>::iterator it =vectask.begin();it !=vectask.end();it++)
         {
             string str = *it;
             LOG(INFO)<<"TASKID "<<str;
@@ -617,7 +645,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 
         int retcode =0;
         string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid,retcode);
-        LOG(INFO)<<"TASKINFO";
+        LOG(INFO)<<"TASKINFO"<<strtask;
         try
         {
             Json::Value jsonRoot; Json::Reader reader;
@@ -629,7 +657,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             TaskInfo t_task;
             t_task.set_id(jsontaskid.asString());
             t_task.set_status(TaskInfo::Running);
-            if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task),task->version)) break;
+            if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task))) break;
             task->version+=1;
 
             string sinfo;
@@ -674,7 +702,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 
 //update remote taskinfo
         string putjson = pb2json(change_task);
-        int intret =Manager_ES::getInstance()->UpdateTaskInfo(info->id(),putjson,task->version);
+        int intret =Manager_ES::getInstance()->UpdateTaskInfo(info->id(),putjson);
         if(intret==0)
         {
 //save local taskinfo

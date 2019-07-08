@@ -2,7 +2,13 @@
 #include<vector>
 #include<boost/algorithm/string.hpp>
 #include "comm.h"
+#include <glog/logging.h>
 using std::vector;
+void absTask::showtask()
+{
+    if(t_task.id().size()<1) return;
+    LOG(INFO)<<t_task.id();
+}
 string absTask::GetKey()
 {
     if(t_task.key_size()<1) return "";

@@ -90,7 +90,14 @@ void Manager_ES::UpdateDevInfo(string nodeid,string putstrjson)
     }
     catch(exception& e)
     {
-        LOG(ERROR)<<"CURL ERROR :"<<e.what();
+        string hosts ="";
+
+        for(vector<std::string>::iterator it = m_hosts.begin(); it != m_hosts.end();it++)
+        {
+            hosts +=*it;
+
+        }
+        LOG(ERROR)<<"CURL ERROR :"<<e.what() +hosts;
 //        cout<<"CURL ERROR :"<<e.what()<<endl;
     }
 }
@@ -114,12 +121,13 @@ int Manager_ES::UpdateTaskInfo(string taskid,string putstrjson,int version)
             LOG(INFO)<<"error: curl: "<<crsp.status_code<<"/"<<crsp.url<<crsp.text<<" --> "<<strmsg;
             return crsp.status_code;
         }
-        return 0;
+
     }
     catch(exception& e)
     {
         LOG(ERROR)<<"CURL ERROR :"<<e.what();
     }
+    return 0;
 }
 //get remote task
 vector<string> Manager_ES::GetNewTaskId()
@@ -216,9 +224,17 @@ bool Manager_ES::createLock4taskid(string taskid,string ownid)
     cpr::Response crsp;
     try
     {
+        Client es(m_hosts);
+
+        crsp = es.performRequest(Client::HTTPMethod::POST,"fs/_refresh","");
+        if(crsp.status_code > 300 ||crsp.status_code <200)
+        {
+           LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
+        }
+
         string url ="fs/lock/"+taskid+"/_create";
         string body="{ \"process_id\": \""+ownid+"\"    }";
-        Client es(m_hosts);
+
         crsp = es.performRequest(elasticlient::Client::HTTPMethod::PUT,url,body);
         if(crsp.status_code > 300 ||crsp.status_code <200)
         {
@@ -242,6 +258,14 @@ bool Manager_ES::deleteLock4taskid(string taskid)
     {  
 
         Client es(m_hosts);
+
+        crsp = es.performRequest(Client::HTTPMethod::POST,"fs/_refresh","");
+        if(crsp.status_code > 300 ||crsp.status_code <200)
+        {
+           LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
+        }
+
+
         crsp = es.remove("fs","lock",taskid);
         if(crsp.status_code > 300 ||crsp.status_code <200)
         {

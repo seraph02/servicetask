@@ -22,9 +22,11 @@ void TaskUnit::run()
 
         while(t_task.status()<TaskInfo_TaskStatus_Complete)
         {
+            if(Manager_Task::IsChangeTaskOwn(this)) break;
             Manager_Task::TaskLoops(this);
             Manager_Task::IsChangeRemotStop(this);
             Manager_Task::IsChangeRemotDelete(this);
+
 
         }
     }
