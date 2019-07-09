@@ -45,7 +45,13 @@ string Manager_ES::GetESInfo()
         strret = crsp.text;
     }catch(exception &e)
     {
-        LOG(ERROR)<<e.what();
+        string hosts="";
+        for(vector<std::string>::iterator it = m_hosts.begin(); it != m_hosts.end();it++)
+        {
+            hosts +=*it;
+
+        }
+        LOG(ERROR)<<e.what()<<hosts;
     }
 
     return strret;
@@ -279,4 +285,32 @@ bool Manager_ES::deleteLock4taskid(string taskid)
 
 
     return bolret; 
+}
+string Manager_ES::getLock4taskid(string taskid)
+{
+    string strret="";
+    if(taskid.empty()) return strret;
+
+    cpr::Response crsp;
+    try
+    {
+
+        Client es(m_hosts);
+
+        crsp = es.get("fs","lock",taskid);
+        if(crsp.status_code > 300 ||crsp.status_code <200)
+        {
+           LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
+        }
+        strret = crsp.text;
+
+    }
+    catch (const std::exception&)
+    {
+
+    }
+
+
+
+    return strret;
 }

@@ -631,7 +631,17 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             //es add doc lock 
             bool islock = Manager_ES::getInstance()->createLock4taskid(str,m_workID());
             LOG(INFO)<<"LOCK TASKID "<<str<< " "<<m_workID();
-            if(islock) 
+
+            string lockinfo = Manager_ES::getInstance()->getLock4taskid(str);
+            string strown="";
+            Json::Value jsonlock; Json::Reader rd;
+            try
+            {
+                rd.parse(lockinfo, jsonlock);
+                strown = jsonlock["_source"]["process_id"].asString();
+            }
+            catch(...){ }
+            if(islock||strown.compare(m_workID())==0)
             {
                 strtaskid = str;
                 havetask = true;

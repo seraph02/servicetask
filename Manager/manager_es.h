@@ -19,6 +19,7 @@ public:
 
     bool createLock4taskid(string taskid,string ownid);
     bool deleteLock4taskid(string taskid);
+    string getLock4taskid(string taskid);
 
     bool POSTTaskResult(string indices,string strpostjson);
     virtual void Update(int status){}
