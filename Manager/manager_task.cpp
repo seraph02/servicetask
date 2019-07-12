@@ -517,11 +517,13 @@ void* RemotTaskAttribute(string taskid,string key,int& retcode)
     string strtask = Manager_ES::getInstance()->GetTaskInfo(taskid,retcode);
     try
     {
+//        LOG(INFO)<<strtask;
         Json::Value jsonRoot; Json::Reader reader;
         if (!reader.parse(strtask, jsonRoot)) return NULL;
         Json::Value jsontask = jsonRoot["_source"];
         if(!jsontask.isObject()) return NULL;
         if(jsontask[key].isString()) return static_cast<void*>(new std::string(jsontask[key].asString()));
+        if(!jsontask[key].isObject()) return NULL;
         return &jsontask[key];
     }
     catch(exception)
@@ -558,11 +560,6 @@ bool Manager_Task::IsChangeRemotStop(absTask* task)
             return true;
         }
     }
-    else
-    {
-        task->t_task.set_status(TaskInfo::Stop);
-        return true;
-    }
     return false;
 }
 bool Manager_Task::IsChangeTaskOwn(absTask* task)
@@ -574,6 +571,8 @@ bool Manager_Task::IsChangeTaskOwn(absTask* task)
     {
         std::string *sp = static_cast<std::string*>(obj);
         // You could use 'sp' directly, or this, which does a copy.
+
+        if(sp!=NULL){
         std::string nodeid = *sp;
 //                cout<<status<<endl;
         if(m_workID().compare(nodeid)==0)
@@ -586,8 +585,10 @@ bool Manager_Task::IsChangeTaskOwn(absTask* task)
             task->t_task.set_status(TaskInfo::Complete);
         }
 
-
+        try{
         delete sp;
+        }catch(...){}
+        }
         return bolret;
     }
     return bolret;
@@ -606,8 +607,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 //LOG(INFO)<<"local task is ready"<<endl;
         if(task->t_task.id().size()>1)
         {
-            bool ic = IsChangeRemotStop(task);
-            if(ic){ bolret=false;break;}
+            if(IsChangeRemotDelete(task) || IsChangeRemotStop(task)){ bolret=false;break;}
 
             bolret = true;
             break;
@@ -724,10 +724,12 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         }
         bolret =true;
 
-        while(!Manager_ES::getInstance()->deleteLock4taskid(strtaskid))
+        int tmpcount=0;
+        while(!Manager_ES::getInstance()->deleteLock4taskid(strtaskid) && tmpcount<3)
         {
             LOG(ERROR)<<"delete lock "<<strtaskid<< " error ,sleep 2s";
             sleep(2);
+            tmpcount++;
         }
         LOG(INFO)<<"UNLOCK TASKID "<<strtaskid<< " "<<info->nodeid();
         

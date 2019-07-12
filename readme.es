@@ -82,3 +82,58 @@ PUT devices
   }
 }
 curl -XPOST http://192.168.1.131:9200/task/taskinfo/UE_53moBrOxxijhUjtXf/_update -d '{ "doc":{"status":4}}' -H 'Content-Type: application/json'
+
+curl -X PUT "http://192.168.1.66:9200/ip2location" -H 'Content-Type: application/json' -d '
+{
+  "mappings": {
+    "data": { 
+      "properties": { 
+        "ipnum": { 
+          "type": "long_range" 
+        },
+        "country_code":{
+          "type":"text"
+        },
+        "city_name":{
+          "type":"text"
+        },
+        "country_name":{
+          "type":"text"
+        },
+        "region_name":{
+          "type":"text"
+        },
+        "location" : {
+          "type" : "geo_point"
+        }
+      } 
+    }
+  }
+}'
+POST ip2location/data/?pretty
+{
+  "country_code":"CN",
+  "city_name":"Xi'an",
+  "ipnum":{
+    "gte": 22104832,
+    "lte": 22105087
+  },
+  "country_name":"China",
+  "location":{
+    "lon":108.92861,
+    "lat":34.25833
+  },
+  "region_name":"Shaanxi"
+}
+
+GET ip2location/data/_search? 
+{ 
+  "query" : { 
+    "term" : { 
+      "ipnum": { 
+        "value": 22104842
+      }
+    }
+  }
+}
+

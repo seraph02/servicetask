@@ -20,7 +20,7 @@ void TaskUnit::run()
         Manager_Info::getInstance()->DevProcess();
         if(!Manager_Task::CheckTask(this)) return;
 
-        while(t_task.status()<TaskInfo_TaskStatus_Complete)
+        while(t_task.status()<TaskInfo_TaskStatus_Complete||t_task.status()==TaskInfo_TaskStatus_TimeOut)
         {
             if(Manager_Task::IsChangeTaskOwn(this)) break;
             Manager_Task::TaskLoops(this);
