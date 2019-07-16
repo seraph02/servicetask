@@ -7,7 +7,7 @@
 #include "myselfinfo.h"
 #include "conf.pb.h"
 #include "conf.h"
-
+#include <jsoncpp/json/json.h>
 #include "abstask.h"
 
 using namespace SCPROTO;
@@ -37,6 +37,7 @@ public:
     static bool IsChangeRemotStop(absTask* task);
     static bool IsChangeRemotDelete(absTask* task);
     static bool IsChangeTaskOwn(absTask* task);
+    static void TaskFilter(Json::Value & json);
     static bool GetTaskInfo(absTask* task);
 
     static bool ReadLocalTask(absTask* task);

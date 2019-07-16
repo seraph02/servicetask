@@ -593,6 +593,53 @@ bool Manager_Task::IsChangeTaskOwn(absTask* task)
     }
     return bolret;
 }
+void Manager_Task::TaskFilter(Json::Value & json)
+{
+    Json::Value newjson;
+
+    Json::Value::Members mem = json.getMemberNames();
+    Json::Value::Members::iterator iter;
+    string id{"id"};
+    string progress{"progress"};
+    string status{"status"};
+    string nodeid{"nodeid"};
+    string info{"info"};
+    string key={"key"};
+//    string ctime{"ctime"};
+//    string ptime{"ptime"};
+//    string rtime{"rtime"};
+//    string etime{"etime"};
+//    string datacount{"datacount"};
+
+    for (iter = mem.begin(); iter != mem.end(); iter++)
+    {
+        if(
+            id.compare(*iter)==0
+            ||progress.compare(*iter)==0
+        //    ||ctime.compare(*iter)==0
+        //    ||ptime.compare(*iter)==0
+        //    ||rtime.compare(*iter)==0
+        //    ||etime.compare(*iter)==0
+            ||status.compare(*iter)==0
+            ||nodeid.compare(*iter)==0
+            ||info.compare(*iter)==0
+            ||key.compare(*iter)==0
+        //    ||datacount.compare(*iter)==0
+            )
+        {
+            newjson[*iter]=json[*iter];
+//            LOG(INFO)<<"forward "<<*iter<<"\t: "<<json[*iter];
+        }
+        else
+        {
+//            LOG(INFO)<<"drop "<<*iter<<"\t: "<<json[*iter];
+        }
+
+    }
+    json.swap(newjson);
+
+
+}
 bool Manager_Task::GetTaskInfo(absTask* task)
 {
     if(m_IsStop) return false;
@@ -664,25 +711,31 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             Json::Value jsontaskid=jsonRoot["_id"];
             Json::Value jsontask = jsonRoot["_source"];
             if(!jsontask.isObject()||!jsontaskid.isString()) break;
-            TaskInfo t_task;
-            t_task.set_id(jsontaskid.asString());
-            t_task.set_status(TaskInfo::Running);
-            if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task))) break;
-            task->version+=1;
+
+
 
             string sinfo;
             try
             {
                 string taskid = jsontaskid.asString();
+                TaskFilter(jsontask);
 
                 sinfo = jsontask.toStyledString();
                 json2pb(*info,sinfo);
                 info->set_id(taskid);
+
+//update remote task status is run
+                TaskInfo t_task;
+                t_task.set_id(jsontaskid.asString());
+                t_task.set_status(TaskInfo::Running);
+                if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task))) break;
+                task->version+=1;
             }
             catch(exception &source)
             {
                  LOG(ERROR)<<source.what()<<sinfo;
             }
+
         }
         catch(exception& e)
         {

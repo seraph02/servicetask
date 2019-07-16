@@ -104,7 +104,6 @@ void Manager_Info::run()
         {
             health->SetState(Proxy,Off);
             health->SetState(ES,Off);
-            health->SetState(NetDisk,Off);
         }
 }
 void Manager_Info::Update(int state)
