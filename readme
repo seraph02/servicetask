@@ -95,4 +95,8 @@ adb shell ifconfig tun0 2> /dev/null |sed -n '/inet addr:/p' |sed 's/.*addr:\([0
 //#default
 touch test.c |gcc -E -dM -c test.c >> marco_x86_64.txt
 
+crontab -e
+0 */2 * * * /home/twd/cleanCache.sh
+service cron reload
+service cron restart
 

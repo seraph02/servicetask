@@ -351,7 +351,7 @@ bool Manager_Info::GetDevInfo(DevInfo* info)
     try
     {
          Json::Value JsonDev = GetJsonDev(strret);
-         if(JsonDev.isNull())
+         if(JsonDev.isNull()||(JsonDev["_source"]["ip"]).isNull())
          {
 //remote isnull, post dev
             string putstrjson = pb2json(*info);
