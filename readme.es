@@ -137,3 +137,23 @@ GET ip2location/data/_search?
   }
 }
 
+get ip2location/data/_search?
+{
+    "query": {
+        "bool" : {
+            "must" : {
+                "match_all" : {}
+            },
+            "filter" : {
+              "geo_distance": {
+                "distance": "100km",
+                "location": {
+                  "lat": 34.25833,
+                  "lon": 108.92861
+                }
+              }
+            }
+        }
+    }
+}
+

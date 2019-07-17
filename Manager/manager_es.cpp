@@ -36,7 +36,7 @@ string Manager_ES::GetESInfo()
     {
         if(m_hosts.size()<1) return "";
         Client es(m_hosts);
-        cpr::Response crsp = es.performRequest(elasticlient::Client::HTTPMethod::GET,"","");
+        cpr::Response crsp = es.performRequest(elasticlient::Client::HTTPMethod::GET,"_cat/health","");
         if(crsp.status_code > 300 ||crsp.status_code <200)
         {
 //            LOG(ERROR)<<"error: curl: "<<crsp.url<<":"<<crsp.status_code<<":"<<crsp.error.message;
@@ -127,6 +127,8 @@ int Manager_ES::UpdateTaskInfo(string taskid,string putstrjson,int version)
             LOG(INFO)<<"error: curl: "<<crsp.status_code<<"/"<<crsp.url<<crsp.text<<" --> "<<strmsg;
             return crsp.status_code;
         }
+        else
+            sleep(2);
 
     }
     catch(exception& e)
@@ -144,7 +146,7 @@ vector<string> Manager_ES::GetNewTaskId()
     try
     {
         Client es(m_hosts);
-        crsp = es.get("task","taskinfo","_search?q=status:1");
+        crsp = es.get("task","taskinfo","_search?q=status:1&size=10");
         if(crsp.status_code > 300 ||crsp.status_code <200)
         {
            LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
@@ -157,7 +159,7 @@ vector<string> Manager_ES::GetNewTaskId()
             if (!reader.parse(crsptext.c_str(), jsonRoot)) return vecret;
  //           task->version = jsonRoot
             Json::Value hitslist = jsonRoot["hits"]["hits"];
-            Json::Value jsontask; Json::Value jsontaskid;
+            Json::Value jsontaskid;
             if(!hitslist.isArray()) return vecret;
             for(int hiti=0;hiti<hitslist.size();hiti++)
             {
@@ -170,7 +172,9 @@ vector<string> Manager_ES::GetNewTaskId()
             }
         }
         catch(...)
-        {}
+        {
+            LOG(ERROR)<<"GET TASKLIST ERROR!";
+        }
     }
     catch(exception &e)
     {

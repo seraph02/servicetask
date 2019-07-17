@@ -408,6 +408,10 @@ void Manager_Task::TaskLoops(absTask* task)
 {
     if(m_IsStop) return ;
 
+
+
+
+
     TaskInfo change_task;
     change_task.set_id(task->t_task.id());
 //check task
@@ -678,6 +682,8 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             //es add doc lock 
             bool islock = Manager_ES::getInstance()->createLock4taskid(str,m_workID());
             LOG(INFO)<<"LOCK TASKID "<<str<< " "<<m_workID();
+            sleep(2);
+
 
             string lockinfo = Manager_ES::getInstance()->getLock4taskid(str);
             string strown="";
@@ -700,74 +706,71 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 
 
 
-        int retcode =0;
-        string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid,retcode);
-        LOG(INFO)<<"TASKINFO"<<strtask;
-        try
-        {
-            Json::Value jsonRoot; Json::Reader reader;
-            if (!reader.parse(strtask, jsonRoot)) break;
-            task->version = jsonRoot["_version"].asInt();
-            Json::Value jsontaskid=jsonRoot["_id"];
-            Json::Value jsontask = jsonRoot["_source"];
-            if(!jsontask.isObject()||!jsontaskid.isString()) break;
 
-
-
-            string sinfo;
-            try
-            {
-                string taskid = jsontaskid.asString();
-                TaskFilter(jsontask);
-
-                sinfo = jsontask.toStyledString();
-                json2pb(*info,sinfo);
-                info->set_id(taskid);
-
-//update remote task status is run
-                TaskInfo t_task;
-                t_task.set_id(jsontaskid.asString());
-                t_task.set_status(TaskInfo::Running);
-                if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task))) break;
-                task->version+=1;
-            }
-            catch(exception &source)
-            {
-                 LOG(ERROR)<<source.what()<<sinfo;
-            }
-
-        }
-        catch(exception& e)
-        {
-          LOG(ERROR)<<e.what()<<strtask;
-        }
-                //es add doc lock 
         
 
-        if(info->id().size()<1) {  bolret = false;  /*LOG(INFO)<<"remote is no task"<<endl;*/}
+        if(strtaskid.size()<1) {  bolret = false;  /*LOG(INFO)<<"remote is no task"<<endl;*/}
 
-    //update local taskinfo
-        time_t time_now; time(&time_now);
-        info->set_status(TaskInfo::Running);                                             //set task running
-        info->set_nodeid(m_workID());                                                    //set clientid
 
-        info->set_ptime(time_now);                                                       //set gettask time        
-//        info->set_progress(0);
+
+
 
 
 //create update taskinfo
         TaskInfo change_task;
-        change_task.set_id(info->id());
-        change_task.set_status(info->status());
-        change_task.set_ptime(info->ptime());
-        change_task.set_nodeid(info->nodeid());
-        info->set_progress(info->progress());
+        change_task.set_id(strtaskid);
+        change_task.set_status(TaskInfo::Running);
+        time_t time_now; time(&time_now);
+        change_task.set_ptime(time_now);
+        change_task.set_nodeid(m_workID());
+//        info->set_progress(info->progress());
 
 //update remote taskinfo
         string putjson = pb2json(change_task);
-        int intret =Manager_ES::getInstance()->UpdateTaskInfo(info->id(),putjson);
+        int intret =Manager_ES::getInstance()->UpdateTaskInfo(strtaskid,putjson);
         if(intret==0)
         {
+            int retcode =0;
+            string strtask = Manager_ES::getInstance()->GetTaskInfo(strtaskid,retcode);
+    //        LOG(INFO)<<"TASKINFO"<<strtask;
+            try
+            {
+                Json::Value jsonRoot; Json::Reader reader;
+                if (!reader.parse(strtask, jsonRoot)) break;
+                task->version = jsonRoot["_version"].asInt();
+                Json::Value jsontaskid=jsonRoot["_id"];
+                Json::Value jsontask = jsonRoot["_source"];
+                if(!jsontask.isObject()||!jsontaskid.isString()) break;
+
+
+
+                string sinfo;
+                try
+                {
+                    TaskFilter(jsontask);
+
+                    sinfo = jsontask.toStyledString();
+                    json2pb(*info,sinfo);
+
+
+    ////update remote task status is run
+    //                TaskInfo t_task;
+    //                t_task.set_id(jsontaskid.asString());
+    //                t_task.set_status(TaskInfo::Running);
+    //                if(0!=Manager_ES::getInstance()->UpdateTaskInfo(t_task.id(),pb2json(t_task))) break;
+    //                task->version+=1;
+                }
+                catch(exception &source)
+                {
+                     LOG(ERROR)<<source.what()<<sinfo;
+                }
+
+            }
+            catch(exception& e)
+            {
+              LOG(ERROR)<<e.what()<<strtask;
+            }
+                    //es add doc lock
 //save local taskinfo
         if(!WriteLocalTask(task)){            LOG(ERROR) << "workmanager write taskinfo error"<<endl;        }
         }
@@ -777,6 +780,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         }
         bolret =true;
 
+
         int tmpcount=0;
         while(!Manager_ES::getInstance()->deleteLock4taskid(strtaskid) && tmpcount<3)
         {
@@ -784,8 +788,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
             sleep(2);
             tmpcount++;
         }
-        LOG(INFO)<<"UNLOCK TASKID "<<strtaskid<< " "<<info->nodeid();
-        
+        LOG(INFO)<<"UNLOCK TASKID "<<strtaskid<< " "<<task->t_task.nodeid();
     }
     return bolret;
 }

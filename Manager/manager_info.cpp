@@ -284,14 +284,29 @@ bool Manager_Info::GetESInfo(CStatus* info)
         {
 
 
-          ESInfo esinfo;
+//          ESInfo esinfo;
 //          size_t size =strret.size();
-          json2pb(esinfo,stresinfo.c_str());
-          if(esinfo.version().number().size()>1)
+
+          if(stresinfo.find("yellow")!= stresinfo.npos||stresinfo.find("green")!= stresinfo.npos)
           {
               info->status=On;
               ret = true;
           }
+          else if(stresinfo.find("red")!= stresinfo.npos)
+          {
+              info->status=Off;
+              ret =true;
+          }
+          else
+          {
+              ret =false;
+          }
+//          json2pb(esinfo,stresinfo.c_str());
+//          if(esinfo.version().number().size()>1)
+//          {
+//              info->status=On;
+//              ret = true;
+//          }
         }
         catch(exception& e)
         {
