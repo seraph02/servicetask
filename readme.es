@@ -3,7 +3,7 @@ http://localhost:9200/task/taskinfo/_search?pretty=true
 创建INDEX
 curl -XPUT "http://localhost:9200/task/"
 添加
-curl -H "Content-Type: application/json" -XPOST 'http://localhost:9200/task/taskinfo?pretty=true' -d '{"progress": 0,"key":"1550654901", "ctime": 1550654901, "status": 1, "info": ["skype", "qq", "firechat"]}'
+curl -H "Content-Type: application/json" -XPOST 'http://localhost:9200/task/taskinfo?pretty=true' -d '{"progress": 0,"key":["1550654901"], "ctime": 1550654901, "status": 1, "info": ["qq"]}'
 
 http://localhost:9200/task/_search?q=status:1
 
@@ -36,7 +36,7 @@ curl -X PUT "http://192.168.7.12:9200/task" -H 'Content-Type: application/json' 
 {
     "settings" : {
         "index" : {
-            "number_of_shards" : 3, 
+            "number_of_shards" : 1, 
             "number_of_replicas" : 2 
         },
 	"index.write.wait_for_active_shards": "2"
@@ -156,4 +156,4 @@ get ip2location/data/_search?
         }
     }
 }
-
+curl -XPUT 'http://192.168.1.99:9200/_template/template_http_request_record' -H 'Content-Type: application/json' -d '{"index_patterns": ["record_*"],"settings": {"number_of_shards": 1,"number_of_replicas": 1}}'

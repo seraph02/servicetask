@@ -62,7 +62,15 @@ string Manager_ES::GetDevInfo(string nodeid)
     Client es(m_hosts);
     string index = "dev"+nodeid;
     cpr::Response crsp = es.get(index,"data",nodeid);
-    if(crsp.status_code > 300 ||crsp.status_code <200)
+    if(crsp.status_code ==404 )
+    {
+        string newdevdate="{ \"settings\" : { \"index\" : { \"number_of_shards\" : 1}}}";
+        try{
+            es.performRequest(Client::HTTPMethod::PUT,index,newdevdate);
+        }
+        catch(...){}
+    }
+    else if(crsp.status_code > 300 ||crsp.status_code <200)
     {
        LOG(ERROR)<<"error: curl: "<<crsp.url<<":"<<crsp.status_code<<":"<<crsp.error.message;
     }
@@ -82,9 +90,11 @@ void Manager_ES::UpdateDevInfo(string nodeid,string putstrjson)
         string strpath =index+"/data/"+nodeid+"/_update";
         std::string strmsg="{ \"doc\" : " + putstrjson +" }";
         string strret ;
+
         cpr::Response crsp = es.index(index,"data",nodeid+"/_update",strmsg);
         if(crsp.status_code==404)
         {
+//            LOG(INFO)<<putstrjson;
             crsp = es.index(index,"data",nodeid,putstrjson);
         }
         else if(crsp.status_code > 300 ||crsp.status_code <200)
@@ -101,7 +111,6 @@ void Manager_ES::UpdateDevInfo(string nodeid,string putstrjson)
         for(vector<std::string>::iterator it = m_hosts.begin(); it != m_hosts.end();it++)
         {
             hosts +=*it;
-
         }
         LOG(ERROR)<<"CURL ERROR :"<<e.what() +hosts;
 //        cout<<"CURL ERROR :"<<e.what()<<endl;
@@ -122,6 +131,7 @@ int Manager_ES::UpdateTaskInfo(string taskid,string putstrjson,int version)
         std::string strmsg="{ \"doc\" : " + putstrjson +" }";
         std::string strver="?version="+to_string(version);
         cpr::Response crsp = es.index("task","taskinfo",taskid+"/_update"+(version==-1?"":strver),strmsg);
+
         if(crsp.status_code > 300 ||crsp.status_code <200)
         {
             LOG(INFO)<<"error: curl: "<<crsp.status_code<<"/"<<crsp.url<<crsp.text<<" --> "<<strmsg;
@@ -147,7 +157,8 @@ vector<string> Manager_ES::GetNewTaskId()
     {
         Client es(m_hosts);
         crsp = es.get("task","taskinfo","_search?q=status:1&size=10");
-        if(crsp.status_code > 300 ||crsp.status_code <200)
+        if(crsp.status_code ==404) {return vecret;}
+        else if(crsp.status_code > 300 ||crsp.status_code <200)
         {
            LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
         }
@@ -211,8 +222,24 @@ bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
     try
     {
         Client es(m_hosts);
+
+        crsp = es.get(indices,"data","_search");
+        if(crsp.status_code==404)
+        {
+            string newdevdate="{ \"settings\" : { \"index\" : { \"number_of_shards\" : 1}}}";
+            try{
+                es.performRequest(Client::HTTPMethod::PUT,indices,newdevdate);
+            }
+            catch(...){}
+        }
+
+
         crsp = es.index(indices,"data","?pretty=true",strpostdata);
-        if(crsp.status_code > 300 ||crsp.status_code <200)
+        if(crsp.status_code==404)
+        {
+
+            crsp = es.index(indices,"data","?pretty=true",strpostdata);
+        }else if(crsp.status_code > 300 ||crsp.status_code <200)
         {
             LOG(INFO)<<"error: curl: "<<"/"<<crsp.url<<crsp.text;
             return bolret;

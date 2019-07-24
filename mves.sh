@@ -1,4 +1,4 @@
-src="192.168.1.49"
+src="192.168.1.57"
 dst="192.168.1.86"
 for index in $(curl -s 'http://'$src':9200/_cat/indices' | awk '{print $3}' | sort | uniq); do
 echo $index

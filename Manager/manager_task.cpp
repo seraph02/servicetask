@@ -218,6 +218,8 @@ bool Manager_Task::PUSHRemoteResult(string info,string taskid,string indices,str
     {
 //post jar result
         Json::Value jsondata;
+        time_t time_now; time(&time_now);
+        jsondata["spidedate"] = std::to_string(time_now);
         jsondata["task"]=info;
         jsondata["taskid"]=taskid;
         jsondata["result"]=putjson.c_str();
@@ -452,6 +454,7 @@ void Manager_Task::TaskLoops(absTask* task)
             string restjson = ReadLocalFile(m_taskRstfile(strApp+strkey));
 
             TaskResult result;
+
             result.set_info(strApp);
             result.set_json(restjson);
             resultAddfiles(&result,restjson);
