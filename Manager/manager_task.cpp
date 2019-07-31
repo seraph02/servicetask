@@ -322,6 +322,8 @@ bool Manager_Task::PUSHRemoteFiles(string info,string taskid,string indices,Task
                 if(strread.size()<1)    continue;
 
                 Json::Value jsondata;
+                time_t time_now; time(&time_now);
+                jsondata["spidedate"] = std::to_string(time_now);
                 jsondata["taskid"]=taskid;
                 jsondata["task"]=info;
                 jsondata["file"]=result.filelist(j);
@@ -382,6 +384,8 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
             {
                 Json::Value jelement = jdataclassify[i];
                 Json::Value jsondata;
+                time_t time_now; time(&time_now);
+                jsondata["spidedate"] = std::to_string(time_now);
                 jsondata["taskid"]=task->id();
                 jsondata["task"]=info;
                 string type =jelement["type"].isString()? jelement["type"].asString():"unknow";//message  or contacts

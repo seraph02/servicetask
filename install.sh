@@ -14,6 +14,7 @@ echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 
 echo '#!/bin/sh
 sysctl -p
+service apache2 start
 service supervisor start' > /etc/rc.local
 chmod +x /etc/rc.local
 

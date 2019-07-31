@@ -100,3 +100,6 @@ crontab -e
 service cron reload
 service cron restart
 
+
+ubuntu国内源
+http://mirrors.ustc.edu.cn/ubuntu-ports/

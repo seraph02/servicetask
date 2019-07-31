@@ -31,3 +31,4 @@ ln -s NetFace.jar gmail
 ln -s NetFace.jar yahoo
 ln -s NetFace.jar outlook
 ln -s NetFace.jar shenxun
+ln -s NetFace.jar facebook
