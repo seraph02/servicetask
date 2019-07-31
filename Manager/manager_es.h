@@ -22,6 +22,7 @@ public:
     string getLock4taskid(string taskid);
 
     bool POSTTaskResult(string indices,string strpostjson);
+    bool POSTTaskResult(string indices,string id,string strpostdata);
     virtual void Update(int status){}
     static Manager_ES* getInstance()
     {

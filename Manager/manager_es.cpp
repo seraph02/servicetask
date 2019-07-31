@@ -213,7 +213,7 @@ string Manager_ES::GetTaskInfo(string docid,int& statuscode)
     }
     return strret;
 }
-bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
+bool Manager_ES::POSTTaskResult(string indices,string id,string strpostdata)
 {
     bool bolret=false;//lowercase
     transform(indices.begin(), indices.end(), indices.begin(), towlower);
@@ -234,7 +234,7 @@ bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
         }
 
 
-        crsp = es.index(indices,"data","?pretty=true",strpostdata);
+        crsp = es.index(indices,"data",id+"?pretty=true",strpostdata);
         if(crsp.status_code==404)
         {
 
@@ -250,7 +250,11 @@ bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
     {
         LOG(ERROR)<<e.what()<<crsp.status_code;
     }
-    return bolret;
+}
+bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
+{
+
+    return POSTTaskResult(indices,"",strpostdata);
 }
 
 bool Manager_ES::createLock4taskid(string taskid,string ownid)

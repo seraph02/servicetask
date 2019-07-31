@@ -391,9 +391,22 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
                 string type =jelement["type"].isString()? jelement["type"].asString():"unknow";//message  or contacts
                 jsondata[type]=jelement["body"];
                 Json::FastWriter jfw;
-
+                std::string strmessageid="";
+                try{
+                    //voxerid
+                    string messageid = jelement["body"]["message_id"].asString();
+                    strmessageid.append(messageid);
+                }catch(...){}
+                try{
+                    //imo is no id
+//                    string messageid = jelement["body"]["message_id"].asString();
+//                    strmessageid.append(messageid);
+                }catch(...){}
                 std::string strpostdata=jfw.write(jsondata);
-                Manager_ES::getInstance()->POSTTaskResult(indices,strpostdata);
+                if(strmessageid.empty()||strmessageid.size()<2) Manager_ES::getInstance()->POSTTaskResult(indices,strpostdata);
+                else
+                    Manager_ES::getInstance()->POSTTaskResult(indices,strmessageid,strpostdata);
+
                 if(type.compare("message")==0){  task->set_datacount(task->datacount()+1);}
 
             }
