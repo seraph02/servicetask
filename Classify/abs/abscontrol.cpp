@@ -56,6 +56,9 @@ void absControl::body2files()
             if(tmp.size()<1) continue;
             //files.resize(files.size()+tmp.size());
             files.insert(files.end(),tmp.begin(),tmp.end());
+            sort(files.begin(), files.end());
+            auto iter = unique(files.begin(), files.end());
+            files.erase(iter, files.end());
         }
         else if(!PathValue.isNull() && PathValue.isArray())
         {//have mult filepath
@@ -70,6 +73,10 @@ void absControl::body2files()
                 if(tmp.size()<1) continue;
                 files.resize(files.size()+tmp.size());
                 files.insert(files.end(),tmp.begin(),tmp.end());
+
+                sort(files.begin(), files.end());
+                auto iter = unique(files.begin(), files.end());
+                files.erase(iter, files.end());
             }
         }
     }
