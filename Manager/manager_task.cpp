@@ -362,10 +362,10 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
 
     string DataClassifycmd;
     DataClassifycmd = sscmd.str();
-    RunShell("echo \"\" >datareslut");
+    RunShell("echo \"\" >dataresult");
     LOG(INFO)<<"runshell :"<<DataClassifycmd.c_str();
     RunShell(DataClassifycmd.c_str());
-    string strret= ReadLocalFile("datareslut");
+    string strret= ReadLocalFile("dataresult");
     LOG(INFO)<< " => " << strret;
     if(strret.compare("-1")==0 || strret.size()<3) return true;
 

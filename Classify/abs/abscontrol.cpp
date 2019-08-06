@@ -172,12 +172,19 @@ string Multiple2Array(string& body)
         body = "["+body+"]";
     return body;
 }
+
+
 void absControl::work()
 {
+
+
+
     LOG(INFO)<<"WORK file:"<<files.size();
     for(int fileite =0;fileite< files.size();fileite++)
     {
+
         string file = files[fileite];
+        LOG(INFO)<<"WORK file:"<<fileite<<" name:"<<file;
         struct stat s;
         if (stat(file.c_str(),&s)!=0 || (s.st_mode & S_IFDIR)!=0){ continue ;}
         string filename;
@@ -193,7 +200,7 @@ void absControl::work()
 
         try
         {
-            if(filebody.rfind("}\n{")!=string::npos) filebody == Multiple2Array(filebody);
+            if(filebody.rfind("}\n{")!=string::npos) filebody = Multiple2Array(filebody);
 
             if(!jread.parse(filebody,jfile)||jfile.isNull()){throw exception();}
             else if(jfile.isArray())
@@ -212,6 +219,8 @@ void absControl::work()
             LOG(ERROR)<<e.what()<<"parse error"<<file<<">>"<<filebody;
             continue;
         }
+        try
+        {
         if(filename.rfind("dialog")!=string::npos)
         {
             ProcessDialog(jarray);
@@ -225,6 +234,12 @@ void absControl::work()
         else// if(filename.rfind("message")!=string::npos)
         {
             ProcessMessage(jarray);
+        }
+        }
+        catch(exception &proe)
+        {
+            LOG(ERROR)<<proe.what();
+            continue;
         }
     }
 

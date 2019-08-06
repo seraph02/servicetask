@@ -32,23 +32,7 @@ void DataClassify::Go(string result,string appname,string key)
         }
 
         if(jsonlist.size()<1){delete ptrObj;return;}
-//        stringstream ss;
-        ofstream ofs("datareslut", ofstream::out | ofstream::binary);
-        if (ofs)
-        {
 
-        ofs<<"[";
-        for(vector<string>::iterator it = jsonlist.begin();it!=jsonlist.end();)
-//        for (string val : jsonlist)
-        {
-            ofs<<*it;
-            ++it;
-            if(it!=jsonlist.end()) ofs<<",";
-//            LOG(INFO) << "json " << *it << endl;
-        }
-        ofs<<"]";
-        }
-        ofs.close();
         sleep(1);
 //        LOG(INFO) << "json " << *it << endl;
 

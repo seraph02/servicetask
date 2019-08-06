@@ -20,6 +20,7 @@ add_subdirectory(Classify)
 add_subdirectory(elasticlient)
 add_subdirectory(Base)
 add_subdirectory(Manager)
+add_subdirectory(dbput)
 
 INCLUDE_DIRECTORIES(
     ${COMM_INCLUDE_DIRS}
