@@ -4,8 +4,7 @@ project(manager)
 cmake_minimum_required(VERSION 3.0)
 add_compile_options(-std=c++11)
 aux_source_directory(. DIR_ManagerLIB_SRCS)
-file(GLOB MANAGER_INCLUDE ./*.h)
-
+file(GLOB MANAGER_INCLUDE_DIRS ./*.h)
 
 INCLUDE_DIRECTORIES(
     ${COMM_INCLUDE_DIRS}

@@ -1,7 +1,6 @@
 #ifndef ABSTASK_H
 #define ABSTASK_H
-#include<string>
-#include"comm.h"
+#include <string>
 using std::string;
 #include "taskinfo.pb.h"
 using namespace SCPROTO;
@@ -15,22 +14,7 @@ public:
     {
         taskpath=path.length()>1&&(path[path.size()-1]=='/'|path[path.size()-1]=='\\')?path:path+'/';
     }
-    string getfilename4task()
-    {
-        if(t_task.id().empty())
-        {
-            std::vector<string> files = getFiles(taskpath);
-            string taskfile="";
-            for(string s : files)
-            {
-                if(getfileext(s).compare(".tsk")==0) taskfile=s;
-                break;
-            }
-            if(taskfile.empty())return taskfile;
-            return taskfile;
-        }
-        return taskpath+t_task.id()+".tsk";
-    }
+    string getfilename4task();
     void showtask();
 
 protected:

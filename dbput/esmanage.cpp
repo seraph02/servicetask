@@ -5,6 +5,7 @@
 #include <jsoncpp/json/json.h>
 #include <comm.h>
 #include <string>
+#include "manager_es.h"
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -53,6 +54,7 @@ int main(int argc, char* argv[])
 //    }
     string line;
     int lineid=0;
+    Manager_ES::getInstance()->ChangeHosts({"http://localhsot:9200/"});
     while (getline (fin, line)) // line中不包括每行的换行符
     {
         if(line.length()<3) continue;
@@ -60,9 +62,48 @@ int main(int argc, char* argv[])
         if(line[line.length()-1] == ']' )
                 line.pop_back();
        LOG(INFO) <<lineid++<<":"<< line << endl;
+
+       string strret = line;
+       string info="telegram";
+       string indices="telegramgroup";
+       Json::Value jdataclassify;
+       Json::Reader jread;
+       jread.parse(strret,jdataclassify);
+       if(!jdataclassify.isNull())
+       {
+
+               Json::Value jelement = jdataclassify;
+               Json::Value jsondata;
+               time_t time_now; time(&time_now);
+               jsondata["spidedate"] = std::to_string(time_now);
+               //jsondata["taskid"]=task->id();
+               jsondata["task"]=info;
+               string type =jelement["type"].isString()? jelement["type"].asString():"unknow";//message  or contacts
+               jsondata[type]=jelement["body"];
+               Json::FastWriter jfw;
+               std::string strmessageid="";
+               try{
+                   //voxerid
+                   string messageid = jelement["body"]["message_id"].asString();
+                   strmessageid.append(messageid);
+               }catch(...){}
+               try{
+                   //imo is no id
+//                    string messageid = jelement["body"]["message_id"].asString();
+//                    strmessageid.append(messageid);
+               }catch(...){}
+               std::string strpostdata=jfw.write(jsondata);
+               if(strmessageid.empty()||strmessageid.size()<2) Manager_ES::getInstance()->POSTTaskResult(indices,strpostdata);
+               else
+                   Manager_ES::getInstance()->POSTTaskResult(indices,strmessageid,strpostdata);
+
+
+
+
+       }
     }
 
-    //Manager_ES::ChangeHosts({"http://"+"localhsot"+":"+"9200"+"/"});
+
     fin.close();
     return 0;
 }

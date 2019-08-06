@@ -16,7 +16,7 @@ bool Manager_Core::Init()
     ConfInfo* conf = Manager_conf::getInstance();
     LOG(INFO)<<m_info.b_dev->ip();
     conf->set_eshost(m_info.b_dev->ip());
-    Manager_ES::ChangeHosts({"http://"+conf->eshost()+":"+conf->esport()+"/"});
+    Manager_ES::getInstance()->ChangeHosts({"http://"+conf->eshost()+":"+conf->esport()+"/"});
 
     Manager_Info::ChangeHealth(&m_info);
     m_info.Attach(Manager_Info::getInstance());

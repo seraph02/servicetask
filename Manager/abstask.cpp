@@ -1,9 +1,25 @@
 #include "abstask.h"
+#include "comm.h"
 #include<vector>
 #include<boost/algorithm/string.hpp>
-#include "comm.h"
 #include <glog/logging.h>
 using std::vector;
+string absTask::getfilename4task()
+{
+    if(t_task.id().empty())
+    {
+        std::vector<string> files = getFiles(taskpath);
+        string taskfile="";
+        for(string s : files)
+        {
+            if(getfileext(s).compare(".tsk")==0) taskfile=s;
+            break;
+        }
+        if(taskfile.empty())return taskfile;
+        return taskfile;
+    }
+    return taskpath+t_task.id()+".tsk";
+}
 void absTask::showtask()
 {
     if(t_task.id().size()<1) return;
