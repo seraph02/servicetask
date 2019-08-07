@@ -250,7 +250,37 @@ bool Manager_ES::POSTTaskResult(string indices,string id,string strpostdata)
     {
         LOG(ERROR)<<e.what()<<crsp.status_code;
     }
+    return bolret;
 }
+
+bool Manager_ES::POSTBulkdata(elasticlient::SameIndexBulkData& bulkdata,string type,string docid,string data)
+{
+    bulkdata.indexDocument(type,docid, data);
+    bulkcount++;
+    if(bulkcount<10000) ;
+    else
+    {
+        std::shared_ptr<elasticlient::Client> es = std::make_shared<elasticlient::Client>(
+               std::vector<std::string>(m_hosts));
+        elasticlient::Bulk bulkIndexer(es);
+        size_t errors = bulkIndexer.perform(bulkdata);
+        bulkdata.clear();
+        bulkcount=0;
+    }
+
+    return 0;
+}
+
+void Manager_ES::POSTBulkend(elasticlient::SameIndexBulkData& bulkdata)
+{
+    std::shared_ptr<elasticlient::Client> es = std::make_shared<elasticlient::Client>(
+           std::vector<std::string>(m_hosts));
+    elasticlient::Bulk bulkIndexer(es);
+    size_t errors = bulkIndexer.perform(bulkdata);
+    bulkdata.clear();
+}
+
+
 bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
 {
 
@@ -283,7 +313,7 @@ bool Manager_ES::createLock4taskid(string taskid,string ownid)
         }
 		else  bolret = true;
     }
-    catch (const std::exception&)
+    catch (const std::exception& e)
     {
         
     }

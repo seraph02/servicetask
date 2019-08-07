@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "obmanager.h"
+#include <elasticlient/bulk.h>
 
 using namespace std;
 class Manager_ES
@@ -23,10 +24,18 @@ public:
 
     bool POSTTaskResult(string indices,string strpostjson);
     bool POSTTaskResult(string indices,string id,string strpostdata);
+
+    elasticlient::SameIndexBulkData& POSTBulkStart(string indices);
+    bool POSTBulkdata(elasticlient::SameIndexBulkData& bulkdata,string type,string docid,string data);
+    void POSTBulkend(elasticlient::SameIndexBulkData& bulkdata);
     virtual void Update(int status){}
     static Manager_ES* getInstance()
     {
         return esMNG;
+    }
+    static void AddHosts(std::string host)
+    {
+        m_hosts.push_back(host);
     }
     static void ChangeHosts(vector<std::string> hosts)
     {
@@ -42,6 +51,8 @@ public:
 private:
     static std::vector<std::string> m_hosts;
     static Manager_ES* esMNG;
+    long bulkcount=0;
+    string bulkindices="";
 };
 
 #endif // MANAGER_ES_H
