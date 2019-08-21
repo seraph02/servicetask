@@ -184,7 +184,7 @@ void absControl::work()
     {
 
         string file = files[fileite];
-        LOG(INFO)<<"WORK file:"<<fileite<<" name:"<<file;
+        //LOG(INFO)<<"WORK file:"<<fileite<<" name:"<<file;
         struct stat s;
         if (stat(file.c_str(),&s)!=0 || (s.st_mode & S_IFDIR)!=0){ continue ;}
         string filename;

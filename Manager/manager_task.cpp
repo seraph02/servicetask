@@ -146,6 +146,7 @@ void Manager_Task::TaskProcess(absTask* task)
 
             LOG(INFO)<<"runshell :"<<strcmd.c_str();
             strret= RunShell(strcmd.c_str());
+            if(strret.find_first_of("{")!=string::npos) strret = strret.substr(strret.find_first_of("{"));
             LOG(INFO)<< " => " << strret;
             if(strret.compare("-1")!=0 &&strret.size()>1)
             {
