@@ -19,7 +19,24 @@ curl -H "Content-Type: application/json" -XPOST 'http://localhost:9200/config/co
 ./esm -d http://192.168.1.57:9200 -y "keydamara032" --refresh -i=keydamara032.bin
 ./esm -s http://192.168.1.59:9200 -x "keydamara032" --refresh -o=keydamara032.bin
 
-
+PUT telegramgroup1
+{
+  "settings": {
+    "default_pipeline": "my_timestamp_pipeline"
+  }
+}
+PUT _ingest/pipeline/my_timestamp_pipeline
+{
+  "description": "Adds a field to a document with the time of ingestion",
+  "processors": [
+    {
+      "set": {
+        "field": "@timestamp",
+        "value": "{{_ingest.timestamp}}"
+      }
+    }
+  ]
+}
 
 //health is red ,
 curl -XPUT "http://localhost:9200/_settings" -d' {  "number_of_replicas" : 0 } '
@@ -32,14 +49,13 @@ curl -X POST "localhost:9200/twitter/_doc/_delete_by_query?conflicts=proceed" -H
   }
 }
 
-curl -X PUT "http://192.168.7.12:9200/task" -H 'Content-Type: application/json' -d '
+curl -X PUT "http://192.168.1.57:9200/task1" -H 'Content-Type: application/json' -d '
 {
     "settings" : {
         "index" : {
             "number_of_shards" : 1, 
-            "number_of_replicas" : 2 
-        },
-	"index.write.wait_for_active_shards": "2"
+            "number_of_replicas" : 1
+        }
     },
     "mappings": 
     {
@@ -62,6 +78,12 @@ curl -X PUT "http://192.168.7.12:9200/task" -H 'Content-Type: application/json' 
       }
     }
 }'
+POST /_aliases
+{
+    "actions" : [
+        { "add" : { "index" : "task1", "alias" : "task" } }
+    ]
+}
 curl -XPUT "http://192.168.7.13:9200/devices" -H 'Content-Type: application/json' -d '
 {
     "settings" : {
