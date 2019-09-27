@@ -179,3 +179,25 @@ get ip2location/data/_search?
     }
 }
 curl -XPUT 'http://192.168.1.99:9200/_template/template_http_request_record' -H 'Content-Type: application/json' -d '{"index_patterns": ["record_*"],"settings": {"number_of_shards": 1,"number_of_replicas": 1}}'
+
+
+PUT my_index
+{
+  "settings": {
+    "default_pipeline": "my_timestamp_pipeline"
+  }
+}
+
+PUT _ingest/pipeline/my_timestamp_pipeline
+{
+  "description": "Adds a field to a document with the time of ingestion",
+  "processors": [
+    {
+      "set": {
+        "field": "ingest_timestamp",
+        "value": "{{_ingest.timestamp}}"
+      }
+    }
+  ]
+}
+

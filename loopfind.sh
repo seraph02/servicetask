@@ -17,9 +17,9 @@ echo $enline
   then
    echo ""
   else
-#	  if [ $ab -ne "0" ];then  
+	  if [ $ab -ne "0" ];then  
 		echo $line","$ab >>curl.txt
-#	  fi
+	  fi
   fi
   
 done

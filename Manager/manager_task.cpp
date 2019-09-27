@@ -94,8 +94,8 @@ void Manager_Task::TaskProcess(absTask* task)
 {
     string strcmd="";
     bool isnextkey=false;
-    ostringstream ocmd;    
-    ocmd << "java -Dfile.encoding=utf-8 -jar " +Manager_conf::getInstance()->pocpath();
+    ostringstream ocmd;
+    ocmd << "" +Manager_conf::getInstance()->pocpath();
     if(task->GetTaskTol()>0 && task->progress() <= task->GetTaskTol())
     {
         string strtask = task->GetInfo();
@@ -691,7 +691,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 //LOG(INFO)<<"local is no task"<<endl;
 //remote task --> local
         vector<string> vectask = Manager_ES::getInstance()->GetNewTaskId();
-        
+
         if(vectask.empty()) break;
         LOG(INFO)<<"vectask size" << vectask.size();
         string strtaskid;
@@ -700,7 +700,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         {
             string str = *it;
             LOG(INFO)<<"TASKID "<<str;
-            //es add doc lock 
+            //es add doc lock
             bool islock = Manager_ES::getInstance()->createLock4taskid(str,m_workID());
             LOG(INFO)<<"LOCK TASKID "<<str<< " "<<m_workID();
             sleep(2);
@@ -720,7 +720,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
                 strtaskid = str;
                 havetask = true;
                 break;
-            }  
+            }
         }
 
         if(!havetask) break;
@@ -728,7 +728,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
 
 
 
-        
+
 
         if(strtaskid.size()<1) {  bolret = false;  /*LOG(INFO)<<"remote is no task"<<endl;*/}
 

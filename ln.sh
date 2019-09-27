@@ -1,34 +1,39 @@
 rm -rf a* f* i* m* q* s* t* v* w* y*
-ln -s Control.jar fbmcontrol
-ln -s Control.jar imocontrol
-ln -s Control.jar voxercontrol
-ln -s Control.jar telegramcontrol
+runname="../POC/Control.jar"
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > fbmcontrol
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > imocontrol
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > voxercontrol
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > telegramcontrol
 
-ln -s NetFace.jar telegram
-ln -s NetFace.jar whatsapp
-ln -s NetFace.jar wechat
-ln -s NetFace.jar viber
-ln -s NetFace.jar line
-ln -s NetFace.jar imo
+runname="../POC/NetFace.jar"
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > telegram
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > whatsapp
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > wechat
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > viber
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > line
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > imo
 
-ln -s NetFace.jar voxer
-ln -s NetFace.jar yixin
-ln -s NetFace.jar meetup
-ln -s NetFace.jar qq
-ln -s NetFace.jar quora
-ln -s NetFace.jar skype
-ln -s NetFace.jar tumblr
-ln -s NetFace.jar twitter
-ln -s NetFace.jar firechat
-ln -s NetFace.jar messenger
-ln -s NetFace.jar alipay
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > voxer
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > yixin
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > meetup
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > qq
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > quora
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > skype
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > tumblr
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > twitter
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > firechat
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > messenger
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > alipay
 
-ln -s NetFace.jar dropbox
-ln -s NetFace.jar instagram
-ln -s NetFace.jar taobao
-ln -s NetFace.jar hotmail
-ln -s NetFace.jar gmail
-ln -s NetFace.jar yahoo
-ln -s NetFace.jar outlook
-ln -s NetFace.jar shenxun
-ln -s NetFace.jar facebook
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > dropbox
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > instagram
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > taobao
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > hotmail
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > gmail
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > yahoo
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > outlook
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > shenxun
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > facebook
+
+runname="../POC/jxlsexport.jar"
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > export
