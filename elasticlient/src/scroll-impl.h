@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include "elasticlient/client.h"
 
 

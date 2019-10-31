@@ -8,6 +8,9 @@ set(SERVICE_FIND YES)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 #定义COMM_DIR位置
+if(NOT ROOT_DIR)
+    set( ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/)
+endif()
 if(NOT COMM_DIR)
     set( COMM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/)
 endif()
@@ -21,6 +24,7 @@ add_subdirectory(elasticlient)
 add_subdirectory(Base)
 add_subdirectory(Manager)
 add_subdirectory(dbput)
+add_subdirectory(expclassify)
 
 INCLUDE_DIRECTORIES(
     ${COMM_INCLUDE_DIRS}

@@ -23,13 +23,19 @@ void Manager_Info::run()
 //    LOG(INFO)<<"selfchk heartbeat "<<endl;
     //nodeid is null set off
         CStatus adb;
+#ifdef ADB
+       adb.status=On;
+#else
         adb.status =health->b_dev->nodeid().size()<2?Off:On;
+#endif
         health->SetState(Adb,adb.status);
-        
+#ifdef NETDISK
+        health->SetState(NetDisk,On);
+#else
         CStatus netdisk;
         Manager_Info::getInstance()->GetNetDiskInfo(&netdisk);
         health->SetState(NetDisk,netdisk.status);
-
+#endif
         CStatus netinfo;
         //get net info
         try
@@ -68,6 +74,8 @@ void Manager_Info::run()
                     }
                     string putstrjson = pb2json(changedev);
                     Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
+
+
 
                 }
             }
@@ -108,18 +116,28 @@ void Manager_Info::run()
 }
 void Manager_Info::Update(int state)
 {
-    status = state;
+    int tstatus = GetFlag();
+    if(tstatus!=status){
+        status = tstatus;
+        try{
+        DevInfo* changestatus = new DevInfo;
+        changestatus->set_flag(status);
+        string putstrjson = pb2json(*changestatus);
+        Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
+        }
+        catch(...){}
+    }
     bool isChange = CheckStatus(Dev);
     if(isChange)
     {
         DevInfo* info = new DevInfo;
         try
         {
-        info->set_process(health->b_dev->process());
-        info->set_complete(health->b_dev->complete());
-        string putstrjson = pb2json(*info);
-        Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
-        health->SetState(Dev,Off);
+            info->set_process(health->b_dev->process());
+            info->set_complete(health->b_dev->complete());
+            string putstrjson = pb2json(*info);
+            Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
+            health->SetState(Dev,Off);
         }
         catch(exception &e)
         {
@@ -127,6 +145,8 @@ void Manager_Info::Update(int state)
         }
         delete info;
     }
+
+
 }
 void Manager_Info::Updatetasklist(string appname)
 {
@@ -349,7 +369,7 @@ Json::Value GetJsonDev(string src)
 bool Manager_Info::GetDevInfo(DevInfo* info)
 {
     if(!CheckStatus(ES)) return false;
-
+    if(health->b_dev->nodeid().empty()) return false;
     string strret="";
 //get remote devinfo
     try

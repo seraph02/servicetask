@@ -27,6 +27,7 @@ public:
 
     MyHealth();
     ~MyHealth();
+    int GetFlag(){return status;}
     void SetDevInfo(DevInfo *info);
     void SetDevInfo(string strinfo);
 inline bool CheckStatus(EType stype){ return ((status>>stype)&1); }

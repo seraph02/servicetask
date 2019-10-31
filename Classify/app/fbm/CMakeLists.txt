@@ -7,4 +7,4 @@ INCLUDE_DIRECTORIES(
     ${APP_INCLUDE}
     )
 add_library(${PROJECT_NAME} ${FBM_APP_SRCS})
-target_link_libraries(${PROJECT_NAME} abs comm jsoncpp ${CURL_LIBRARY})
+target_link_libraries(${PROJECT_NAME} abs comm jsoncpp ${CURL_LIBRARY} boost_regex)

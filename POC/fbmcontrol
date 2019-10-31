@@ -1,0 +1,19 @@
+#!/bin/sh
+while getopts ":k:t:o:" opt
+do
+    case $opt in
+        k)
+		key=${OPTARG#*=}
+        ;;
+        t)
+		type=${OPTARG#*=}
+        ;;
+        o)
+		pass=${OPTARG#*=}
+        ;;
+        ?)
+        echo "argv** is error!!"
+        exit 1;;
+    esac
+done
+python3 ../POC/linglong.py $key $pass 

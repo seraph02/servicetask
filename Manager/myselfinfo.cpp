@@ -1,6 +1,6 @@
 #include "myselfinfo.h"
 #include "jsoncpp2pb.h"
-
+#include <boost/algorithm/string.hpp>
 MyHealth::MyHealth()
 {
 
@@ -66,6 +66,12 @@ void MyHealth::SetDevInfo(string strinfo)
 
 string MyHealth::GetIMEI()
 {
+#ifdef AMD64
+    string strret=GetMAC();
+
+    boost::replace_all(strret,":","");
+    return strret;
+#else
     string strcmd = "adb shell service call iphonesubinfo 1 | sed -n '/[0-9]\\./p' |sed ':a;N;s/\\n/\\t/;ba;'|sed 's/0x[0-9]\\{8\\}\\|)//g'|sed 's/[0-9a-f]\\{8\\}//g' |sed 's/[[:punct:][:space:]]//g'";
     string strret= RunShell(strcmd.c_str());
 
@@ -79,9 +85,24 @@ string MyHealth::GetIMEI()
         strret = "";
     }
     return strret;
+#endif
 }
 string MyHealth::GetMAC()
 {
+#ifdef AMD64
+    string strcmd = "cat /sys/class/net/*/address | sed \"s/00:00:00:00:00:00//\"";
+    string strret= RunShell(strcmd.c_str());
+//        LOG(INFO)<<"runshell :"<<strcmd.c_str()<< " => " << strret;
+    if(strret.compare("-1")!=0 &&strret.size()>1)
+    {
+        strret.erase(strret.find_last_not_of("\n") + 1);
+    }
+    else
+    {
+        strret = "0000000000";
+    }
+    return strret;
+#else
     string strcmd = "adb shell cat /sys/class/net/wlan0/address";
     string strret= RunShell(strcmd.c_str());
 //        LOG(INFO)<<"runshell :"<<strcmd.c_str()<< " => " << strret;
@@ -94,9 +115,22 @@ string MyHealth::GetMAC()
         strret = "0000000000";
     }
     return strret;
+#endif
 }
 string MyHealth::GetLocalIP()
 {
+#ifdef AMD64
+    string strcmd = "ifconfig 2> /dev/null |sed 's/.*127.0.0.1.*//g'|sed -n '/Bcast\\|broadcast/p' |sed 's/.*\\(addr:\\|inet \\)\\([0-9.]*\\).*/\\2/g'";
+    string strret= RunShell(strcmd.c_str());
+    if(strret.compare("-1")!=0 &&strret.size()>1)
+    {
+        strret.erase(strret.find_last_not_of("\n") + 1);
+    }
+    else
+    {
+        strret = "127.0.0.1";
+    }
+#else
     string strcmd = "adb shell ifconfig 2> /dev/null |sed 's/.*127.0.0.1.*//g'|sed -n '/Bcast\\|broadcast/p' |sed 's/.*\\(addr:\\|inet \\)\\([0-9.]*\\).*/\\2/g'";
     string strret= RunShell(strcmd.c_str());
 //        LOG(INFO)<<"runshell :"<<strcmd.c_str()<< " => " << strret;
@@ -108,6 +142,7 @@ string MyHealth::GetLocalIP()
     {
         strret = "127.0.0.1";
     }
+#endif
     return strret;
 }
 string MyHealth::GetProxyIP()
@@ -127,6 +162,9 @@ string MyHealth::GetProxyIP()
 }
 string MyHealth::GetDevName()
 {
+#ifdef AMD64
+    string strret = "AMD64";
+#else
     string strcmd = "adb shell getprop ro.product.brand";
     string strret= RunShell(strcmd.c_str());
 //        LOG(INFO)<<"runshell :"<<strcmd.c_str()<< " => " << strret;
@@ -138,5 +176,6 @@ string MyHealth::GetDevName()
     {
         strret = "";
     }
+#endif
     return strret;
 }

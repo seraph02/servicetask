@@ -5,7 +5,9 @@ cmake_minimum_required(VERSION 3.0)
 add_compile_options(-std=c++11)
 aux_source_directory(. DIR_ManagerLIB_SRCS)
 file(GLOB MANAGER_INCLUDE_DIRS ./*.h)
-
+if(NOT MANAGER_DIR)
+    set( MANAGER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/)
+endif()
 INCLUDE_DIRECTORIES(
     ${COMM_INCLUDE_DIRS}
     ${BASE_INCLUDE_DIRS}
@@ -23,4 +25,6 @@ add_library (${PROJECT_NAME} ${DIR_ManagerLIB_SRCS} )
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} base jsoncpp ${PROTOBUF_LIBRARIES} ${CPR_LIBRARIES} ${ELASTICLIENT_LIBRARIES} comm)
 install(TARGETS ${PROJECT_NAME} LIBRARY
         DESTINATION lib)
+
+
 

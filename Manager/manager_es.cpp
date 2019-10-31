@@ -80,7 +80,7 @@ string Manager_ES::GetDevInfo(string nodeid)
 //push remote task to update
 void Manager_ES::UpdateDevInfo(string nodeid,string putstrjson)
 {
-
+    if(nodeid.empty()) return;
     Client es(m_hosts);
     try
     {
@@ -253,9 +253,10 @@ bool Manager_ES::POSTTaskResult(string indices,string id,string strpostdata)
     return bolret;
 }
 
-bool Manager_ES::POSTBulkdata(elasticlient::SameIndexBulkData& bulkdata,string type,string docid,string data)
+bool Manager_ES::POSTBulkdata(string indices,string docid,string data)
 {
-    bulkdata.indexDocument(type,docid, data);
+    string type="data";
+    bulk->indexDocument(type,docid, data);
     bulkcount++;
     if(bulkcount<10000) ;
     else
@@ -263,13 +264,14 @@ bool Manager_ES::POSTBulkdata(elasticlient::SameIndexBulkData& bulkdata,string t
         std::shared_ptr<elasticlient::Client> es = std::make_shared<elasticlient::Client>(
                std::vector<std::string>(m_hosts));
         elasticlient::Bulk bulkIndexer(es);
-        size_t errors = bulkIndexer.perform(bulkdata);
-        bulkdata.clear();
+        size_t errors = bulkIndexer.perform(*bulk);
+        bulk->clear();
         bulkcount=0;
     }
 
     return 0;
 }
+
 
 void Manager_ES::POSTBulkend(elasticlient::SameIndexBulkData& bulkdata)
 {
@@ -280,7 +282,15 @@ void Manager_ES::POSTBulkend(elasticlient::SameIndexBulkData& bulkdata)
     bulkdata.clear();
 }
 
+void Manager_ES::startbulk(string indices)
+{
 
+    Manager_ES::getInstance()->ChangeHosts(m_hosts);
+    std::shared_ptr<elasticlient::Client> es = std::make_shared<elasticlient::Client>(
+           std::vector<std::string>(m_hosts));
+    bulk == std::make_shared<elasticlient::SameIndexBulkData>(indices,5000);
+
+}
 bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
 {
 

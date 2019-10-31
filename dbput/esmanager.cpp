@@ -11,16 +11,9 @@
 esmanager::esmanager()
 {
     Manager_ES::getInstance();
-    Manager_ES::getInstance()->AddHosts("http://localhost:9200/");
+    Manager_ES::getInstance()->AddHosts("http://127.0.0.1:9200/");
 }
-void Manager_ES::POSTBulkend(elasticlient::SameIndexBulkData& bulkdata)
-{
-    std::shared_ptr<elasticlient::Client> es = std::make_shared<elasticlient::Client>(
-           std::vector<std::string>(m_hosts));
-    elasticlient::Bulk bulkIndexer(es);
-    size_t errors = bulkIndexer.perform(bulkdata);
-    bulkdata.clear();
-}
+
 bool esmanager::POSTBulkdata(elasticlient::SameIndexBulkData& bulkdata,string type,string docid,string data)
 {
 
@@ -45,7 +38,8 @@ int esmanager::Go()
     int lineid=0;
     string info="telegram";
     string indices="telegramgroup";
-    elasticlient::SameIndexBulkData blukdata(indices, 100);
+    //Manager_ES.getInstance()->startbulk(indices);
+
     while (getline (fin, line)) // line中不包括每行的换行符
     {
         if(line.length()<3) continue;
@@ -58,10 +52,7 @@ int esmanager::Go()
 
        Json::Value jdataclassify;
        Json::Reader jread;
-       Manager_ES::getInstance()->ChangeHosts(m_hosts);
-       std::shared_ptr<elasticlient::Client> es = std::make_shared<elasticlient::Client>(
-              std::vector<std::string>(m_hosts));
-       elasticlient::Bulk bulkIndexer(es);
+
        jread.parse(strret,jdataclassify);
        if(!jdataclassify.isNull())
        {
@@ -98,23 +89,8 @@ int esmanager::Go()
                }
                else
                {
-                   blukdata.indexDocument("data",strmessageid, strpostdata);
-                   bulkcount++;
-                   if(bulkcount<10000) ;
-                   else
-                   {
+                  // Manager_ES.getInstance()->POSTBulkdata(indices,strmessageid,strpostdata);
 
-
-                       size_t errors = bulkIndexer.perform(blukdata);
-                       if(errors!=0)
-                       {
-                           LOG(INFO)<<errors;
-                       }
-
-
-                       blukdata.clear();
-                       bulkcount=0;
-                   }
                }
 
                 }
@@ -127,7 +103,9 @@ int esmanager::Go()
 
        }
     }
-     Manager_ES::getInstance()->POSTBulkend(blukdata);
+
+     //Manager_ES::getInstance()->POSTBulkend(blukdata);
+
 
     fin.close();
     return 0;

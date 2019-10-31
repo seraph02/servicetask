@@ -1,6 +1,6 @@
 include_directories(${ELASTICLIENT_INCLUDE_DIRS}
                     ${CPR_INCLUDE_DIRS}
-                    )
+                    ${JSONCPP_INCLUDE_DIRS})
 
 add_library(${ELASTICLIENT_LIBRARY} SHARED
             client.cc

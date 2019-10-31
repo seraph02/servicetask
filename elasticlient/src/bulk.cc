@@ -8,7 +8,7 @@
 #include <string>
 #include <sstream>
 #include <cpr/cpr.h>
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include "logging-impl.h"
 #include "elasticlient/client.h"
 

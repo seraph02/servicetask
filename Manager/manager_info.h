@@ -37,6 +37,10 @@ public:
     bool GetNetDiskInfo(CStatus* infoMNG);
     bool GetDevInfo(DevInfo* infoMNG);
     void ChangeProxy(int proxyid);
+    int GetFlag()
+    {
+        return health->GetFlag();
+    }
     static Manager_Info* getInstance()
     {
         return infoMNG;

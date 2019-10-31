@@ -7,7 +7,7 @@
 
 #include <sstream>
 #include <memory>
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 #include <cpr/cpr.h>
 #include "logging-impl.h"
 

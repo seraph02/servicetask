@@ -20,6 +20,8 @@ string getfileext(string filename);
 void b64_decode2file(string b64str,string dstfile);
 std::tm gettm(int64_t timestamp);
 string gettimenow();
-
+int getFiletotals(string filename);
+string ReadLocalFile(string filename,int linenum);
 vector<string> getFiles(string cate_dir);
+string GetLocalIP();
 #endif // COMM_H

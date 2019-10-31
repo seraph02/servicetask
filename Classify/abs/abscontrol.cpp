@@ -43,7 +43,8 @@ void absControl::body2files()
     for (auto iter = mem.begin(); iter != mem.end(); iter++)
     {
         std::string strkey = *iter;
-        std::size_t found = strkey.rfind("Path");
+        std::size_t found = strkey.rfind("Path")!=string::npos?strkey.rfind("Path"):(strkey.rfind("path"));
+
         if (found==std::string::npos) continue;
         //have *Path field
         Json::Value PathValue = jbody[*iter];
@@ -84,8 +85,15 @@ void absControl::body2files()
 }
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
 {
+    try
+    {
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;
+    }
+    catch(...)
+    {
+        return 0;
+    }
 }
 
 
@@ -99,6 +107,8 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
 int DOWNLOAD_FILE(const char* url, const char outfilename[FILENAME_MAX]){
     try
     {
+    //    cout<<url<<endl;
+     //   if(url.find("None")!=string::npos) return -1;
     CURL *curl;
     FILE *fp;
     CURLcode res;
@@ -142,11 +152,12 @@ int DOWNLOAD_FILE(const char* url, const char outfilename[FILENAME_MAX]){
         }
 
         res = curl_easy_perform(curl);                               // 调用curl_easy_perform()函数完成传输任务
-        fclose(fp);
+        if(fp!=NULL) fclose(fp);
         /* Check for errors */
         if(res != CURLE_OK){
             fprintf(stderr, "curl_easy_perform() failed: %s\n",curl_easy_strerror(res));
             curl_easy_cleanup(curl);
+            LOG(ERROR)<<url;
             return -1;
         }
 
@@ -159,6 +170,7 @@ int DOWNLOAD_FILE(const char* url, const char outfilename[FILENAME_MAX]){
     }
     catch(...)
     {
+        LOG(ERROR)<<url<<endl;
         return 1;
     }
 
@@ -173,26 +185,10 @@ string Multiple2Array(string& body)
     return body;
 }
 
-
-void absControl::work()
+void absControl::ProcessFile(string file,string filename,string fileext)
 {
-
-
-
-    LOG(INFO)<<"WORK file:"<<files.size();
-    for(int fileite =0;fileite< files.size();fileite++)
+    if(fileext.rfind("json") != string::npos)
     {
-
-        string file = files[fileite];
-        //LOG(INFO)<<"WORK file:"<<fileite<<" name:"<<file;
-        struct stat s;
-        if (stat(file.c_str(),&s)!=0 || (s.st_mode & S_IFDIR)!=0){ continue ;}
-        string filename;
-        int findpos =file.rfind('/');if(findpos!=string::npos) filename = file.substr(findpos);
-        filename = filename.size()>1?filename.substr(1):"";
-        if(filename.size()<1) continue;
-        string fileext = getfileext(filename);
-        if(fileext.empty()||fileext.rfind("json")==string::npos){continue;}
         string filebody =ReadLocalFile(file);
         Json::Value jfile;
         Json::Reader jread;
@@ -217,31 +213,59 @@ void absControl::work()
         catch(exception &e)
         {
             LOG(ERROR)<<e.what()<<"parse error"<<file<<">>"<<filebody;
-            continue;
+            return;
         }
         try
         {
-        if(filename.rfind("dialog")!=string::npos)
-        {
-            ProcessDialog(jarray);
-        }else if(filename.rfind("channel")!=string::npos)
-        {
-            ProcessChannel(jarray);
-        }else if(filename.rfind("contacts")!=string::npos ||filename.rfind("contact")!=string::npos)
-        {
-            ProcessContacts(jarray);
-        }
-        else// if(filename.rfind("message")!=string::npos)
-        {
-            ProcessMessage(jarray);
-        }
+            if(filename.rfind("dialog")!=string::npos)
+            {
+                ProcessDialog(jarray);
+            }else if(filename.rfind("channel")!=string::npos)
+            {
+                ProcessChannel(jarray);
+            }else if(filename.rfind("contacts")!=string::npos ||filename.rfind("contact")!=string::npos)
+            {
+                ProcessContacts(jarray);
+            }
+            else// if(filename.rfind("message")!=string::npos)
+            {
+                ProcessMessage(jarray);
+            }
         }
         catch(exception &proe)
         {
             LOG(ERROR)<<proe.what();
-            continue;
+            return;
         }
+
     }
+
+}
+void absControl::work()
+{
+
+
+
+    LOG(INFO)<<"WORK file:"<<files.size();
+    for(int fileite =0;fileite< files.size();fileite++)
+    {
+
+        string file = files[fileite];
+        //LOG(INFO)<<"WORK file:"<<fileite<<" name:"<<file;
+        struct stat s;
+        if (stat(file.c_str(),&s)!=0 || (s.st_mode & S_IFDIR)!=0){ continue ;}
+        string filename;
+        int findpos =file.rfind('/');if(findpos!=string::npos) filename = file.substr(findpos);
+        filename = filename.size()>1?filename.substr(1):"";
+        if(filename.size()<1) return;
+        string fileext = getfileext(filename);
+        if(fileext.empty()||(fileext.rfind("json")==string::npos && fileext.rfind("txt")==string::npos)){return;}
+
+        ProcessFile(file,filename,fileext);
+//        cout <<file<<endl;
+
+
+     }
 
 }
 

@@ -195,7 +195,7 @@ void Manager_Task::TaskProcess(absTask* task)
         catch(exception &e)
         {
             Json::Value tmp;
-            tmp["status"]="Error";
+            tmp["status"]="error";
             tmp["message"]=strret;
             resultjson =tmp.toStyledString();
         }
@@ -273,7 +273,7 @@ void resultAddfiles(TaskResult* result,string strjson)
             for (auto iter = mem.begin(); iter != mem.end(); iter++)
             {
                 std::string strkey = *iter;
-                std::size_t found = strkey.rfind("Path");
+                std::size_t found = strkey.rfind("Path")!=string::npos?strkey.rfind("Path"):strkey.rfind("path");
                 if (found==std::string::npos) continue;
                 //have *Path field
                 Json::Value PathValue = resjson[*iter];
@@ -363,10 +363,20 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
 
     string DataClassifycmd;
     DataClassifycmd = sscmd.str();
-    RunShell("echo \"\" >dataresult");
+    RunShell("echo \"\" >dataresult");//??initdataresult
     LOG(INFO)<<"runshell :"<<DataClassifycmd.c_str();
     RunShell(DataClassifycmd.c_str());
-    string strret= ReadLocalFile("dataresult");
+
+//    string put2dbcmd;
+//    //sscmd.clear();
+//    sscmd<<" -id "<<task->id();
+//    put2dbcmd = sscmd.str();
+//    LOG(INFO)<<"runshell :"<<put2dbcmd.c_str();
+//    RunShell(put2dbcmd.c_str());
+
+
+    string strret= ReadLocalFile("dataresult");//
+
     LOG(INFO)<< " => " << strret;
     if(strret.compare("-1")==0 || strret.size()<3) return true;
 
@@ -396,6 +406,7 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
                 try{
                     //voxerid
                     string messageid = jelement["body"]["message_id"].asString();
+                    if(messageid.empty()) messageid=jelement["body"]["docid"].asString();
                     strmessageid.append(messageid);
                 }catch(...){}
                 try{
@@ -406,8 +417,13 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
                 std::string strpostdata=jfw.write(jsondata);
                 if(strmessageid.empty()||strmessageid.size()<2) Manager_ES::getInstance()->POSTTaskResult(indices,strpostdata);
                 else
+                {
+                    boost::to_lower(strmessageid);
+                    boost::replace_all(strmessageid,"/","");
+                    boost::replace_all(strmessageid,"\\","");
+                    boost::replace_all(strmessageid,"$","");
                     Manager_ES::getInstance()->POSTTaskResult(indices,strmessageid,strpostdata);
-
+                }
                 if(type.compare("message")==0){  task->set_datacount(task->datacount()+1);}
 
             }

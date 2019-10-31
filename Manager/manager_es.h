@@ -26,7 +26,7 @@ public:
     bool POSTTaskResult(string indices,string id,string strpostdata);
 
     elasticlient::SameIndexBulkData& POSTBulkStart(string indices);
-    bool POSTBulkdata(elasticlient::SameIndexBulkData& bulkdata,string type,string docid,string data);
+    bool POSTBulkdata(string indices,string docid,string data);
     void POSTBulkend(elasticlient::SameIndexBulkData& bulkdata);
     virtual void Update(int status){}
     static Manager_ES* getInstance()
@@ -47,12 +47,14 @@ public:
         }
 
     }
+    void startbulk(string indices);
 
 private:
     static std::vector<std::string> m_hosts;
     static Manager_ES* esMNG;
     long bulkcount=0;
     string bulkindices="";
+    std::shared_ptr<elasticlient::SameIndexBulkData> bulk;
 };
 
 #endif // MANAGER_ES_H

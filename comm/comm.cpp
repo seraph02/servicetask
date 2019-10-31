@@ -119,6 +119,38 @@ string ReadLocalFile(string filename)
 
     return contents;
 }
+int getFiletotals(string filename)
+{
+    std::stringstream buffer;
+    std::stringstream cmdbuf;
+    cmdbuf << "awk '{print NR}' "<<filename<<" | tail -n1";
+    string cmdstr = cmdbuf.str();
+    string bufferstr = RunShell(cmdstr.c_str());
+    if(bufferstr.empty()) return 0;
+    buffer << bufferstr;
+    std::string contents(buffer.str());
+    return atoi(contents.c_str());
+}
+string ReadLocalFile(string filename,int linenum)
+{
+//    LOG(INFO)<<"ReadLocalFile :"<<filename;
+//    char buf[8192];
+//    std::ifstream t(filename);
+//    std::stringstream buffer;
+//    buffer << t.rdbuf();
+//    std::string contents(buffer.str());
+//    t.close();
+
+    std::stringstream buffer;
+    std::stringstream cmdbuf;
+    cmdbuf << "sed -n "<<linenum<<",1p "<<filename;
+    string cmdstr = cmdbuf.str();
+    string bufferstr = RunShell(cmdstr.c_str());
+    if(bufferstr.empty()) return "";
+    buffer << bufferstr;
+    std::string contents(buffer.str());
+    return contents;
+}
 void SplitString(const string& s,vector<string> &v, const string& c)
 {
     string::size_type pos1, pos2;
@@ -142,7 +174,7 @@ void checkdir(string dir)
     if(access(dir.c_str(),0)!=0)
     {
         string cmd = "mkdir -p " + dir;
-        system(cmd.c_str());
+        RunShell(cmd.c_str());
     }
 }
 string filename4time(string ext)
@@ -242,4 +274,31 @@ vector<string> getFiles(string cate_dir)
     sort(files.begin(), files.end());
     return files;
 }
-
+string GetLocalIP()
+{
+#ifdef AMD64
+    string strcmd = "ifconfig 2> /dev/null |sed 's/.*127.0.0.1.*//g'|sed -n '/Bcast\\|broadcast/p' |sed 's/.*\\(addr:\\|inet \\)\\([0-9.]*\\).*/\\2/g'";
+    string strret= RunShell(strcmd.c_str());
+    if(strret.compare("-1")!=0 &&strret.size()>1)
+    {
+        strret.erase(strret.find_last_not_of("\n") + 1);
+    }
+    else
+    {
+        strret = "127.0.0.1";
+    }
+#else
+    string strcmd = "adb shell ifconfig 2> /dev/null |sed 's/.*127.0.0.1.*//g'|sed -n '/Bcast\\|broadcast/p' |sed 's/.*\\(addr:\\|inet \\)\\([0-9.]*\\).*/\\2/g'";
+    string strret= RunShell(strcmd.c_str());
+//        LOG(INFO)<<"runshell :"<<strcmd.c_str()<< " => " << strret;
+    if(strret.compare("-1")!=0 &&strret.size()>1)
+    {
+        strret.erase(strret.find_last_not_of("\n") + 1);
+    }
+    else
+    {
+        strret = "127.0.0.1";
+    }
+#endif
+    return strret;
+}

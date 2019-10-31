@@ -4,10 +4,12 @@
 #include <exception>
 #include "glog/logging.h"
 #if __amd64 ==1
-#define PROXYOK 0
+#define AMD64 0
+//#define PROXYOK 0
 #endif
 #define MAXRETRY 3
-
+#define ADB 0
+#define NETDISK 0
 enum EType
 {
     Adb,

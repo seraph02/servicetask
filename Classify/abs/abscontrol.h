@@ -24,11 +24,13 @@ protected:
     virtual void ProcessDialog(Json::Value jbody);
     virtual void ProcessChannel(Json::Value jbody);
     virtual void ProcessMessage(Json::Value jbody);
+    virtual void ProcessFile(string file,string filename,string fileext);
 protected:
     string body;
     vector<string> files;
     absresult rst;
     string dt = gettimetag();
+
 private:
     string gettimetag()
     {
@@ -39,6 +41,6 @@ private:
 
     }
 };
-int DOWNLOAD_FILE(const char* url,const char* outfilename);
+int DOWNLOAD_FILE(const char*  url,const char* outfilename);
 vector<string> path2files(string path);
 #endif // ABSCONTROL_H
