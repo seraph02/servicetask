@@ -12,8 +12,34 @@ curl -XDELETE localhost:9200/task/taskinfo/id
 curl -XPUT "http://localhost:9200/config"
 curl -H "Content-Type: application/json" -XPOST 'http://localhost:9200/config/config/task?pretty=true' -d '{"list":["alipay","facebookmessage","firechat","imo","meetup","qq","quora","skype","tumblr","twitter","viber","wechat","yixin"]}'
 
-
-
+curl -XPUT 'http://192.168.20.9:9200/_template/template_http_request_record' -H 'Content-Type: application/json' -d '{"index_patterns": ["dev*"],"settings": {"number_of_shards": 1,"number_of_replicas": 0}}'
+curl -X PUT "http://192.168.20.9:9200/ip2location" -H 'Content-Type: application/json' -d '
+{
+    "settings" : {
+        "index" : {
+            "number_of_shards" : 1, 
+            "number_of_replicas" : 0
+        }
+    },
+    "mappings": 
+    {
+      "_default_": { 
+        "properties":
+        {
+            "city_name":
+            {
+                "type":"text"
+            },
+            "country_code":{"type":"text"},
+            "country_name":{"type":"text"},
+            "ipnum":{"type":"long_range"},
+            "location":{"type":"geo_point"},
+            "region_name":{"type":"text"}
+            
+        }
+      }
+    }
+}'
 
 
 ./esm -d http://192.168.1.57:9200 -y "keydamara032" --refresh -i=keydamara032.bin
@@ -201,3 +227,11 @@ PUT _ingest/pipeline/my_timestamp_pipeline
   ]
 }
 
+  {  "query": {
+        "multi_match": {
+            "query":       "na",
+            "type":        "most_fields",
+            "fields":      [ "*" ]
+        }
+    }
+  }

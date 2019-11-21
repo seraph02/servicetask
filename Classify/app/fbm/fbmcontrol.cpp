@@ -4,34 +4,7 @@
 #include <glog/logging.h>
 #include "appconf.h"
 #include <boost/algorithm/string.hpp>
-#include <boost/regex.hpp>
-string FBMControl::getkey(string data,string key)
-{
-    string keystr = key+"=(.*?), ";
-    return getkey4reg(data,keystr);
 
-}
-string FBMControl::getkey4reg(string data,string regex)
-{
-    string keystr = regex;
-    boost::regex reg(keystr);
-    boost::smatch m;
-    if (boost::regex_search(data,m,reg)) {
-    if(m["val"].matched)
-    {
-        string ret(m["val"].str());
-        return ret;
-    }
-    if (m[1].matched)
-    {   string ret1(m[1].str());
-        return ret1;
-    }
-    }
-
-
-    return "";
-
-}
 
 //void FBMControl::work()
 //{

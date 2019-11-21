@@ -12,7 +12,7 @@
 #include <glog/logging.h>
 #include "comm.h"
 #include "boost/algorithm/string/replace.hpp"
-
+#include <boost/regex.hpp>
 #include<sys/stat.h>
 using namespace std;
 
@@ -39,6 +39,7 @@ void absControl::body2files()
     Json::Reader jread;
     if(!jread.parse(strbody,jbody)||jbody.isNull() ||!jbody.isObject()) {return;}
 
+    string args=jbody["args"].asString();
     Json::Value::Members mem = jbody.getMemberNames();
     for (auto iter = mem.begin(); iter != mem.end(); iter++)
     {
@@ -175,8 +176,45 @@ int DOWNLOAD_FILE(const char* url, const char outfilename[FILENAME_MAX]){
     }
 
 }
-
-
+/*
+ * mode 0   array to mulit
+ *
+ * mode 1   array to onelist
+ */
+void absControl::ProcessArray(Json::Value jbody,string tname,int mode)
+{
+    if(jbody.size()<1) return;
+    if(mode==0){
+        for(int ind =0;ind<jbody.size();ind++)
+        {
+            Json::Value jones = jbody[ind];
+            if(jones.isNull() || !jones.isObject()) continue;
+            Json::Value jelement;
+            jelement["type"]=tname;
+            jelement["tag"]= dt;
+            jelement["body"]=jones;
+            Json::FastWriter jwrite;
+            string strcontacts = jwrite.write(jelement);
+            rst.putjson(strcontacts);
+        }
+    }
+    else if(mode==1)
+    {
+        for(int ind =0;ind<jbody.size();ind++)
+        {
+            Json::Value jones = jbody[ind];
+            if(jones.isNull() || !jones.isObject()) continue;
+            jbody[ind]=jones;
+        }
+        Json::Value jelement;
+        jelement["type"]=tname;
+        jelement["tag"]= dt;
+        jelement["body"]=jbody;
+        Json::FastWriter jwrite;
+        string strcontacts = jwrite.write(jelement);
+        rst.putjson(strcontacts);
+    }
+}
 string Multiple2Array(string& body)
 {
 //        LOG(INFO)<<body;
@@ -187,6 +225,7 @@ string Multiple2Array(string& body)
 
 void absControl::ProcessFile(string file,string filename,string fileext)
 {
+    if((fileext.rfind("json")==string::npos && fileext.rfind("txt")==string::npos)) return;
     if(fileext.rfind("json") != string::npos)
     {
         string filebody =ReadLocalFile(file);
@@ -240,6 +279,7 @@ void absControl::ProcessFile(string file,string filename,string fileext)
 
     }
 
+
 }
 void absControl::work()
 {
@@ -259,7 +299,7 @@ void absControl::work()
         filename = filename.size()>1?filename.substr(1):"";
         if(filename.size()<1) return;
         string fileext = getfileext(filename);
-        if(fileext.empty()||(fileext.rfind("json")==string::npos && fileext.rfind("txt")==string::npos)){return;}
+        if(fileext.empty()){return;}
 
         ProcessFile(file,filename,fileext);
 //        cout <<file<<endl;
@@ -268,16 +308,43 @@ void absControl::work()
      }
 
 }
+string absControl::getkey(string data,string key)
+{
+    string keystr = key+"=(.*?), ";
+    return getkey4reg(data,keystr);
 
+}
+string absControl::getkey4reg(string data,string regex)
+{
+    string keystr = regex;
+    boost::regex reg(keystr);
+    boost::smatch m;
+    if (boost::regex_search(data,m,reg)) {
+    if(m["val"].matched)
+    {
+        string ret(m["val"].str());
+        return ret;
+    }
+    if (m[1].matched)
+    {   string ret1(m[1].str());
+        return ret1;
+    }
+    }
+
+
+    return "";
+
+}
 
 void absControl::ProcessContacts(Json::Value jbody)
 {
+    //ProcessArray(jbody,"contacts",0);
     if(jbody.size()<1) return;
     for(int ind =0;ind<jbody.size();ind++)
     {
         Json::Value jones = jbody[ind];
         if(jones.isNull() || !jones.isObject()) continue;
-        filteravatar(jones);
+        //filteravatar(jones);
         jbody[ind]=jones;
 
     }
@@ -292,22 +359,23 @@ void absControl::ProcessContacts(Json::Value jbody)
 
 void absControl::ProcessMessage(Json::Value jbody)
 {
-    if(jbody.size()<1) return;
-    for(int ind =0;ind<jbody.size();ind++)
-    {
-        Json::Value jones = jbody[ind];
-        if(jones.isNull() || !jones.isObject())return;
-        filtermessage(jones);
+    ProcessArray(jbody,"message",0);
+//    if(jbody.size()<1) return;
+//    for(int ind =0;ind<jbody.size();ind++)
+//    {
+//        Json::Value jones = jbody[ind];
+//        if(jones.isNull() || !jones.isObject())return;
+//        filtermessage(jones);
 
-        Json::Value jelement;
-        jelement["type"]="message";
-        jelement["tag"]= dt;
-        jelement["body"]=jones;
-        Json::FastWriter jwrite;
-        string strones = jwrite.write(jelement);
-        rst.putjson(strones);
+//        Json::Value jelement;
+//        jelement["type"]="message";
+//        jelement["tag"]= dt;
+//        jelement["body"]=jones;
+//        Json::FastWriter jwrite;
+//        string strones = jwrite.write(jelement);
+//        rst.putjson(strones);
 
-    }
+//    }
 
 
 }

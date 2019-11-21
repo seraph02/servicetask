@@ -48,7 +48,7 @@ void Manager_Info::run()
            LOG(ERROR)<<e.what();
            return ;
         }
-        if(adb.status == On && netinfo.status==On)
+        if(adb.status == On )
         {
             CStatus es;
             Manager_Info::getInstance()->GetESInfo(&es);

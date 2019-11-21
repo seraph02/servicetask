@@ -1,4 +1,16 @@
 #!/bin/sh
+args=""
+for i in $* ; do
+        arg=${i%=*}
+
+        if [ "$arg" = "-l" ];then
+           java -Dfile.encoding=utf-8 -jar ../POC/Control.jar $*
+	   exit 1
+        else
+
+           args=$args" "$i
+        fi
+done
 while getopts ":k:t:o:" opt
 do
     case $opt in

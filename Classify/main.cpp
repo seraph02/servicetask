@@ -21,6 +21,7 @@ int main(int argc, char* argv[])
     string strbody="";
     string strtype ="";
     string strkey="";
+    string strq="";
     for(int i=0;i<argc;i++)
     {
         if(strcmp(argv[i],"-h")==0 )
@@ -44,6 +45,7 @@ int main(int argc, char* argv[])
             strtype=argv[i+1];i++;
 //            cout<<strtype<<endl;
         }
+
     }
     LOG(INFO)<<" type: "<< strtype <<" key "<<strkey<< " body: "<<strbody;
     DataClassify dc;

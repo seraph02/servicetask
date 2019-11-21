@@ -9,8 +9,8 @@
 #include "devinfo.pb.h"
 using namespace std;
 using namespace SCPROTO;
-#define BaiDuURL "http://www.baidu.com/"
-#define GoogleURL "http://www.google.com/"
+#define BaiDuURL "https://www.baidu.com/"
+#define GoogleURL "https://www.google.com/"
 #define MAX_TIMEOUT 2       //about 3m
 #define MAX_PROXYCOUNT 10   
 #define CHANGEPROXYJARPATH  "changeproxy.jar"

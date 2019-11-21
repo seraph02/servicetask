@@ -79,7 +79,6 @@ if(BUILD_CPR_TESTS)
             # does.
             set(gtest_force_shared_crt ON CACHE BOOL "Force gtest to use the shared c runtime")
         endif()
-        add_subdirectory(googletest)
         set(GTEST_FOUND TRUE)
         set(GTEST_LIBRARIES gtest)
         set(GTEST_MAIN_LIBRARIES gtest_main)
@@ -101,17 +100,3 @@ endif()
 
 # Mongoose configuration
 
-if(BUILD_CPR_TESTS)
-    message(STATUS "Building mongoose project for test support.")
-    add_subdirectory(mongoose)
-    set(MONGOOSE_FOUND TRUE)
-    set(MONGOOSE_LIBRARIES mongoose)
-    set(MONGOOSE_INCLUDE_DIRS ${mongoose_SOURCE_DIR})
-
-    set_cache_variable(MONGOOSE_FOUND "Set if libmongoose was found or built")
-    set_cache_variable(MONGOOSE_LIBRARIES "Location of libmongoose")
-    set_cache_variable(MONGOOSE_INCLUDE_DIRS "Location of mongoose include files")
-    
-    # Group under the "external" project folder in IDEs such as Visual Studio.
-    set_property(TARGET mongoose PROPERTY FOLDER "external")
-endif()

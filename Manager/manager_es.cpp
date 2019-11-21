@@ -241,7 +241,7 @@ bool Manager_ES::POSTTaskResult(string indices,string id,string strpostdata)
             crsp = es.index(indices,"data","?pretty=true",strpostdata);
         }else if(crsp.status_code > 300 ||crsp.status_code <200)
         {
-            LOG(INFO)<<"error: curl: "<<"/"<<crsp.url<<crsp.text;
+            LOG(INFO)<<"error: curl: "<<"/["<<crsp.status_code<<"]/"<<crsp.url<<crsp.text;
             return bolret;
         }
         bolret = true;

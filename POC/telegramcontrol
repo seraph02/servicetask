@@ -1,1 +1,41 @@
-java -Dfile.encoding=utf-8 -jar  ../POC/Control.jar $*
+#!/bin/sh
+while getopts ":k:t:o:c:q:i:d:f:" opt
+do
+    case $opt in
+        k)
+	key=${OPTARG#*=}
+        ;;
+        t)
+	type=${OPTARG#*=}
+        ;;
+        o)
+	pass=${OPTARG#*=}
+	;;
+	c)
+	control=${OPTARG#*=}
+        ;;
+	q)
+	q=${OPTARG#*=}
+        ;;
+	i)
+	ip=${OPTARG#*=}
+        ;;
+        d)
+        btime=${OPTARG#*=}
+        ;;
+        f)
+        file=${OPTARG#*=}
+        ;;
+        ?)
+        echo "argv** is error!!"
+        exit 1;;
+    esac
+done
+if [ -n "$file" ]; then
+     mv $file ./$q$key'.session'
+fi
+#echo "python3 ../POC/telegramcontrol.py $ip $control $q$key $btime"
+python3 ../POC/telegramcontrol.py $ip $control $q$key $btime
+
+
+

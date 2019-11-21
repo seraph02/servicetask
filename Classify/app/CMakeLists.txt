@@ -12,5 +12,5 @@ INCLUDE_DIRECTORIES(
     ${ABSCLASS_INCLUDE}
     )
 add_library(${PROJECT_NAME} ${DIR_APP_SRCS})
-target_link_libraries(${PROJECT_NAME} comm abs fbm voxer imo telegram)
+target_link_libraries(${PROJECT_NAME} comm abs fbm voxer imo telegram )
 

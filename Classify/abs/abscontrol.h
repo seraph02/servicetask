@@ -25,6 +25,9 @@ protected:
     virtual void ProcessChannel(Json::Value jbody);
     virtual void ProcessMessage(Json::Value jbody);
     virtual void ProcessFile(string file,string filename,string fileext);
+    virtual void ProcessArray(Json::Value jbody,string tname,int mode);
+    string getkey(string data,string key);
+    string getkey4reg(string data,string regex);
 protected:
     string body;
     vector<string> files;

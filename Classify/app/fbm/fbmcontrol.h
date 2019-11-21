@@ -12,8 +12,6 @@ private:
     FBM* app;
     int id;
 private:
-    string getkey(string data,string key);
-    string getkey4reg(string data,string regex);
     void ProcessGroup(Json::Value jbody);
     //void GroupTxt();
     //virtual void work();

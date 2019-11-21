@@ -70,6 +70,7 @@ string MyHealth::GetIMEI()
     string strret=GetMAC();
 
     boost::replace_all(strret,":","");
+    boost::replace_all(strret,"\n","");
     return strret;
 #else
     string strcmd = "adb shell service call iphonesubinfo 1 | sed -n '/[0-9]\\./p' |sed ':a;N;s/\\n/\\t/;ba;'|sed 's/0x[0-9]\\{8\\}\\|)//g'|sed 's/[0-9a-f]\\{8\\}//g' |sed 's/[[:punct:][:space:]]//g'";

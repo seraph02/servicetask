@@ -68,7 +68,11 @@ string Manager_Task::TaskBegin(string appname,string& args)
                 }
                 filepath = filedir + std::to_string(rand()%100000);
 
-                b64_decode2file(b64str,filepath);
+                stringstream otcmd;
+                otcmd<< "echo '"<<b64str<<"' |tr '@' '\n' |base64 -d >"<<filepath;
+                string strcmd = otcmd.str();
+                RunShell(strcmd.c_str());
+                //b64_decode2file(b64str,filepath);
 
                 ++it;
                 ocmd << "-f="<< filepath <<(it ==SplitVec.end()?"":" ");
@@ -137,7 +141,8 @@ void Manager_Task::TaskProcess(absTask* task)
         strargs = args.str();
         string filename = TaskBegin(strApp,strargs);
         string strkey = task->GetKey();
-        ocmd << strApp  << " -t=" +strApp << " -k=" << strkey << " " <<strargs;
+        string strip = Manager_conf::getInstance()->eshost();
+        ocmd << strApp <<" -ip="<< strip << " -t=" +strApp << " -k=" << strkey << " " <<strargs;
         strcmd = ocmd.str();
         string strret;
         bool Isretry=true;
@@ -165,7 +170,7 @@ void Manager_Task::TaskProcess(absTask* task)
             if (reader.parse(strret, root)&&root.isObject())  // reader将Json字符串解析到root，root将包含Json里所有子元素
             {
                 resultjson = strret;
-
+                root["args"]=strargs;
 
 //Crack
                 if(isCrack){
@@ -180,11 +185,11 @@ void Manager_Task::TaskProcess(absTask* task)
                         root["pass"]=stroarg;
                         isnextkey=true;
                     }
-                    Json::FastWriter write;
-                    resultjson = write.write(root);
-                }
-                }
 
+                }
+                }
+                Json::FastWriter write;
+                resultjson = write.write(root);
 
             }
             else
@@ -197,6 +202,7 @@ void Manager_Task::TaskProcess(absTask* task)
             Json::Value tmp;
             tmp["status"]="error";
             tmp["message"]=strret;
+            tmp["args"]=strargs;
             resultjson =tmp.toStyledString();
         }
         WriteLocalFile(m_taskRstfile(strApp+strkey).c_str(),resultjson);
@@ -434,9 +440,9 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
 }
 bool Manager_Task::CheckTimeOut(absTask* task)
 {
-    time_t time_now; time(&time_now);
-    long l = time_now - task->t_task.ptime();
-    if(l>TIME_OUT) return true;
+//    time_t time_now; time(&time_now);
+//    long l = time_now - task->t_task.ptime();
+//    if(l>TIME_OUT) return true;
     return false;
 }
 

@@ -7,6 +7,7 @@
 #include "conf.h"
 #include "taskunit.h"
 #include <glog/logging.h>
+#include <boost/algorithm/string.hpp>
 using namespace SCPROTO;
 
 
@@ -16,7 +17,16 @@ bool Manager_Core::Init()
     ConfInfo* conf = Manager_conf::getInstance();
     LOG(INFO)<<m_info.b_dev->ip();
     conf->set_eshost(m_info.b_dev->ip());
-    Manager_ES::getInstance()->ChangeHosts({"http://"+conf->eshost()+":"+conf->esport()+"/"});
+    vector<string> vec;
+    boost::split(vec, conf->eshost(),boost::is_any_of("\n"), boost::token_compress_on);
+    for(int i = 0; i < vec.size(); ++i)
+    {
+
+        vec[i]="http://"+vec[i]+":"+conf->esport()+"/";
+
+        //cout<<vec[i]<<endl;
+    }
+    Manager_ES::getInstance()->ChangeHosts(vec);
 
     Manager_Info::ChangeHealth(&m_info);
     m_info.Attach(Manager_Info::getInstance());
