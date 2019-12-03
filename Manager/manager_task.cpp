@@ -141,6 +141,7 @@ void Manager_Task::TaskProcess(absTask* task)
         strargs = args.str();
         string filename = TaskBegin(strApp,strargs);
         string strkey = task->GetKey();
+        boost::replace_all(strkey,"+","");
         string strip = Manager_conf::getInstance()->eshost();
         ocmd << strApp <<" -ip="<< strip << " -t=" +strApp << " -k=" << strkey << " " <<strargs;
         strcmd = ocmd.str();
@@ -230,6 +231,9 @@ bool Manager_Task::PUSHRemoteResult(string info,string taskid,string indices,str
         jsondata["task"]=info;
         jsondata["taskid"]=taskid;
         jsondata["result"]=putjson.c_str();
+        jsondata["nodeid"]=b_info->b_dev->nodeid();
+        jsondata["nodeip"]=b_info->b_dev->ip();
+
 
         Json::FastWriter jfw;
         std::string strpostdata=jfw.write(jsondata);
@@ -358,11 +362,12 @@ bool Manager_Task::PUSHRemoteFiles(string info,string taskid,string indices,Task
     return true;
 
 }
-bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,string indices ,string resultjson)
+int Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,string indices ,string resultjson)
 {
     //-t fbmcontrol -k 133 -b eyJjb250cm9sRmlsZVBhdGgiOiIvaG9tZS90d2Qvc291cmNlL3NlcnZpY2V0YXNrL1BPQy9kb3dubG9hZC9mYWNlYm9va01lc3NhZ2UvY29udHJvbERhdGEvMzI3NDI0NDA1OEBxcS5jb20iLCJjb250YWN0UGF0aCI6Ii9ob21lL3R3ZC9zb3VyY2Uvc2VydmljZXRhc2svUE9DL3Jlc3VsdC8zMjc0MjQ0MDU4QHFxLmNvbS9jb250YWN0cy5qc29uIiwic3RhdHVzIjoib2siLCJtZXNzYWdlUGF0aCI6Ii9ob21lL3R3ZC9zb3VyY2Uvc2VydmljZXRhc2svUE9DL3Jlc3VsdC8zMjc0MjQ0MDU4QHFxLmNvbS9tZXNzYWdlLmpzb24ifQ==
     string body = b64_encode(resultjson);
 
+    int datacount=0;
     ostringstream sscmd;
     sscmd<< "./"+dcfexename+" ";
     sscmd<<" -t " << info << " -k "<< strkey << " -b " <<body;
@@ -430,13 +435,13 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
                     boost::replace_all(strmessageid,"$","");
                     Manager_ES::getInstance()->POSTTaskResult(indices,strmessageid,strpostdata);
                 }
-                if(type.compare("message")==0){  task->set_datacount(task->datacount()+1);}
+                if(type.compare("message")==0){  datacount+1;}
 
             }
 
         }
     }
-    return true;
+    return datacount;
 }
 bool Manager_Task::CheckTimeOut(absTask* task)
 {
@@ -501,9 +506,17 @@ void Manager_Task::TaskLoops(absTask* task)
 
             string indices = "key" + strkey;
             string taskid= task->t_task.id();
-            bool bolputrst = PUSHRemoteResult(strApp,taskid,indices,restjson);
-            bool bolputfiles=PUSHRemoteFiles(strApp,taskid,indices,result);
-            bool bolputdatacf=PUSHRemoteDataCF(strApp,&task->t_task,strkey,indices,restjson);
+
+            //bool bolputrst =
+                    PUSHRemoteResult(strApp,taskid,indices,restjson);
+            //bool bolputfiles=
+                    PUSHRemoteFiles(strApp,taskid,indices,result);
+            //bool bolputdatacf=
+             int datacount = PUSHRemoteDataCF(strApp,&task->t_task,strkey,indices,restjson);
+             if(datacount>=0)
+             {
+                task->t_task.set_datacount(datacount);
+             }
 
 //            if(rst){
                 if(remove(m_taskRstfile(strApp+strkey).c_str())==0)

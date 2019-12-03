@@ -6,6 +6,7 @@
 #include<algorithm>
 #include<vector>
 #include<jsoncpp/json/json.h>
+#include <boost/algorithm/string.hpp>
 using namespace std;
 using namespace elasticlient;
 Manager_ES* Manager_ES::esMNG = new Manager_ES;
@@ -217,6 +218,7 @@ bool Manager_ES::POSTTaskResult(string indices,string id,string strpostdata)
 {
     bool bolret=false;//lowercase
     transform(indices.begin(), indices.end(), indices.begin(), towlower);
+    boost::replace_all(indices,"+","");
     indices = UrlEncode(indices.c_str());
     cpr::Response crsp;
     try
@@ -255,6 +257,9 @@ bool Manager_ES::POSTTaskResult(string indices,string id,string strpostdata)
 
 bool Manager_ES::POSTBulkdata(string indices,string docid,string data)
 {
+    transform(indices.begin(), indices.end(), indices.begin(), towlower);
+    boost::replace_all(indices,"+","");
+    indices = UrlEncode(indices.c_str());
     string type="data";
     bulk->indexDocument(type,docid, data);
     bulkcount++;
@@ -284,7 +289,9 @@ void Manager_ES::POSTBulkend(elasticlient::SameIndexBulkData& bulkdata)
 
 void Manager_ES::startbulk(string indices)
 {
-
+    transform(indices.begin(), indices.end(), indices.begin(), towlower);
+    boost::replace_all(indices,"+","");
+    indices = UrlEncode(indices.c_str());
     Manager_ES::getInstance()->ChangeHosts(m_hosts);
     std::shared_ptr<elasticlient::Client> es = std::make_shared<elasticlient::Client>(
            std::vector<std::string>(m_hosts));
@@ -293,7 +300,6 @@ void Manager_ES::startbulk(string indices)
 }
 bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
 {
-
     return POSTTaskResult(indices,"",strpostdata);
 }
 

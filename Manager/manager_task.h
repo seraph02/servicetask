@@ -45,7 +45,7 @@ public:
 
     static bool PUSHRemoteResult(string info,string taskid,string indices,string resultjson);
     static bool PUSHRemoteFiles(string info,string taskid,string indices,TaskResult& result);
-    static bool PUSHRemoteDataCF(string info,TaskInfo* task,string strkey,string indices ,string resultjson);//taskid  //update datacount
+    static int PUSHRemoteDataCF(string info,TaskInfo* task,string strkey,string indices ,string resultjson);//taskid  //update datacount
 
     static void TaskLoops(absTask* task);
     static void TaskProcess(absTask* task);
