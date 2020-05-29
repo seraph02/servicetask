@@ -40,38 +40,7 @@ curl -X PUT "http://192.168.20.9:9200/ip2location" -H 'Content-Type: application
       }
     }
 }'
-
-curl -XPUT 'http://192.168.20.9:9200/key*/_settings' -d '{ 
-    "index" : { 
-        "refresh_interval" : "10" 
-    } 
-}' -H "Content-Type: application/json"
-curl -XPUT 'http://192.168.20.9:9200/dsf*/_settings' -d '{ 
-    "index" : { 
-        "refresh_interval" : "-1" 
-    } 
-}' -H "Content-Type: application/json"
-
-
-curl -XPUT 'http://localhost:9200/_all/_settings?preserve_existing=true' -d '{
-   "index.number_of_replicas" : "1"
-}' -H "Content-Type: application/json"
-
-
-{
-  "order": 0,
-  "index_patterns": [
-    "key*"
-  ],
-  "settings": {
-    "index": {
-      "number_of_shards": "2",
-      "number_of_replicas": "0"
-    }
-  },
-  "mappings": {},
-  "aliases": {}
-}
+curl -XPUT "http://localhost:9200/_all/_settings" -H 'Content-Type: application/json' -d'{     "index" : {         "refresh_interval" : "5m"     } }'
 
 ./esm -d http://192.168.1.57:9200 -y "keydamara032" --refresh -i=keydamara032.bin
 ./esm -s http://192.168.1.59:9200 -x "keydamara032" --refresh -o=keydamara032.bin

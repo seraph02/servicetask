@@ -24,6 +24,6 @@ INCLUDE_DIRECTORIES(
     ${CPR_INCLUDE_DIRS}
     ${ELASTICLIENT_INCLUDE_DIRS}
     )
-#add_executable(${PROJECT_NAME} ${ESPUT_SRC_LIST})
-#target_link_libraries(${PROJECT_NAME} comm glog jsoncpp ${ELASTICLIENT_LIBRARIES} manager)
+add_executable(${PROJECT_NAME} ${ESPUT_SRC_LIST})
+target_link_libraries(${PROJECT_NAME} comm glog jsoncpp ${ELASTICLIENT_LIBRARIES} manager)
 

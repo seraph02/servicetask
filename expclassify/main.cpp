@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     args["info"]=strtype;
     args["taskid"]=strid;
     if(!strindices.empty()) args["indices"]=strindices;
-    else if(!strkey.empty()){string strtmp = strkey; boost::to_lower(strtmp);boost::replace_all(strtmp,"+","");args["indices"]="key"+strtmp;}
+    else if(!strkey.empty()){string strtmp = strkey; boost::to_lower(strtmp);args["indices"]="key"+strtmp;}
 
     dc.Go(args);
     return 0;

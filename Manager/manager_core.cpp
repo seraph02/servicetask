@@ -16,7 +16,7 @@ bool Manager_Core::Init()
     if(m_info.b_dev->ip().empty()) return false;
     ConfInfo* conf = Manager_conf::getInstance();
     LOG(INFO)<<m_info.b_dev->ip();
-    conf->set_eshost(m_info.b_dev->ip());
+    //conf->set_eshost(m_info.b_dev->ip());
     vector<string> vec;
     boost::split(vec, conf->eshost(),boost::is_any_of("\n"), boost::token_compress_on);
     for(int i = 0; i < vec.size(); ++i)

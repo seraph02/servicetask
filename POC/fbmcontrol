@@ -11,14 +11,11 @@ for i in $* ; do
            args=$args" "$i
         fi
 done
-while getopts ":k:t:o:i:" opt
+while getopts ":k:t:o:" opt
 do
     case $opt in
         k)
 		key=${OPTARG#*=}
-        ;;
-        i)
-                ip=${OPTARG#*=}
         ;;
         t)
 		type=${OPTARG#*=}

@@ -23,11 +23,11 @@ void expclassify::Go(Json::Value args)//string result,string appname,string key)
     string indices =args["indices"].asString();
     string key=args["key"].asString();
     string result=args["result"].asString();
-    int datacount = PUSHRemoteDataCF(info,taskid,key,indices,result);
+    PUSHRemoteDataCF(info,taskid,key,indices,result);
 
 }
 
-int expclassify::PUSHRemoteDataCF( string info,string taskid,string strkey,string indices ,string resultjson)
+bool expclassify::PUSHRemoteDataCF( string info,string taskid,string strkey,string indices ,string resultjson)
 {
     //-t fbmcontrol -k 133 -b eyJjb250cm9sRmlsZVBhdGgiOiIvaG9tZS90d2Qvc291cmNlL3NlcnZpY2V0YXNrL1BPQy9kb3dubG9hZC9mYWNlYm9va01lc3NhZ2UvY29udHJvbERhdGEvMzI3NDI0NDA1OEBxcS5jb20iLCJjb250YWN0UGF0aCI6Ii9ob21lL3R3ZC9zb3VyY2Uvc2VydmljZXRhc2svUE9DL3Jlc3VsdC8zMjc0MjQ0MDU4QHFxLmNvbS9jb250YWN0cy5qc29uIiwic3RhdHVzIjoib2siLCJtZXNzYWdlUGF0aCI6Ii9ob21lL3R3ZC9zb3VyY2Uvc2VydmljZXRhc2svUE9DL3Jlc3VsdC8zMjc0MjQ0MDU4QHFxLmNvbS9tZXNzYWdlLmpzb24ifQ==
 

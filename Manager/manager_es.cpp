@@ -1,4 +1,5 @@
 #include "base.h"
+#include "md5.h"
 #include "manager_es.h"
 #include "cpr/cpr.h"
 #include "urlcode.h"
@@ -6,7 +7,6 @@
 #include<algorithm>
 #include<vector>
 #include<jsoncpp/json/json.h>
-#include <boost/algorithm/string.hpp>
 using namespace std;
 using namespace elasticlient;
 Manager_ES* Manager_ES::esMNG = new Manager_ES;
@@ -214,12 +214,35 @@ string Manager_ES::GetTaskInfo(string docid,int& statuscode)
     }
     return strret;
 }
-bool Manager_ES::POSTTaskResult(string indices,string id,string strpostdata)
+bool Manager_ES::POSTTaskResult(string indices,string apptype,string strpostdata)
+{
+    return POSTTaskResult(indices,apptype,"",strpostdata);
+}
+
+bool Manager_ES::POSTTaskResult(string indices, string apptype, string id,string strpostdata)
 {
     bool bolret=false;//lowercase
     transform(indices.begin(), indices.end(), indices.begin(), towlower);
-    boost::replace_all(indices,"+","");
     indices = UrlEncode(indices.c_str());
+    if(id.empty()||id.length()<2){
+        Json::Value resjson; Json::Reader jrd;
+        if(!jrd.parse(strpostdata,resjson)||resjson.isNull())
+        {
+            id = md5(strpostdata);
+        }
+        else{
+            resjson.removeMember("spidedate");
+            resjson.removeMember("taskid");
+            Json::FastWriter jfw;
+            std::string strtmpdata=jfw.write(resjson);
+            LOG(INFO)<<strtmpdata;
+            id = md5(strtmpdata);
+            LOG(INFO)<<"id: "<<id;
+        }
+
+    }
+    string doc_id = apptype + id;
+
     cpr::Response crsp;
     try
     {
@@ -234,18 +257,22 @@ bool Manager_ES::POSTTaskResult(string indices,string id,string strpostdata)
             }
             catch(...){}
         }
-
-
-        crsp = es.index(indices,"data",id+"?pretty=true",strpostdata);
-        if(crsp.status_code==404)
+        if(!id.empty())
         {
+            cpr::Response crsp_getdoc = es.get(indices,"data",doc_id);
+            if(crsp_getdoc.status_code==200)
+            {
+                bolret = true;
+                return bolret;
+            }
+            crsp = es.index(indices,"data",doc_id+"?pretty=true",strpostdata);
+            if(crsp.status_code==404)
+            {
 
-            crsp = es.index(indices,"data","?pretty=true",strpostdata);
-        }else if(crsp.status_code > 300 ||crsp.status_code <200)
-        {
-            LOG(INFO)<<"error: curl: "<<"/["<<crsp.status_code<<"]/"<<crsp.url<<crsp.text;
-            return bolret;
+
+            }
         }
+
         bolret = true;
     }
     catch(exception &e)
@@ -257,9 +284,6 @@ bool Manager_ES::POSTTaskResult(string indices,string id,string strpostdata)
 
 bool Manager_ES::POSTBulkdata(string indices,string docid,string data)
 {
-    transform(indices.begin(), indices.end(), indices.begin(), towlower);
-    boost::replace_all(indices,"+","");
-    indices = UrlEncode(indices.c_str());
     string type="data";
     bulk->indexDocument(type,docid, data);
     bulkcount++;
@@ -289,19 +313,14 @@ void Manager_ES::POSTBulkend(elasticlient::SameIndexBulkData& bulkdata)
 
 void Manager_ES::startbulk(string indices)
 {
-    transform(indices.begin(), indices.end(), indices.begin(), towlower);
-    boost::replace_all(indices,"+","");
-    indices = UrlEncode(indices.c_str());
+
     Manager_ES::getInstance()->ChangeHosts(m_hosts);
     std::shared_ptr<elasticlient::Client> es = std::make_shared<elasticlient::Client>(
            std::vector<std::string>(m_hosts));
     bulk == std::make_shared<elasticlient::SameIndexBulkData>(indices,5000);
 
 }
-bool Manager_ES::POSTTaskResult(string indices,string strpostdata)
-{
-    return POSTTaskResult(indices,"",strpostdata);
-}
+
 
 bool Manager_ES::createLock4taskid(string taskid,string ownid)
 {
