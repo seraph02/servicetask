@@ -233,7 +233,7 @@ bool Manager_Task::PUSHRemoteResult(string info,string taskid,string indices,str
 
         Json::FastWriter jfw;
         std::string strpostdata=jfw.write(jsondata);
-        Manager_ES::getInstance()->POSTTaskResult(indices,info,strpostdata);
+        Manager_ES::getInstance()->POSTTaskResult(indices,info+"_r",strpostdata);
         ret = true;
     }
     catch(exception& e)
@@ -421,16 +421,17 @@ bool Manager_Task::PUSHRemoteDataCF( string info,TaskInfo* task,string strkey,st
 //                    strmessageid.append(messageid);
                 }catch(...){}
                 std::string strpostdata=jfw.write(jsondata);
-                if(strmessageid.empty()||strmessageid.size()<2) Manager_ES::getInstance()->POSTTaskResult(indices,info,strpostdata);
+                bool puttrue = true;
+		if(strmessageid.empty()||strmessageid.size()<2) puttrue = Manager_ES::getInstance()->POSTTaskResult(indices,info,strpostdata);
                 else
                 {
                     boost::to_lower(strmessageid);
                     boost::replace_all(strmessageid,"/","");
                     boost::replace_all(strmessageid,"\\","");
                     boost::replace_all(strmessageid,"$","");
-                    Manager_ES::getInstance()->POSTTaskResult(indices,info,strmessageid,strpostdata);
+                    puttrue = Manager_ES::getInstance()->POSTTaskResult(indices,info,strmessageid,strpostdata);
                 }
-                if(type.compare("message")==0){  task->set_datacount(task->datacount()+1);}
+                if(type.compare("message")==0 && puttrue ){  task->set_datacount(task->datacount()+1);}
 
             }
 

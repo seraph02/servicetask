@@ -232,7 +232,10 @@ bool Manager_ES::POSTTaskResult(string indices, string apptype, string id,string
         }
         else{
             resjson.removeMember("spidedate");
-            resjson.removeMember("taskid");
+	    if(apptype.find("control")!=string::npos && apptype.find("_r")==string::npos )
+            {
+                resjson.removeMember("taskid");
+            }
             Json::FastWriter jfw;
             std::string strtmpdata=jfw.write(resjson);
             LOG(INFO)<<strtmpdata;
@@ -262,7 +265,7 @@ bool Manager_ES::POSTTaskResult(string indices, string apptype, string id,string
             cpr::Response crsp_getdoc = es.get(indices,"data",doc_id);
             if(crsp_getdoc.status_code==200)
             {
-                bolret = true;
+                bolret = false;
                 return bolret;
             }
             crsp = es.index(indices,"data",doc_id+"?pretty=true",strpostdata);
