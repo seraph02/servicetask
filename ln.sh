@@ -34,6 +34,14 @@ echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > yahoo
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > outlook
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > shenxun
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > facebook
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > dingding
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > onedriver
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > yeah
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > 163
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > 126
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > kakaotalk
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > mangomall
+echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > trip
 
 runname="../POC/jxlsexport.jar"
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > export
