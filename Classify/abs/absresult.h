@@ -43,7 +43,7 @@ private:
         ofs.open("dataresult", ofstream::out | ofstream::binary);//"datareslut"
         if (ofs)
         {
-            ofs<<"["<<"\n";
+            ofs<<"\n";
         }
 
     }
@@ -53,7 +53,7 @@ private:
         {
 
             ofs.seekp(-1,std::ios::end);
-            ofs<<"]"<<"\n";
+            ofs<<"\n";
             ofs.close();
         }
     }
@@ -63,7 +63,6 @@ private:
                 if (ofs)
                 {
                     ofs<<json<<"\n";
-                    ofs<<",";
                 }
 
     }

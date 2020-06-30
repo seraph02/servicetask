@@ -23,8 +23,9 @@ add_subdirectory(Classify)
 add_subdirectory(elasticlient)
 add_subdirectory(Base)
 add_subdirectory(Manager)
-add_subdirectory(dbput)
+#add_subdirectory(dbput)
 add_subdirectory(expclassify)
+#add_subdirectory(Listen)
 
 INCLUDE_DIRECTORIES(
     ${COMM_INCLUDE_DIRS}

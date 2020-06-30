@@ -18,12 +18,16 @@ else()
     message(FATAL_ERROR   "INVALID FOLDER 'CASSDK_DIR'=${CASSDK_DIR}" )
 endif()
 endif()
+add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
+add_definitions(-DBOOST_SYSTEM_NO_DEPRECATED)
+FIND_PACKAGE(Boost REQUIRED )
 add_subdirectory(abs)
 add_subdirectory(app)
 INCLUDE_DIRECTORIES(
     ${COMM_INCLUDE_DIRS}
     ${APP_INCLUDE_DIR}
     ${ABSCLASS_INCLUDE}
+    "include"
     )
 add_executable(${PROJECT_NAME} ${DataClassifySRC_LIST})
 target_link_libraries(${PROJECT_NAME} comm abs glog app jsoncpp)
