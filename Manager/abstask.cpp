@@ -35,6 +35,11 @@ string absTask::GetKey()
     boost::trim_right(tmp);//去掉字符串右边空格
     return tmp;
 }
+string absTask::GetTaskID()
+{
+    string tmp = t_task.id();
+    return tmp;
+}
 string absTask::GetInfo()
 {
     if(t_task.info_size()<1) return "";

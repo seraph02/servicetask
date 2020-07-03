@@ -87,7 +87,7 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
 
                         }
 
-                        jfile["other"]=other;
+                        //jfile["other"]=other;
                         jarray.append(jfile);
 
                     }
@@ -129,8 +129,9 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                         string fname=filename;
                         boost::replace_all(fname,fileext,"");
                         boost::replace_all(fname,"group_user","");
+                        jfile["g_id"] = fname;
                         if(!mid.empty()) jfile["docid"]=fname+mid;
-                        jfile["other"]=other;
+                        //jfile["other"]=other;
                         jarray.append(jfile);
                     }
                     ProcessArray(jarray,"groupuser",0);
@@ -274,7 +275,7 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                         boost::replace_all(fname,"message","");
                         if(!mid.empty()) jfile["docid"]=fname+mid;
                         jfile["type"]=type;
-                        jfile["other"]=other;
+                        //jfile["other"]=other;
                         jarray.append(jfile);
 
                     }

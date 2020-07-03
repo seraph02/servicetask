@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(dataclassify)
+file(GLOB CLASSIFY_INCLUDE_DIRS ./*.h)
+set(CLASSIFY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
 aux_source_directory(. DataClassifySRC_LIST)
 find_package(CURL)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
@@ -29,6 +31,8 @@ INCLUDE_DIRECTORIES(
     ${ABSCLASS_INCLUDE}
     "include"
     )
-add_executable(${PROJECT_NAME} ${DataClassifySRC_LIST})
-target_link_libraries(${PROJECT_NAME} comm abs glog app jsoncpp)
+add_library (lib${PROJECT_NAME} "dataclassify.cpp")
+add_executable(${PROJECT_NAME} "main.cpp")
+target_link_libraries(lib${PROJECT_NAME} comm abs glog app jsoncpp)
+target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME})
 

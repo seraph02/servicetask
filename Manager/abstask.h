@@ -25,6 +25,7 @@ protected:
 public:
     TaskInfo t_task;
     string GetInfo();
+    string GetTaskID();
     string GetKey();
     static string GetAppName(string strinfo);
     int version=0;

@@ -1,0 +1,12 @@
+shell
+-k=key 任务名
+-t=telegramcontrol 
+-o=1q2w3e 密码
+-c=l 程序执行类型
+-q=86 区号
+-i=127.0.0.1 ip
+-d=1561111111 开始时间
+-e=1562222222 结束时间
+-f=/home/test.txt 文件
+-j=ejA8E3MBLW8nWm1ztmbq 任务ID
+-base64=base64code base64的文件内容

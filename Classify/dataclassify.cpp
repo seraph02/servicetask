@@ -11,6 +11,7 @@ DataClassify::DataClassify()
     this->appmap["imocontrol"]="IMO";
     this->appmap["voxercontrol"]="VOXER";
     this->appmap["telegramcontrol"]="TELEGRAM";
+
 }
 
 void DataClassify::Go(string result,string appname,string key)

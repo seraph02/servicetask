@@ -1,4 +1,7 @@
 #include "Base64Encoder.h"
+#include <boost/algorithm/string.hpp>
+#include <string>
+using namespace std;
 Base64Encoder::Base64Encoder() { base64_init_encodestate(&state); }
 std::string Base64Encoder::encode(const std::string &text)
 {
@@ -9,11 +12,12 @@ std::string Base64Encoder::encode(const std::string &text)
 	std::string result(buffer);
 	delete[] buffer;
 	base64_init_encodestate(&state);
+    boost::replace_all(result,"\n","");
 	return result;
 }
 int Base64Encoder::encode(const char *inputBuffer, unsigned count, char *encodedBuffer)
 {
-	return base64_encode_block(inputBuffer, count, encodedBuffer, &state);
+    return base64_encode_block(inputBuffer, count, encodedBuffer, &state);
 }
 int Base64Encoder::encodeEnd(char *encodedBuffer)
 {

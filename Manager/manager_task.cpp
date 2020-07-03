@@ -103,6 +103,7 @@ void Manager_Task::TaskProcess(absTask* task)
     if(task->GetTaskTol()>0 && task->progress() <= task->GetTaskTol())
     {
         string strtask = task->GetInfo();
+        string strtaskid = task->GetTaskID();
         vector<string> strsubarray =vector<string>();
         SplitString(strtask.c_str(),strsubarray,"::");
         string strApp = strtask;
@@ -142,7 +143,7 @@ void Manager_Task::TaskProcess(absTask* task)
         string filename = TaskBegin(strApp,strargs);
         string strkey = task->GetKey();
         string strip = Manager_conf::getInstance()->eshost();
-        ocmd << strApp <<" -ip="<< strip << " -t=" +strApp << " -k=" << strkey << " " <<strargs;
+        ocmd << strApp <<" -ip="<< strip << " -t=" +strApp << " -k=" << strkey << " -j=" << strtaskid << " " <<strargs;
         strcmd = ocmd.str();
         string strret;
         bool Isretry=true;
@@ -532,10 +533,7 @@ bool Manager_Task::CheckTimeOut(absTask* task)
 void Manager_Task::TaskLoops(absTask* task)
 {
     if(m_IsStop) return ;
-
-
-
-
+    RunShell("echo \"\" > dataresult");
 
     TaskInfo change_task;
     change_task.set_id(task->t_task.id());

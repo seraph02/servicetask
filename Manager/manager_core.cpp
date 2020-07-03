@@ -3,6 +3,7 @@
 #include "manager_es.h"
 #include "manager_info.h"
 #include "manager_task.h"
+#include "manager_listen.h"
 #include "jsoncpp2pb.h"
 #include "conf.h"
 #include "taskunit.h"
@@ -35,6 +36,8 @@ bool Manager_Core::Init()
     Manager_Task::ChangeHealth(&m_info);
     m_info.Attach(Manager_Task::getInstance());
     m_WorkTimer->AsyncLoop(10000,Work_Heartbeat_Thread,this);
+
+    Manager_Listen::getInstance()->Init(13695);
 
 
     return true;
