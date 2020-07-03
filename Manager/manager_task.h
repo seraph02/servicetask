@@ -49,7 +49,6 @@ public:
     static void TaskLoops(absTask* task);
     static void TaskProcess(absTask* task);
     static bool TaskAfter(absTask* task);
-
     static bool CheckTask(absTask* task);
 
     static Manager_Task* getInstance() {    return m_taskMNG;   }

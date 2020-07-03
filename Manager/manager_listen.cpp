@@ -1,4 +1,5 @@
 #include "manager_listen.h"
+#include "manager_es.h"
 #include "manager_task.h"
 #include "chat_server.h"
 #include "glog/logging.h"
@@ -6,6 +7,9 @@
 #include "dataclassify.h"
 #include "Base64Encoder.h"
 #include <boost/algorithm/string.hpp>
+#include "taskinfo.pb.h"
+#include "jsoncpp2pb.h"
+
 
 Manager_Listen* Manager_Listen::m_listenMNG = new Manager_Listen;
 Manager_Listen::Manager_Listen()
@@ -64,7 +68,23 @@ void Manager_Listen::RecvMsg(string ip,string msg,int len)
     int msgcount=Manager_Task::PUSHRemoteDataCF(strtype,taskid,strkey,indices,strbody);
     if(msgcount >=0 )
     {
+        int status = 0;
 //task->t_task.set_datacount(msgcount);
+        string task_s = Manager_ES::getInstance()->GetTaskInfo(taskid,status);
+        Json::Value jsonRoot; Json::Reader reader;
+        if (!reader.parse(task_s, jsonRoot)) return;
+        Json::Value jsontask = jsonRoot["_source"];
+        Json::FastWriter jfw;
+        task_s=jfw.write(jsontask);
+        std::cout << task_s<< std::endl;
+        TaskInfo t_task,*p_task;
+        p_task = &t_task;
+        TaskInfo change_task;
+        json2pb(t_task,task_s);
+        change_task.set_datacount(t_task.datacount()+msgcount);
+
+        string putjson = pb2json(change_task);
+        int intret =Manager_ES::getInstance()->UpdateTaskInfo(taskid,putjson);
     }
 }
 
