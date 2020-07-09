@@ -3,10 +3,8 @@ runname="../POC/Control.jar"
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > fbmcontrol
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > imocontrol
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > voxercontrol
-echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > telegramcontrol
 
 runname="../POC/NetFace.jar"
-echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > telegram
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > whatsapp
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > wechat
 echo 'java -Dfile.encoding=utf-8 -jar  '$runname' $*' > viber

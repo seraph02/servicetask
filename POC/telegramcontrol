@@ -42,9 +42,9 @@ if [ -n "$file" ]; then
 
 fi
 if [ -n "$etime" ]; then
-     python3 ../POC/telegramcontrol.py -ip=$ip -ty=$control -phone=$q$key -st=$btime -task=$task -et=$etime
+     python3 ../POC/telegramcontrol.py -ip=$ip -ty=$control -q=$q -phone=$q$key -st=$btime -task=$task -et=$etime
 else
-     python3 ../POC/telegramcontrol.py -ip=$ip -ty=$control -phone=$q$key -st=$btime -task=$task
+     python3 ../POC/telegramcontrol.py -ip=$ip -ty=$control -q=$q -phone=$q$key -st=$btime -task=$task
 fi
 #echo "python3 ../POC/telegramcontrol.py $ip $control $q$key $btime"
 

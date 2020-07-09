@@ -70,10 +70,16 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                         string strbase64 = b64.encode(bodystr);
                         boost::replace_all(strbase64,"\n","");
                         //LOG(INFO)<<strbase64;
+                        ofstream ofs;
+                        ofs.open("bs64_py.txt", ofstream::out | ofstream::binary);//"datareslut"
+                        if (ofs)
+                        {
+                            ofs<<strbase64;
+                            ofs.close();
+                        }
 
-                        //LOG(INFO)<<bodystr;
-                        //LOG(INFO)<<strbase64;
-                        ocmd<<"python3 telec2j.py "<<strbase64;
+                        //ocmd<<"python3 telec2j.py "<<strbase64;
+                        ocmd<<"python3 telec2j.py bs64_py.txt f";
                         strcmd=ocmd.str();
                         string pyrst = RunShell(strcmd.c_str());
                         try{
@@ -111,7 +117,16 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                         boost::replace_all(strbase64,"\n","");
                         //LOG(INFO)<<bodystr;
                         //LOG(INFO)<<strbase64;
-                        ocmd<<"python3 telec2j.py "<<strbase64;
+                        ofstream ofs;
+                        ofs.open("bs64_py.txt", ofstream::out | ofstream::binary);//"datareslut"
+                        if (ofs)
+                        {
+                            ofs<<strbase64;
+                            ofs.close();
+                        }
+
+                        //ocmd<<"python3 telec2j.py "<<strbase64;
+                        ocmd<<"python3 telec2j.py bs64_py.txt f";
                         strcmd=ocmd.str();
                         string pyrst = RunShell(strcmd.c_str());
                         try{
@@ -150,9 +165,16 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                         string strbase64 = b64.encode(bodystr);
 
                         boost::replace_all(strbase64,"\n","");
-                        //LOG(INFO)<<bodystr;
-                        //LOG(INFO)<<strbase64;
-                        ocmd<<"python3 telec2j.py "<<strbase64;
+                        ofstream ofs;
+                        ofs.open("bs64_py.txt", ofstream::out | ofstream::binary);//"datareslut"
+                        if (ofs)
+                        {
+                            ofs<<strbase64;
+                            ofs.close();
+                        }
+
+                        //ocmd<<"python3 telec2j.py "<<strbase64;
+                        ocmd<<"python3 telec2j.py bs64_py.txt f";
                         strcmd=ocmd.str();
                         string pyrst = RunShell(strcmd.c_str());
                         try{
@@ -273,7 +295,12 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                         string fname=filename;
                         boost::replace_all(fname,fileext,"");
                         boost::replace_all(fname,"message","");
-                        if(!mid.empty()) jfile["docid"]=fname+mid;
+                        if(!mid.empty())
+                            jfile["docid"]=fname+mid;
+//                        else
+//                        {
+//                            cout<<"aa";
+//                        }
                         jfile["type"]=type;
                         //jfile["other"]=other;
                         jarray.append(jfile);

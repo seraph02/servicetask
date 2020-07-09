@@ -238,9 +238,9 @@ bool Manager_ES::POSTTaskResult(string indices, string apptype, string id,string
             }
             Json::FastWriter jfw;
             std::string strtmpdata=jfw.write(resjson);
-            LOG(INFO)<<strtmpdata;
+            //LOG(INFO)<<strtmpdata;
             id = md5(strtmpdata);
-            LOG(INFO)<<"id: "<<id;
+            //LOG(INFO)<<"id: "<<id;
         }
 
     }

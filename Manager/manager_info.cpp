@@ -93,8 +93,8 @@ void Manager_Info::run()
             if(proxy.status==On) proxystatus.timeoutcount =0;
             if(proxystatus.timeoutcount>=MAX_TIMEOUT)
             {
-                proxystatus.id = proxystatus.id>MAX_PROXYCOUNT?0:proxystatus.id+1;
-                ChangeProxy(proxystatus.id);
+                //proxystatus.id = proxystatus.id>MAX_PROXYCOUNT?0:proxystatus.id+1;
+                //ChangeProxy(proxystatus.id);
                 proxystatus.timeoutcount = 0;
             }
             else

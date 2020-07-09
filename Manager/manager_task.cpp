@@ -533,7 +533,7 @@ bool Manager_Task::CheckTimeOut(absTask* task)
 void Manager_Task::TaskLoops(absTask* task)
 {
     if(m_IsStop) return ;
-    RunShell("echo \"\" > dataresult");
+    RunShell("echo \"{}\" > dataresult");
 
     TaskInfo change_task;
     change_task.set_id(task->t_task.id());

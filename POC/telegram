@@ -1,5 +1,5 @@
 #!/bin/sh
-while getopts ":k:t:o:c:q:i:d:f:" opt
+while getopts ":k:t:o:c:q:i:d:e:f:j:" opt
 do
     case $opt in
         k)
@@ -23,8 +23,14 @@ do
         d)
         btime=${OPTARG#*=}
         ;;
+		e)
+        etime=${OPTARG#*=}
+        ;;
         f)
         file=${OPTARG#*=}
+        ;;
+	    j)
+        task=${OPTARG#*=}
         ;;
         ?)
         echo "argv** is error!!"

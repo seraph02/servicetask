@@ -3,6 +3,7 @@
 #include <vector>
 #include<string>
 #include <fstream>
+#include <boost/algorithm/string.hpp>
 using namespace std;
 //absresult
 class absresult
@@ -59,6 +60,7 @@ private:
     }
     void putlocalfile(string json)
     {
+        boost::replace_all(json,"\n","");
 
                 if (ofs)
                 {
