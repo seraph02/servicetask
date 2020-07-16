@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
       }
 
 
-    google::SetStderrLogging(google::GLOG_INFO);       // 设置glog的输出级别，这里的含义是输出INFO级别以上的信息
+    google::SetStderrLogging(google::GLOG_WARNING);       // 设置glog的输出级别，这里的含义是输出INFO级别以上的信息
 
     // 设置INFO级别以上的信息log文件的路径和前缀名
     //google::SetLogDestination(google::GLOG_INFO, (logpath+"INFO_").c_str());
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
 
     FLAGS_colorlogtostderr = true;                     // 开启终端颜色区分
 
-    LOG(INFO) << "Found " << google::COUNTER <<endl;
+    //LOG(INFO) << "Found " << google::COUNTER <<endl;
 
 
 

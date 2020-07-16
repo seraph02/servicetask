@@ -19,6 +19,7 @@ bool Manager_Task::m_IsStop=true;
 string Manager_Task::dcfexename ="dataclassify";
 
 
+
 bool Manager_Task::CheckSubsequent(absTask* task)
 {
     if(task->GetTaskTol()>0 && task->progress() < task->GetTaskTol())
@@ -310,6 +311,25 @@ void resultAddfiles(TaskResult* result,string strjson)
             LOG(ERROR)<<e.what();
         }
 }
+
+bool Manager_Task::RunDataclassify( string info,string taskid,string strkey,string indices ,string resultjson)
+{
+        string body = b64_encode(resultjson);
+        ostringstream sscmd;
+        sscmd<< "./"+dcfexename+" ";
+        sscmd<<" -t " << info << " -k "<< strkey << " -b " <<body;
+
+        string DataClassifycmd;
+        DataClassifycmd = sscmd.str();
+        RunShell("echo \"\" >dataresult");//??initdataresult
+        LOG(INFO)<<"runshell :"<<DataClassifycmd.c_str();
+        RunShell(DataClassifycmd.c_str());
+        string file = "dataresult";
+        int linenum = getFiletotals(file);
+        //LOG(INFO)<< "dataresult => " << linenum << " ";
+        return true;
+}
+
 bool Manager_Task::PUSHRemoteFiles(string info,string taskid,string indices,TaskResult& result)
 {
     try
@@ -583,11 +603,31 @@ void Manager_Task::TaskLoops(absTask* task)
             string indices = "key" + strkey;
             string taskid= task->t_task.id();
             bool bolputrst = PUSHRemoteResult(strApp,taskid,indices,restjson);
-            bool bolputfiles=PUSHRemoteFiles(strApp,taskid,indices,result);
+            RunDataclassify(strApp,taskid,strkey,indices,restjson);
+            //bool bolputfiles=PUSHRemoteFiles(strApp,taskid,indices,result);
             int msgcount=PUSHRemoteDataCF(strApp,taskid,strkey,indices,restjson);
-            if(msgcount >=0 )
+            if(msgcount >0 )
             {
-                task->t_task.set_datacount(msgcount);
+                {
+                    int status = 0;
+            //task->t_task.set_datacount(msgcount);
+                    string task_s1 = Manager_ES::getInstance()->GetTaskInfo(taskid,status);
+                    Json::Value jsonRoot1; Json::Reader reader;
+                    if (reader.parse(task_s1, jsonRoot1))
+                    {
+                        Json::Value jsontask1 = jsonRoot1["_source"];
+                        Json::FastWriter jfw;
+                        task_s1=jfw.write(jsontask1);
+                        std::cout << task_s1<< std::endl;
+                        TaskInfo t_task1;
+                        TaskInfo change_task1;
+                        json2pb(t_task1,task_s1);
+                        change_task1.set_datacount(t_task1.datacount()+msgcount);
+
+                        string putjson = pb2json(change_task1);
+                        int intret =Manager_ES::getInstance()->UpdateTaskInfo(taskid,putjson);
+                    }
+                }
             }
 
 //            if(rst){
@@ -602,7 +642,7 @@ void Manager_Task::TaskLoops(absTask* task)
 //process update
             task->t_task.set_progress(task->t_task.progress()+task->getstep());
             change_task.set_progress(task->t_task.progress());
-            change_task.set_datacount(task->t_task.datacount());
+            //change_task.set_datacount(task->t_task.datacount());
         }
 
         WriteLocalTask(task);
@@ -800,7 +840,7 @@ bool Manager_Task::GetTaskInfo(absTask* task)
         vector<string> vectask = Manager_ES::getInstance()->GetNewTaskId();
 
         if(vectask.empty()) break;
-        LOG(INFO)<<"vectask size" << vectask.size();
+        LOG(INFO)<<"vectask size : " << vectask.size();
         string strtaskid;
         bool havetask=false;
         for(vector<string>::iterator it =vectask.begin();it !=vectask.end();it++)

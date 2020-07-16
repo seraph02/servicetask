@@ -1,8 +1,26 @@
 #include "myselfinfo.h"
 #include "jsoncpp2pb.h"
 #include <boost/algorithm/string.hpp>
+MyHealth* MyHealth::health = new MyHealth;
 MyHealth::MyHealth()
 {
+    //init jobs_map
+    jobs_map["com.tencent.mm"]="wechat";
+    jobs_map["com.imo.android.imoim"]="imo,imocontrol";
+    jobs_map["com.whatsapp"]="whatsapp";
+    jobs_map["com.viber.voip"]="viber";
+    jobs_map["jp.naver.line.android"]="line";
+
+    //init jobs_list
+    std::map<string, string>::iterator iter;
+    for (iter=jobs_map.begin(); iter!=jobs_map.end(); iter++)
+    {
+        jobs_list.push_back(iter->first.c_str());
+    }
+//    for (list<string>::iterator it = jobs_list.begin(); it != jobs_list.end(); it++)
+//    {
+//        LOG(INFO)<<*it;
+//    }
 
     try
     {
@@ -25,6 +43,7 @@ MyHealth::MyHealth()
     if(b_dev->nodeid().size()<1){b_dev->set_nodeid(GetIMEI()); }
     if(b_dev->ip().size()<1){b_dev->set_ip(GetLocalIP()); }
     if(b_dev->dname().size()<1){b_dev->set_dname(GetDevName()); }
+    if(b_dev->jobs().size()<1){b_dev->set_jobs(GetJobs()); }
     }
     catch(...)
     {
@@ -40,6 +59,7 @@ MyHealth::~MyHealth()
         b_dev=NULL;
     }
 }
+
 void MyHealth::SetDevInfo(DevInfo *info)
 {
     try
@@ -179,4 +199,77 @@ string MyHealth::GetDevName()
     }
 #endif
     return strret;
+}
+string MyHealth::GetJobs(){
+//#ifdef AMD64
+//    string strret = "imo,telegramcontrol,telegram,wechat,whatsapp,viber,line";
+//#else
+    string strcmd = "adb shell pm list package";
+    string strret= RunShell(strcmd.c_str());
+//        LOG(INFO)<<"runshell :"<<strcmd.c_str()<< " => " << strret;
+    if(strret.compare("-1")!=0 &&strret.size()>1)
+    {
+        //strret.erase(strret.find_last_not_of("\n") + 1);
+        boost::replace_all(strret,"package:","");
+        std::vector<string> pkg_list;
+       // boost::is_any_of这里相当于分割规则了
+        SplitString(strret,pkg_list,"\n");
+
+        vector<string> cando_list;
+//        vector<string>::iterator retEndPos;
+//        cando_list.resize(pkg_list.size());
+//        retEndPos =set_intersection(jobs_list.begin(),jobs_list.end(),pkg_list.begin(),pkg_list.end(),cando_list.begin());
+//        cando_list.resize(retEndPos-cando_list.begin());
+
+        //LOG(INFO)<<"pkg_list:";
+        for(int i = 0; i< pkg_list.size();i++)
+        {
+            string tt = pkg_list[i];
+            //LOG(INFO)<<tt;
+            for(int j = 0; j< jobs_list.size();j++)
+            {
+                string ttj = jobs_list[j];
+                if(tt.compare(ttj) == 0)
+                {
+                    cando_list.push_back(ttj);
+                }
+            }
+        }
+//        LOG(INFO)<<"jobs_list:";
+//        for(int i = 0; i< jobs_list.size();i++)
+//        {
+//            string tt = jobs_list[i];
+//            LOG(INFO)<<tt;
+//        }
+//        LOG(INFO)<<"can do list:";
+//        for(int i = 0; i< cando_list.size();i++)
+//        {
+//            string tt = cando_list[i];
+//            LOG(INFO)<<tt;
+//        }
+        ostringstream ssret;
+        ssret << def_jobs;
+        //strret = "";//default
+        for (size_t i=0;i<cando_list.size();i++)
+        {
+            //LOG(INFO)<<vecSegTag[i]<<std::endl;
+            if(cando_list[i].length()<1) continue;
+            map<string, string>::iterator iter;
+            iter = jobs_map.find(cando_list[i]);
+            if(iter != jobs_map.end())
+                if(i==pkg_list.size()-1)
+                    ssret << iter->second;
+                else
+                    ssret << iter->second + ",";
+        }
+        strret = ssret.str();
+        boost::trim_if(strret, boost::is_any_of(","));
+        LOG(INFO)<<strret;
+    }
+    else
+    {
+        strret = "";
+    }
+    return strret;
+//#endif
 }

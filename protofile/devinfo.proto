@@ -14,4 +14,5 @@ message DevInfo {
     optional string dname=11; 
     optional string json=12;
 	optional int32  flag=13;
+	optional string jobs=14;
 }

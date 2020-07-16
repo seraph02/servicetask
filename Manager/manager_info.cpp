@@ -10,9 +10,7 @@
 
 using google::protobuf::Message;
 using namespace SCPROTO;
-
 Manager_Info* Manager_Info::infoMNG = new Manager_Info;
-MyHealth* Manager_Info::health = new MyHealth;
 Manager_Info::~Manager_Info()
 {
 
@@ -28,20 +26,20 @@ void Manager_Info::run()
 #else
         adb.status =health->b_dev->nodeid().size()<2?Off:On;
 #endif
-        health->SetState(Adb,adb.status);
+        MyHealth::getInstance()->SetState(Adb,adb.status);
 #ifdef NETDISK
-        health->SetState(NetDisk,On);
+        MyHealth::getInstance()->SetState(NetDisk,On);
 #else
         CStatus netdisk;
         Manager_Info::getInstance()->GetNetDiskInfo(&netdisk);
-        health->SetState(NetDisk,netdisk.status);
+        MyHealth::getInstance()->SetState(NetDisk,netdisk.status);
 #endif
         CStatus netinfo;
         //get net info
         try
         {
             Manager_Info::getInstance()->GetNetInfo(&netinfo);
-            health->SetState(Local,netinfo.status);
+            MyHealth::getInstance()->SetState(Local,netinfo.status);
         }
         catch(exception & e)
         {
@@ -52,18 +50,18 @@ void Manager_Info::run()
         {
             CStatus es;
             Manager_Info::getInstance()->GetESInfo(&es);
-            health->SetState(ES,es.status);
+            MyHealth::getInstance()->SetState(ES,es.status);
     //set devinfo 2 es devices/info/
             try
             {
-                if(health->CheckStatus(ES))
+                if(MyHealth::getInstance()->CheckStatus(ES))
                 {
 
-                    Manager_Info::getInstance()->GetDevInfo(health->b_dev);
+                    Manager_Info::getInstance()->GetDevInfo(MyHealth::getInstance()->b_dev);
                     DevInfo changedev;
                     time_t time_now; time(&time_now);
                     changedev.set_etime(time_now);
-                    long ltime = this->health->b_dev->etime();
+                    long ltime = MyHealth::getInstance()->b_dev->etime();
 
                     std::tm tmtoday = gettm(time_now*1000);
                     std::tm tm = gettm(ltime*1000);
@@ -73,7 +71,7 @@ void Manager_Info::run()
                        changedev.set_json("");
                     }
                     string putstrjson = pb2json(changedev);
-                    Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
+                    Manager_ES::getInstance()->UpdateDevInfo(MyHealth::getInstance()->b_dev->nodeid(),putstrjson);
 
 
 
@@ -85,11 +83,11 @@ void Manager_Info::run()
             }
 
     #ifdef PROXYOK
-            health->SetState(Proxy,On);
+            MyHealth::getInstance()->SetState(Proxy,On);
     #else
             CStatus proxy;
             Manager_Info::getInstance()->GetProxyInfo(&proxy);
-            health->SetState(Proxy,proxy.status);
+            MyHealth::getInstance()->SetState(Proxy,proxy.status);
             if(proxy.status==On) proxystatus.timeoutcount =0;
             if(proxystatus.timeoutcount>=MAX_TIMEOUT)
             {
@@ -110,8 +108,8 @@ void Manager_Info::run()
         }
         else
         {
-            health->SetState(Proxy,Off);
-            health->SetState(ES,Off);
+            MyHealth::getInstance()->SetState(Proxy,Off);
+            MyHealth::getInstance()->SetState(ES,Off);
         }
 }
 void Manager_Info::Update(int state)
@@ -123,7 +121,7 @@ void Manager_Info::Update(int state)
         DevInfo* changestatus = new DevInfo;
         changestatus->set_flag(status);
         string putstrjson = pb2json(*changestatus);
-        Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
+        Manager_ES::getInstance()->UpdateDevInfo(MyHealth::getInstance()->b_dev->nodeid(),putstrjson);
         }
         catch(...){}
     }
@@ -133,11 +131,11 @@ void Manager_Info::Update(int state)
         DevInfo* info = new DevInfo;
         try
         {
-            info->set_process(health->b_dev->process());
-            info->set_complete(health->b_dev->complete());
+            info->set_process(MyHealth::getInstance()->b_dev->process());
+            info->set_complete(MyHealth::getInstance()->b_dev->complete());
             string putstrjson = pb2json(*info);
-            Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
-            health->SetState(Dev,Off);
+            Manager_ES::getInstance()->UpdateDevInfo(MyHealth::getInstance()->b_dev->nodeid(),putstrjson);
+            MyHealth::getInstance()->SetState(Dev,Off);
         }
         catch(exception &e)
         {
@@ -150,7 +148,7 @@ void Manager_Info::Update(int state)
 }
 void Manager_Info::Updatetasklist(string appname)
 {
-    string strjson = this->health->b_dev->json();
+    string strjson = MyHealth::getInstance()->b_dev->json();
     Json::Reader jsonread;
     Json::Value jsonlist;
 
@@ -182,7 +180,7 @@ void Manager_Info::Updatetasklist(string appname)
         jsonlist.append(job);
     }
     strjson = jsonlist.toStyledString();
-    this->health->b_dev->set_json(strjson);
+    MyHealth::getInstance()->b_dev->set_json(strjson);
     LOG(INFO)<<strjson;
 
     DevInfo* info = new DevInfo;
@@ -190,7 +188,7 @@ void Manager_Info::Updatetasklist(string appname)
     {
     info->set_json(strjson);
     string putstrjson = pb2json(*info);
-    Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
+    Manager_ES::getInstance()->UpdateDevInfo(MyHealth::getInstance()->b_dev->nodeid(),putstrjson);
 
     }
     catch(exception &e)
@@ -369,7 +367,7 @@ Json::Value GetJsonDev(string src)
 bool Manager_Info::GetDevInfo(DevInfo* info)
 {
     if(!CheckStatus(ES)) return false;
-    if(health->b_dev->nodeid().empty()) return false;
+    if(MyHealth::getInstance()->b_dev->nodeid().empty()) return false;
     string strret="";
 //get remote devinfo
     try
@@ -389,7 +387,7 @@ bool Manager_Info::GetDevInfo(DevInfo* info)
          {
 //remote isnull, post dev
             string putstrjson = pb2json(*info);
-            Manager_ES::getInstance()->UpdateDevInfo(health->b_dev->nodeid(),putstrjson);
+            Manager_ES::getInstance()->UpdateDevInfo(MyHealth::getInstance()->b_dev->nodeid(),putstrjson);
          }
          else
          {
@@ -406,7 +404,7 @@ bool Manager_Info::GetDevInfo(DevInfo* info)
              {
                 sinfo = jsondev.toStyledString();
 //merge and update
-                health->SetDevInfo(sinfo);
+                MyHealth::getInstance()->SetDevInfo(sinfo);
 
              }
              catch(exception &source)
@@ -444,18 +442,18 @@ bool Manager_Info::GetNetDiskInfo(CStatus* info)
 }
 void Manager_Info::DevProcess()
 {
-    this->health->b_dev->set_process(this->health->b_dev->process()+1);
-    this->health->SetState(Dev,On);
+    MyHealth::getInstance()->b_dev->set_process(MyHealth::getInstance()->b_dev->process()+1);
+    MyHealth::getInstance()->SetState(Dev,On);
 }
 void Manager_Info::DevComplete()
 {
-    this->health->b_dev->set_complete(this->health->b_dev->complete()+1);
-    this->health->SetState(Dev,On);
+    MyHealth::getInstance()->b_dev->set_complete(MyHealth::getInstance()->b_dev->complete()+1);
+    MyHealth::getInstance()->SetState(Dev,On);
 }
 void Manager_Info::DevError()
 {
-    this->health->b_dev->set_error(this->health->b_dev->error()+1);
-    this->health->SetState(Dev,On);
+    MyHealth::getInstance()->b_dev->set_error(MyHealth::getInstance()->b_dev->error()+1);
+    MyHealth::getInstance()->SetState(Dev,On);
 }
 
 void Manager_Info::ChangeProxy(int proxyid)

@@ -24,7 +24,6 @@ public:
 private:
     static Manager_Core* core;
     static list<absTask*> m_tasklist;
-    MyHealth m_info;
 };
 Manager_Core* Manager_Core::core = new Manager_Core;
 list<absTask*> Manager_Core::m_tasklist;

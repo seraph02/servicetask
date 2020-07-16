@@ -62,6 +62,7 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
 
 
                         string bodystr=ReadLocalFile(file,i+1);
+
                         string other=bodystr;
                         //LOG(INFO)<<bodystr;
                         string strcmd="";

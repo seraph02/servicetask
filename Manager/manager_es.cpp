@@ -7,6 +7,8 @@
 #include<algorithm>
 #include<vector>
 #include<jsoncpp/json/json.h>
+#include"myselfinfo.h"
+#include<boost/algorithm/string.hpp>
 using namespace std;
 using namespace elasticlient;
 Manager_ES* Manager_ES::esMNG = new Manager_ES;
@@ -176,6 +178,76 @@ vector<string> Manager_ES::GetNewTaskId()
             for(int hiti=0;hiti<hitslist.size();hiti++)
             {
                 Json::Value jsonite = hitslist[hiti];
+
+                //check task
+                bool ishavenotwork = false;
+                try
+                {
+                    Json::Value jsontaskinfo = jsonite["_source"]["info"];
+
+                    //get info_list
+//                    Json::FastWriter jfw;
+//                    LOG(INFO)<<jfw.write(jsontaskinfo);
+                    std::vector<string> info_list;
+                    int sz = jsontaskinfo.size();
+                    for (int i = 0; i < sz; ++i) {
+                        string subtaskname = jsontaskinfo[i].asString();
+                        vector<string> strsubarray =vector<string>();
+                        SplitString(subtaskname,strsubarray,"::");
+                        string strApp = "";
+                        if(strsubarray.size()>0)
+                        {
+                            strApp = strsubarray.front();
+                        }
+                        subtaskname.c_str();
+                        info_list.push_back(strApp);
+                    }
+
+                    //get do work list
+                    std::vector<string> jobs_list;
+                    MyHealth* healt = MyHealth::getInstance();
+                    string jobs_str = healt->b_dev->jobs();
+                    SplitString(jobs_str.c_str(),jobs_list,",");
+
+                    //get cando_list
+                    vector<string> cando_list;
+                    vector<string>::iterator retEndPos;
+                    cando_list.resize(info_list.size()+jobs_list.size());
+                    retEndPos =set_intersection(info_list.begin(),info_list.end(),jobs_list.begin(),jobs_list.end(),cando_list.begin());
+                    cando_list.resize(retEndPos-cando_list.begin());
+
+/*                    //LOG(INFO)<<"can do list:";
+//                    for(int i = 0; i< cando_list.size();i++)
+//                    {
+//                        LOG(INFO)<<cando_list[i];
+//                    }
+//                    LOG(INFO)<<"jobs_list:";
+//                    for(int i = 0; i< jobs_list.size();i++)
+//                    {
+//                        LOG(INFO)<<jobs_list[i];
+//                    }
+//                    LOG(INFO)<<"info_list:";
+//                    for(int i = 0; i< info_list.size();i++)
+//                    {
+//                        LOG(INFO)<<info_list[i];
+//                    }*/
+                    int cando_size = cando_list.size();
+                    int info_size = info_list.size();
+                    if( cando_size != info_size)
+                    {
+                        ishavenotwork = true;
+                    }
+
+                }
+                catch(exception &cndoerr)
+                {
+                    LOG(ERROR)<<cndoerr.what();
+                    ishavenotwork = true;
+                }
+                if(ishavenotwork)
+                    continue;
+
+
                 jsontaskid = jsonite["_id"];
                 if(jsontaskid.isString())
                 {
@@ -183,9 +255,9 @@ vector<string> Manager_ES::GetNewTaskId()
                 }
             }
         }
-        catch(...)
+        catch(exception &taske)
         {
-            LOG(ERROR)<<"GET TASKLIST ERROR!";
+            LOG(ERROR)<<"GET TASKLIST ERROR!:"<<taske.what();
         }
     }
     catch(exception &e)

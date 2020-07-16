@@ -343,7 +343,7 @@ def msg2json(str):
             return
         json_o = class_to_dict(eval_obj)
     else:
-        if ('Message' != stype) and ('User' != stype) and ('Channel' != stype) and ('ChatFull' != stype):
+        if ('Message' != stype) and ('User' != stype) and ('Channel' != stype) and ('ChatFull' != stype) and ('MessageService' != stype):
             # print(str)
             return
         json_o = class_to_json(eval_obj)
@@ -353,26 +353,26 @@ def msg2json(str):
 
 
 if __name__ == '__main__':
-    strmsg =sys.argv[1]
+    strmsg = sys.argv[1]
     if len(sys.argv) > 2:
        f = open(strmsg)
        aa = f.readline()
        strmsg = aa
-    strmsg=strmsg.encode('utf-8')#bytes
+    strmsg = strmsg.encode('utf-8')#bytes
     #print(strmsg)
-    strmsg=base64.b64decode(strmsg)#pybase64.b64decode(strmsg)
+    strmsg = base64.b64decode(strmsg)#pybase64.b64decode(strmsg)
     #print(strmsg)
-    strmsg=strmsg.decode('utf-8')
-    aa=""
+    strmsg = strmsg.decode('utf-8')
+    aa = ""
     for c in strmsg:
         if c == '\\':
-            aa+='\\'
+            aa += '\\'
         else:
-            aa+=c
+            aa += c
 
     #print("a",aa)
-    strmsg=aa;
-    str_msg=strmsg.strip('\n');
+    strmsg = aa
+    str_msg = strmsg.strip('\n')
     #print(strmsg)
 
     str_msg = str_msg.replace('\n', '\\n').replace('\r', '').replace('\t', '\\t')

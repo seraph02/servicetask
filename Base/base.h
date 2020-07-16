@@ -7,7 +7,7 @@
 #define AMD64 0
 #define PROXYOK 0
 #endif
-#define MAXRETRY 3
+#define MAXRETRY 1
 #define ADB 0
 #define NETDISK 0
 enum EType

@@ -7,6 +7,7 @@
 #include "jsoncpp2pb.h"
 #include "conf.h"
 #include "taskunit.h"
+#include "myselfinfo.h"
 #include <glog/logging.h>
 #include <boost/algorithm/string.hpp>
 using namespace SCPROTO;
@@ -14,9 +15,9 @@ using namespace SCPROTO;
 
 bool Manager_Core::Init()
 {
-    if(m_info.b_dev->ip().empty()) return false;
+    if(MyHealth::getInstance()->b_dev->ip().empty()) return false;
     ConfInfo* conf = Manager_conf::getInstance();
-    LOG(INFO)<<m_info.b_dev->ip();
+    LOG(INFO)<<MyHealth::getInstance()->b_dev->ip();
     //conf->set_eshost(m_info.b_dev->ip());
     vector<string> vec;
     boost::split(vec, conf->eshost(),boost::is_any_of("\n"), boost::token_compress_on);
@@ -29,12 +30,10 @@ bool Manager_Core::Init()
     }
     Manager_ES::getInstance()->ChangeHosts(vec);
 
-    Manager_Info::ChangeHealth(&m_info);
-    m_info.Attach(Manager_Info::getInstance());
+    MyHealth::getInstance()->Attach(Manager_Info::getInstance());
     m_SelfTimer->AsyncLoop(10000,SelfCHK_Heartbeat_Thread,this);//
 
-    Manager_Task::ChangeHealth(&m_info);
-    m_info.Attach(Manager_Task::getInstance());
+    MyHealth::getInstance()->Attach(Manager_Task::getInstance());
     m_WorkTimer->AsyncLoop(10000,Work_Heartbeat_Thread,this);
 
     Manager_Listen::getInstance()->Init(13695);

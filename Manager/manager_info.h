@@ -37,18 +37,17 @@ public:
     bool GetNetDiskInfo(CStatus* infoMNG);
     bool GetDevInfo(DevInfo* infoMNG);
     void ChangeProxy(int proxyid);
+    void checkJoblist();
+
     int GetFlag()
     {
-        return health->GetFlag();
+        return MyHealth::getInstance()->GetFlag();
     }
     static Manager_Info* getInstance()
     {
         return infoMNG;
     }
-    static void ChangeHealth(MyHealth* info)
-    {
-        health = info;
-    }
+
 private:
     inline bool CheckStatus(EType stype){ return ((status>>stype)&1); }
 
@@ -58,7 +57,6 @@ private:
 
     PROXYSTATUS proxystatus;
     
-    static MyHealth *health;
     static Manager_Info* infoMNG;
 };
 

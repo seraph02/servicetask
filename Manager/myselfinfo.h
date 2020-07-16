@@ -3,30 +3,34 @@
 #include <list>
 #include "comm.h"
 #include "base.h"
-
+#include <map>
 #include "obmanager.h"
 #include "IInfoBase.h"
 #include "devinfo.pb.h"
 using namespace std;
 using namespace SCPROTO;
+#define def_jobs "telegramcontrol,telegram,fbmcontrol,voxercontrol,"
 class MyHealth : public IHealth
 {
 
 private:
     std::list<IManager *> m_ObserverList;
     int status = 0x0;
-
+    map<string,string> jobs_map;
+    vector<string> jobs_list;
     string GetIMEI();
     string GetMAC();
     string GetLocalIP();
     string GetProxyIP();
     string GetDevName();
+    string GetJobs();
 public:
     DevInfo* b_dev=NULL;
 public:
 
     MyHealth();
     ~MyHealth();
+    static MyHealth* health;
     int GetFlag(){return status;}
     void SetDevInfo(DevInfo *info);
     void SetDevInfo(string strinfo);
@@ -58,6 +62,10 @@ inline bool CheckStatus(EType stype){ return ((status>>stype)&1); }
             (*it)->Update(status);
             ++it;
         }
+    }
+    static MyHealth* getInstance()
+    {
+        return health;
     }
 
 };
