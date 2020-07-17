@@ -54,7 +54,7 @@ string Manager_ES::GetESInfo()
             hosts +=*it;
 
         }
-        LOG(ERROR)<<e.what()<<hosts;
+        LOG(INFO)<<e.what()<<hosts;
     }
 
     return strret;
@@ -211,26 +211,41 @@ vector<string> Manager_ES::GetNewTaskId()
 
                     //get cando_list
                     vector<string> cando_list;
-                    vector<string>::iterator retEndPos;
-                    cando_list.resize(info_list.size()+jobs_list.size());
-                    retEndPos =set_intersection(info_list.begin(),info_list.end(),jobs_list.begin(),jobs_list.end(),cando_list.begin());
-                    cando_list.resize(retEndPos-cando_list.begin());
+//                    vector<string>::iterator retEndPos;
+//                    cando_list.resize(info_list.size()+jobs_list.size());
+//                    retEndPos =set_intersection(info_list.begin(),info_list.end(),jobs_list.begin(),jobs_list.end(),cando_list.begin());
+//                    cando_list.resize(retEndPos-cando_list.begin());
 
-/*                    //LOG(INFO)<<"can do list:";
-//                    for(int i = 0; i< cando_list.size();i++)
-//                    {
-//                        LOG(INFO)<<cando_list[i];
-//                    }
-//                    LOG(INFO)<<"jobs_list:";
-//                    for(int i = 0; i< jobs_list.size();i++)
-//                    {
-//                        LOG(INFO)<<jobs_list[i];
-//                    }
-//                    LOG(INFO)<<"info_list:";
-//                    for(int i = 0; i< info_list.size();i++)
-//                    {
-//                        LOG(INFO)<<info_list[i];
-//                    }*/
+                    for(int i = 0; i< info_list.size();i++)
+                    {
+                        string tt = info_list[i];
+                        //LOG(INFO)<<tt;
+                        for(int j = 0; j< jobs_list.size();j++)
+                        {
+                            string ttj = jobs_list[j];
+                            if(tt.compare(ttj) == 0)
+                            {
+                                cando_list.push_back(ttj);
+                            }
+                        }
+                    }
+
+
+                    LOG(INFO)<<"can do list:";
+                    for(int i = 0; i< cando_list.size();i++)
+                    {
+                        LOG(INFO)<<cando_list[i];
+                    }
+                    LOG(INFO)<<"jobs_list:";
+                    for(int i = 0; i< jobs_list.size();i++)
+                    {
+                        LOG(INFO)<<jobs_list[i];
+                    }
+                    LOG(INFO)<<"info_list:";
+                    for(int i = 0; i< info_list.size();i++)
+                    {
+                        LOG(INFO)<<info_list[i];
+                    }
                     int cando_size = cando_list.size();
                     int info_size = info_list.size();
                     if( cando_size != info_size)
