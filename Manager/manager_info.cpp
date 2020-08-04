@@ -56,12 +56,28 @@ void Manager_Info::run()
             {
                 if(MyHealth::getInstance()->CheckStatus(ES))
                 {
+                    DevInfo retdev,changedev;
+                    Manager_Info::getInstance()->GetDevInfo(&retdev);
+                    //remote change
+                    {
+                        //remote flag
+                        bool remote_flag_off = ::CheckStatus(Offline,retdev.flag());
+                        bool locale_flag_off = ::CheckStatus(Offline,MyHealth::getInstance()->b_dev->flag());
+                        if(remote_flag_off != locale_flag_off)
+                        {
+                            MyHealth::getInstance()->SetState(Offline,remote_flag_off?On:Off);
+                        }
+                    }
 
-                    Manager_Info::getInstance()->GetDevInfo(MyHealth::getInstance()->b_dev);
-                    DevInfo changedev;
+
+
                     time_t time_now; time(&time_now);
                     changedev.set_etime(time_now);
-                    long ltime = MyHealth::getInstance()->b_dev->etime();
+                    long ltime = retdev.etime();
+                    string ip_str = MyHealth::getInstance()->b_dev->ip();
+                    string job_str = MyHealth::getInstance()->b_dev->jobs();
+                    if(retdev.ip().compare(MyHealth::getInstance()->b_dev->ip()) !=0 ){changedev.set_ip(ip_str);}
+                    if(retdev.jobs().compare(MyHealth::getInstance()->b_dev->jobs()) !=0 ){changedev.set_jobs(job_str);}
 
                     std::tm tmtoday = gettm(time_now*1000);
                     std::tm tm = gettm(ltime*1000);
@@ -372,7 +388,8 @@ bool Manager_Info::GetDevInfo(DevInfo* info)
 //get remote devinfo
     try
     {
-        strret = Manager_ES::getInstance()->GetDevInfo(info->nodeid());
+        strret = Manager_ES::getInstance()->GetDevInfo(MyHealth::getInstance()->b_dev->nodeid());
+        //LOG(INFO)<<"get remote devinfo"<<strret;
     }
     catch(exception &e)
     {
@@ -386,7 +403,8 @@ bool Manager_Info::GetDevInfo(DevInfo* info)
          if(JsonDev.isNull()||(JsonDev["_source"]["ip"]).isNull())
          {
 //remote isnull, post dev
-            string putstrjson = pb2json(*info);
+            string putstrjson = pb2json(*MyHealth::getInstance()->b_dev);
+            LOG(INFO)<<"putstrjson"<<putstrjson;
             Manager_ES::getInstance()->UpdateDevInfo(MyHealth::getInstance()->b_dev->nodeid(),putstrjson);
          }
          else
@@ -404,7 +422,8 @@ bool Manager_Info::GetDevInfo(DevInfo* info)
              {
                 sinfo = jsondev.toStyledString();
 //merge and update
-                MyHealth::getInstance()->SetDevInfo(sinfo);
+                json2pb(*info,sinfo);
+                //MyHealth::getInstance()->SetDevInfo(sinfo);
 
              }
              catch(exception &source)

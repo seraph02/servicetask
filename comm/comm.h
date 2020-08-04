@@ -24,4 +24,6 @@ int getFiletotals(string filename);
 string ReadLocalFile(string filename,int linenum);
 vector<string> getFiles(string cate_dir);
 string GetLocalIP();
+void printtime();
+string ReadLine(string filename,int line);
 #endif // COMM_H

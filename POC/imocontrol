@@ -1,28 +1,3 @@
 #!/bin/sh
-args=""
-while getopts ":k:i:q:t:f:l" opt
-do
-    case $opt in
-        k)
-	key=${OPTARG#*=}
-        ;;
-	q)
-	q=${OPTARG#*=}
-        ;;
-        l)
-        aa=$aa" -l"
-        ;;
-        f)
-        aa=$aa" -"$opt${OPTARG}
-        ;;
-        ?)
-        aa=$aa" -"$opt${OPTARG}
-        ;;
-        ?)
-	;;
-    esac
-done
-aa=" -k=$q$key"$aa
-#echo $aa
-java -Dfile.encoding=utf-8 -jar  ../POC/Control.jar $aa
+java -Dfile.encoding=utf-8 -jar  ../POC/Control.jar $*
 

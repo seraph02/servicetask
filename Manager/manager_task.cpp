@@ -14,7 +14,7 @@ using google::protobuf::Message;
 using namespace SCPROTO;
 using namespace boost::algorithm;
 Manager_Task* Manager_Task::m_taskMNG = new Manager_Task;
-MyHealth* Manager_Task::b_info = new MyHealth;
+//MyHealth* Manager_Task::b_info = new MyHealth;
 bool Manager_Task::m_IsStop=true;
 string Manager_Task::dcfexename ="dataclassify";
 

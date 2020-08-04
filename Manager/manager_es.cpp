@@ -219,7 +219,6 @@ vector<string> Manager_ES::GetNewTaskId()
                     for(int i = 0; i< info_list.size();i++)
                     {
                         string tt = info_list[i];
-                        //LOG(INFO)<<tt;
                         for(int j = 0; j< jobs_list.size();j++)
                         {
                             string ttj = jobs_list[j];
@@ -230,18 +229,23 @@ vector<string> Manager_ES::GetNewTaskId()
                         }
                     }
 
-
+                    LOG(INFO)<<"============";
                     LOG(INFO)<<"can do list:";
+                    LOG(INFO)<<"------------";
                     for(int i = 0; i< cando_list.size();i++)
                     {
                         LOG(INFO)<<cando_list[i];
                     }
+                    LOG(INFO)<<"============";
                     LOG(INFO)<<"jobs_list:";
+                    LOG(INFO)<<"------------";
                     for(int i = 0; i< jobs_list.size();i++)
                     {
                         LOG(INFO)<<jobs_list[i];
                     }
+                    LOG(INFO)<<"============";
                     LOG(INFO)<<"info_list:";
+                    LOG(INFO)<<"------------";
                     for(int i = 0; i< info_list.size();i++)
                     {
                         LOG(INFO)<<info_list[i];

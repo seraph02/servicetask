@@ -32,6 +32,7 @@ MyHealth::MyHealth()
         time_t time_now; time(&time_now);
         b_dev->set_ctime(time_now);
         b_dev->set_etime(time_now);
+        //b_dev->set_jobs(GetJobs());
 //            b_dev->set_process(0);
 //            b_dev->set_error(0);
 //            b_dev->set_complete(0);
@@ -43,7 +44,9 @@ MyHealth::MyHealth()
     if(b_dev->nodeid().size()<1){b_dev->set_nodeid(GetIMEI()); }
     if(b_dev->ip().size()<1){b_dev->set_ip(GetLocalIP()); }
     if(b_dev->dname().size()<1){b_dev->set_dname(GetDevName()); }
+    LOG(INFO)<<b_dev->jobs();
     if(b_dev->jobs().size()<1){b_dev->set_jobs(GetJobs()); }
+    LOG(INFO)<<b_dev->jobs();
     }
     catch(...)
     {
@@ -83,6 +86,21 @@ void MyHealth::SetDevInfo(string strinfo)
 
     }
 }
+
+
+void MyHealth::UPDATA()
+{
+    try
+    {
+        b_dev->set_jobs(GetJobs());
+        LOG(INFO)<<b_dev->jobs();
+    }
+    catch(...)
+    {
+
+    }
+}
+
 
 string MyHealth::GetIMEI()
 {
@@ -252,15 +270,17 @@ string MyHealth::GetJobs(){
         //strret = "";//default
         for (size_t i=0;i<cando_list.size();i++)
         {
-            //LOG(INFO)<<vecSegTag[i]<<std::endl;
+            //LOG(INFO)<<cando_list[i]<<std::endl;
             if(cando_list[i].length()<1) continue;
             map<string, string>::iterator iter;
             iter = jobs_map.find(cando_list[i]);
             if(iter != jobs_map.end())
-                if(i==pkg_list.size()-1)
-                    ssret << iter->second;
-                else
-                    ssret << iter->second + ",";
+            {
+                if(i==pkg_list.size()-1){
+                    ssret << iter->second;}
+                else{
+                    ssret << iter->second + ",";}
+            }
         }
         strret = ssret.str();
         boost::trim_if(strret, boost::is_any_of(","));

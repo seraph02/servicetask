@@ -9,13 +9,12 @@
 #include "devinfo.pb.h"
 using namespace std;
 using namespace SCPROTO;
-#define def_jobs "telegramcontrol,telegram,fbmcontrol,voxercontrol,"
+#define def_jobs "export,telegramcontrol,telegram,fbmcontrol,voxercontrol,"
 class MyHealth : public IHealth
 {
 
 private:
     std::list<IManager *> m_ObserverList;
-    int status = 0x0;
     map<string,string> jobs_map;
     vector<string> jobs_list;
     string GetIMEI();
@@ -25,25 +24,28 @@ private:
     string GetDevName();
     string GetJobs();
 public:
-    DevInfo* b_dev=NULL;
+    DevInfo* b_dev = NULL;
 public:
 
     MyHealth();
     ~MyHealth();
     static MyHealth* health;
-    int GetFlag(){return status;}
+    int GetFlag(){return b_dev->flag();}
     void SetDevInfo(DevInfo *info);
     void SetDevInfo(string strinfo);
-inline bool CheckStatus(EType stype){ return ((status>>stype)&1); }
-
+inline bool CheckStatus(EType stype){ return ((b_dev->flag()>>stype)&1); }
+    void UPDATA();
 
     void SetState(EType stype,EStatus state)
     {
-        int tmp = state ==0?(status&(~(1<<stype))):(status|(1<<stype));
-        bool ischange = (tmp == status?false:true);
-        status = tmp;
-        if(ischange) this->Notify();
+        int tmp = (state==0)?(b_dev->flag()&(~(1<<stype))):(b_dev->flag()|(1<<stype));
+        bool ischange = (tmp == b_dev->flag()?false:true);
+        b_dev->set_flag(tmp);
+        if(ischange)
+            this->Notify();
+
     }
+
     void Attach(IManager *pObserver)
     {
         m_ObserverList.push_back(pObserver);
@@ -59,10 +61,11 @@ inline bool CheckStatus(EType stype){ return ((status>>stype)&1); }
         std::list<IManager *>::iterator it = m_ObserverList.begin();
         while (it != m_ObserverList.end())
         {
-            (*it)->Update(status);
+            (*it)->Update(b_dev->flag());
             ++it;
         }
     }
+
     static MyHealth* getInstance()
     {
         return health;

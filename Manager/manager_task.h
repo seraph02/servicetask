@@ -19,17 +19,18 @@ public:
     void Update(int state)
     {
         status = state;
-        m_IsStop = !(CheckStatus(Local)&&CheckStatus(Proxy)&&CheckStatus(ES)&&CheckStatus(NetDisk))&&CheckStatus(Adb);
+        m_IsStop = !(CheckStatus(Local)&&CheckStatus(Proxy)&&CheckStatus(ES)&&CheckStatus(NetDisk)&&CheckStatus(Adb))||CheckStatus(Offline);
         LOG(WARNING)   <<"status :"<< CheckStatus(Adb) << "."
                                    << CheckStatus(Local) << "."
                                    << CheckStatus(Proxy) << "."
                                    << CheckStatus(ES)<< "."
                                    << CheckStatus(NetDisk) << "."
+                                   << !CheckStatus(Offline) << "."
                                       ;
     }
     virtual void run();
     virtual ~Manager_Task(){}
-    inline bool CheckStatus(EType stype){ return ((status>>stype)&1); }
+    bool CheckStatus(EType stype){ return ::CheckStatus(stype,status); }
 
     static bool CheckTimeOut(absTask* task);
     bool CheckRunning(TaskInfo* info);
@@ -53,15 +54,15 @@ public:
     static bool CheckTask(absTask* task);
 
     static Manager_Task* getInstance() {    return m_taskMNG;   }
-    static void ChangeHealth(MyHealth* health) { b_info = health; }
+    //static void ChangeHealth(MyHealth* health) { b_info = health; }
 
 private:
     static string TaskBegin(string appname,string& args);
-    static MyHealth *b_info;
+    //static MyHealth *b_info;
     static Manager_Task* m_taskMNG;
     int status = 0x0;
     static bool m_IsStop;
-    static inline string m_workID(){                       return b_info->b_dev->nodeid().c_str();   }
+    static inline string m_workID(){                       return MyHealth::getInstance()->b_dev->nodeid().c_str();   }
 //    inline string gettaskInffile(){                  return (Manager_conf::getInstance()->tasktmppath()+"task.tsk").c_str();    }
     static inline const string m_taskRstfile(string key){  return (Manager_conf::getInstance()->tasktmppath()+ "Result." + key).c_str();    }
     static string dcfexename;

@@ -17,9 +17,8 @@ enum EType
     Proxy,
     ES,
     NetDisk,
+    Offline,
     Dev,
-
-
 };
 enum EStatus
 {
@@ -31,4 +30,5 @@ struct CStatus
     EStatus status;
 
 };
+inline bool CheckStatus(EType stype,int status){ return ((status>>stype)&1); }
 #endif // BASE_H

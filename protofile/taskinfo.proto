@@ -14,6 +14,7 @@ message TaskInfo {
 		Complete=3;
 		Stop=4;
 		TimeOut=5;
+		Error = 6;
 	};
     required TaskStatus status = 7;
     optional string nodeid = 8;

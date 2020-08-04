@@ -5,7 +5,7 @@
 #include <boost/regex.hpp>
 #include "glog/logging.h"
 #include "Base64Encoder.h"
-
+#include <ctime>
 
 
 void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
@@ -59,10 +59,7 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                     {
 
                         Json::Value jfile;
-
-
                         string bodystr=ReadLocalFile(file,i+1);
-
                         string other=bodystr;
                         //LOG(INFO)<<bodystr;
                         string strcmd="";
@@ -106,7 +103,7 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                     {
 
                         Json::Value jfile;
-                        string bodystr=ReadLocalFile(file,i+1);
+                        string bodystr=ReadLine(file,i+1);
                         if((i+1)%100==0)
                             LOG(INFO)<<file<<"("<<i+1<<")";
                         string other=bodystr;

@@ -14,6 +14,8 @@
 #include <algorithm>
 using std::stringstream;
 using std::ofstream;
+#include <sys/time.h>
+#include <unistd.h>
 //void Binarycout(int n)
 //{
 // for (int i=31;i>=0;i--)
@@ -131,6 +133,33 @@ int getFiletotals(string filename)
     std::string contents(buffer.str());
     return atoi(contents.c_str());
 }
+string ReadLine(string filename,int line)
+{
+    int lines,i=0;
+    string temp;
+    std::fstream file;
+    file.open(filename.c_str());
+//    lines=CountLines(filename);
+
+    if(line<=0)
+    {
+        return "Error 1: 行数错误，不能为0或负数。";
+    }
+    if(file.fail())
+    {
+        return "Error 2: 文件不存在。";
+    }
+//    if(line>lines)
+//    {
+//        return "Error 3: 行数超出文件长度。";
+//    }
+    while(getline(file,temp) && i < line-1)
+    {
+        i++;
+    }
+    file.close();
+    return temp;
+}
 string ReadLocalFile(string filename,int linenum)
 {
 //    LOG(INFO)<<"ReadLocalFile :"<<filename;
@@ -140,7 +169,6 @@ string ReadLocalFile(string filename,int linenum)
 //    buffer << t.rdbuf();
 //    std::string contents(buffer.str());
 //    t.close();
-
     std::stringstream buffer;
     std::stringstream cmdbuf;
     cmdbuf << "sed -n "<<linenum<<",1p "<<filename;
@@ -149,7 +177,17 @@ string ReadLocalFile(string filename,int linenum)
     if(bufferstr.empty()) return "";
     buffer << bufferstr;
     std::string contents(buffer.str());
+
     return contents;
+}
+void printtime()
+{
+    struct timeval time;
+
+    /* 获取时间，理论到us */
+    gettimeofday(&time, NULL);
+    LOG(INFO)<<"comm_cpp_189: "<<time.tv_sec<<", ms: "<<(time.tv_sec*1000 + time.tv_usec/1000)<<"\n";
+
 }
 void SplitString(const string& s,vector<string> &v, const string& c)
 {
