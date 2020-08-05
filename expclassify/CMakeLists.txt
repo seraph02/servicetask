@@ -37,8 +37,12 @@ INCLUDE_DIRECTORIES(
     ${CPR_INCLUDE_DIRS}
     ${ELASTICLIENT_INCLUDE_DIRS}
     ${COMM_INCLUDE_DIRS}
+    ${PROTOBUF_INCLUDE_DIRS}
+    ${BASE_INCLUDE_DIRS}
+    ${PROTOFILE_DIRS}
 
 )
-add_executable(${PROJECT_NAME} ${EXPClassifySRC_LIST})
-target_link_libraries(${PROJECT_NAME} comm glog jsoncpp ${CPR_LIBRARIES} ${ELASTICLIENT_LIBRARIES})
+
+add_executable(${PROJECT_NAME} ${EXPClassifySRC_LIST} )
+target_link_libraries(${PROJECT_NAME} comm glog jsoncpp ${CPR_LIBRARIES} ${ELASTICLIENT_LIBRARIES} base)
 

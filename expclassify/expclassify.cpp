@@ -6,6 +6,9 @@
 #include "sstream"
 #include "glog/logging.h"
 #include <boost/algorithm/string.hpp>
+#include <jsoncpp2pb.h>
+#include "taskinfo.pb.h"
+using namespace SCPROTO;
 using std::ostringstream;
 expclassify::expclassify()
 {
@@ -23,7 +26,30 @@ void expclassify::Go(Json::Value args)//string result,string appname,string key)
     string indices =args["indices"].asString();
     string key=args["key"].asString();
     string result=args["result"].asString();
-    PUSHRemoteDataCF(info,taskid,key,indices,result);
+    int msgcount=PUSHRemoteDataCF(info,taskid,key,indices,result);
+    if(msgcount >0 )
+    {
+        {
+            int status = 0;
+    //task->t_task.set_datacount(msgcount);
+            string task_s1 = dbput::getInstance()->GetTaskInfo(taskid,status);
+            Json::Value jsonRoot1; Json::Reader reader;
+            if (reader.parse(task_s1, jsonRoot1))
+            {
+                Json::Value jsontask1 = jsonRoot1["_source"];
+                Json::FastWriter jfw;
+                task_s1=jfw.write(jsontask1);
+                LOG(INFO)<< task_s1<< std::endl;
+                TaskInfo t_task1;
+                TaskInfo change_task1;
+                json2pb(t_task1,task_s1);
+                change_task1.set_datacount(t_task1.datacount()+msgcount);
+
+                string putjson = pb2json(change_task1);
+                int intret =dbput::getInstance()->UpdateTaskInfo(taskid,putjson);
+            }
+        }
+    }
 
 }
 

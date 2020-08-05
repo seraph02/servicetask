@@ -33,7 +33,7 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
             jarray.append(jfile);
             ProcessSession(jarray);
         }
-        else if(fileext.rfind("txt") != string::npos)
+        else if(fileext.rfind("json") != string::npos)
         {
             string abspath="";
             string strkey=app->getkey();
@@ -60,26 +60,27 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
 
                         Json::Value jfile;
                         string bodystr=ReadLocalFile(file,i+1);
-                        string other=bodystr;
+                        //string other=bodystr;
                         //LOG(INFO)<<bodystr;
-                        string strcmd="";
-                        stringstream ocmd;
-                        Base64Encoder b64;
-                        string strbase64 = b64.encode(bodystr);
-                        boost::replace_all(strbase64,"\n","");
-                        //LOG(INFO)<<strbase64;
-                        ofstream ofs;
-                        ofs.open("bs64_py.txt", ofstream::out | ofstream::binary);//"datareslut"
-                        if (ofs)
-                        {
-                            ofs<<strbase64;
-                            ofs.close();
-                        }
+                        string strcmd = bodystr;
+//                        stringstream ocmd;
+//                        Base64Encoder b64;
+//                        string strbase64 = b64.encode(bodystr);
+//                        boost::replace_all(strbase64,"\n","");
+//                        //LOG(INFO)<<strbase64;
+//                        ofstream ofs;
+//                        ofs.open("bs64_py.txt", ofstream::out | ofstream::binary);//"datareslut"
+//                        if (ofs)
+//                        {
+//                            ofs<<strbase64;
+//                            ofs.close();
+//                        }
 
-                        //ocmd<<"python3 telec2j.py "<<strbase64;
-                        ocmd<<"python3 telec2j.py bs64_py.txt f";
-                        strcmd=ocmd.str();
-                        string pyrst = RunShell(strcmd.c_str());
+//                        //ocmd<<"python3 telec2j.py "<<strbase64;
+//                        ocmd<<"python3 telec2j.py bs64_py.txt f";
+//                        strcmd=ocmd.str();
+//                        string pyrst = RunShell(strcmd.c_str());
+                        string pyrst = strcmd;
                         try{
                             Json::Reader jread;
                             if(!jread.parse(pyrst,jfile)||jfile.isNull()){throw exception();}
@@ -106,27 +107,28 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                         string bodystr=ReadLine(file,i+1);
                         if((i+1)%100==0)
                             LOG(INFO)<<file<<"("<<i+1<<")";
-                        string other=bodystr;
-                        string strcmd="";
-                        stringstream ocmd;
-                        Base64Encoder b64;
-                        string strbase64 = b64.encode(bodystr);
+//                        string other=bodystr;
+//                        string strcmd="";
+//                        stringstream ocmd;
+//                        Base64Encoder b64;
+//                        string strbase64 = b64.encode(bodystr);
 
-                        boost::replace_all(strbase64,"\n","");
-                        //LOG(INFO)<<bodystr;
-                        //LOG(INFO)<<strbase64;
-                        ofstream ofs;
-                        ofs.open("bs64_py.txt", ofstream::out | ofstream::binary);//"datareslut"
-                        if (ofs)
-                        {
-                            ofs<<strbase64;
-                            ofs.close();
-                        }
+//                        boost::replace_all(strbase64,"\n","");
+//                        //LOG(INFO)<<bodystr;
+//                        //LOG(INFO)<<strbase64;
+//                        ofstream ofs;
+//                        ofs.open("bs64_py.txt", ofstream::out | ofstream::binary);//"datareslut"
+//                        if (ofs)
+//                        {
+//                            ofs<<strbase64;
+//                            ofs.close();
+//                        }
 
-                        //ocmd<<"python3 telec2j.py "<<strbase64;
-                        ocmd<<"python3 telec2j.py bs64_py.txt f";
-                        strcmd=ocmd.str();
-                        string pyrst = RunShell(strcmd.c_str());
+//                        //ocmd<<"python3 telec2j.py "<<strbase64;
+//                        ocmd<<"python3 telec2j.py bs64_py.txt f";
+//                        strcmd=ocmd.str();
+//                        string pyrst = RunShell(strcmd.c_str());
+                        string pyrst = bodystr;
                         try{
                             Json::Reader jread;
                             if(!jread.parse(pyrst,jfile)||jfile.isNull()){throw exception();}
@@ -150,31 +152,16 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                     ProcessArray(jarray,"groupuser",0);
 
                 }
-                else// if(filename.rfind("message")!=string::npos)
+                else if(filename.rfind("channel")!=string::npos){}
+                else if(filename.rfind("message")!=string::npos)
                 {
                     for(int i=0;i<linenum;i++)
                     {
                         Json::Value jfile;
+                        Json::Value it_json;
                         string bodystr=ReadLocalFile(file,i+1);
-                        string other=bodystr;
                         string strcmd="";
-                        stringstream ocmd;
-                        Base64Encoder b64;
-                        string strbase64 = b64.encode(bodystr);
-
-                        boost::replace_all(strbase64,"\n","");
-                        ofstream ofs;
-                        ofs.open("bs64_py.txt", ofstream::out | ofstream::binary);//"datareslut"
-                        if (ofs)
-                        {
-                            ofs<<strbase64;
-                            ofs.close();
-                        }
-
-                        //ocmd<<"python3 telec2j.py "<<strbase64;
-                        ocmd<<"python3 telec2j.py bs64_py.txt f";
-                        strcmd=ocmd.str();
-                        string pyrst = RunShell(strcmd.c_str());
+                        string pyrst =strcmd= bodystr;
                         try{
                             Json::Reader jread;
                             if(!jread.parse(pyrst,jfile)||jfile.isNull()){throw exception();}
@@ -186,10 +173,16 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
 
                             LOG(ERROR)<<pyrst<<strcmd;
                         }
-
+//                        vector<string> field_list;
+//                        field_list.push_back("from_id");
+//                        field_list.push_back("to_id");
+//                        vector<int>::iterator t;
+//                        for(t=field_list.begin(); t!=field_list.end(); t++)
+//                                cout<<*t<<" " ;
 
                         string type="";
                         string url="";
+                        Json::Value _json = jfile["_"];
                         Json::Value attachments=jfile["media"];
                         if(!attachments.isNull())
                         {
@@ -199,10 +192,10 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                             boost::replace_all(strkey,"/"+filename,"");
                             //strkey=strkey.substr(strkey.find_last_of("/")+1);
                             string channelid=filename;
-                            boost::replace_all(channelid,"_message.txt","");
-                                if(!attachments["classname"].isNull())
+                            boost::replace_all(channelid,"_message.json","");
+                                if(!attachments["_"].isNull())
                                 {
-                                    type=attachments["classname"].asString();
+                                    type=attachments["_"].asString();
                                     if(type.find("MediaPhoto")!=string::npos)
                                     {
                                         opath<<strkey<<"/"<<channelid<<"/"<<attachments["photo"]["id"]<<".jpg";
@@ -211,12 +204,12 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
                                     }
                                     else if(type.find("MediaWebPage")!=string::npos)
                                     {
-//                                        type=attachments["classname"].asString();
+//                                        type=attachments["_"].asString();
 //                                        LOG(INFO)<<type;
                                     }
                                     else if(type.find("MediaDocument")!=string::npos)
                                     {
-                                        type=attachments["classname"].asString();
+                                        type=attachments["_"].asString();
                                         //LOG(INFO)<<type;
                                         //LOG(INFO)<<attachments;
                                         string mime_type=attachments["document"]["mime_type"].asString();
@@ -284,6 +277,10 @@ void TELEGRAMControl::ProcessFile(string file, string filename, string fileext)
 
 //                            }
 //                            }
+                        }
+                        else if(_json.asString().find("MessageService")!=string::npos)
+                        {
+                            type="MessageService";
                         }
                         else
                         {

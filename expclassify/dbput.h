@@ -31,6 +31,9 @@ public:
     string GetESInfo();
     bool POSTTaskResult(string indices,string id,string strpostdata);
     bool POSTTaskResult(string indices,string strpostdata);
+    string GetTaskInfo(string docid,int& statuscode);
+    int UpdateTaskInfo(string taskid,string putstrjson,int version);
+    int UpdateTaskInfo(string taskid,string putstrjson);
 private:
     static std::vector<std::string> m_hosts;
     static dbput* esMNG;
