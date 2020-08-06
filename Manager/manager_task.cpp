@@ -9,6 +9,9 @@
 #include "taskunit.h"
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "expclassify.h"
+#include "dataclassify.h"
+#include "dbput.h"
 using namespace std;
 using google::protobuf::Message;
 using namespace SCPROTO;
@@ -235,7 +238,7 @@ bool Manager_Task::PUSHRemoteResult(string info,string taskid,string indices,str
 
         Json::FastWriter jfw;
         std::string strpostdata=jfw.write(jsondata);
-        Manager_ES::getInstance()->POSTTaskResult(indices,info+"_r",strpostdata);
+        dbput::getInstance()->POSTTaskResult(indices,info+"_r",strpostdata);
         ret = true;
     }
     catch(exception& e)
@@ -315,18 +318,36 @@ void resultAddfiles(TaskResult* result,string strjson)
 bool Manager_Task::RunDataclassify( string info,string taskid,string strkey,string indices ,string resultjson)
 {
         string body = b64_encode(resultjson);
+        string strtype = info;
+        string strbody = body;
         ostringstream sscmd;
         sscmd<< "./"+dcfexename+" ";
         sscmd<<" -t " << info << " -k "<< strkey << " -b " <<body;
 
-        string DataClassifycmd;
-        DataClassifycmd = sscmd.str();
-        RunShell("echo \"\" >dataresult");//??initdataresult
-        LOG(INFO)<<"runshell :"<<DataClassifycmd.c_str();
-        RunShell(DataClassifycmd.c_str());
-        string file = "dataresult";
-        int linenum = getFiletotals(file);
-        //LOG(INFO)<< "dataresult => " << linenum << " ";
+//        string DataClassifycmd;
+//        DataClassifycmd = sscmd.str();
+//        RunShell("echo \"\" >dataresult");//??initdataresult
+//        LOG(INFO)<<"runshell :"<<DataClassifycmd.c_str();
+//        RunShell(DataClassifycmd.c_str());
+//        string file = "dataresult";
+//        int linenum = getFiletotals(file);
+//        //LOG(INFO)<< "dataresult => " << linenum << " ";
+        DataClassify dc;
+        dc.Go(body,strtype,strkey);
+
+
+        expclassify exdc;
+
+        boost::trim_left(strkey);//去掉字符串左边空格
+        boost::trim_right(strkey);//去掉字符串右边空格
+        Json::Value args;
+        args["result"]=strbody;
+        args["key"]=strkey;
+        args["info"]=strtype;
+        args["taskid"]=taskid;
+        if(!strkey.empty()){string strtmp = strkey; boost::to_lower(strtmp);args["indices"]="key"+strtmp;}
+
+        exdc.Go(args);
         return true;
 }
 
@@ -359,7 +380,7 @@ bool Manager_Task::PUSHRemoteFiles(string info,string taskid,string indices,Task
                 Json::FastWriter jfw;
 
                 std::string strpostdata=jfw.write(jsondata);
-                bool IsOK = Manager_ES::getInstance()->POSTTaskResult(indices,info,strpostdata);
+                bool IsOK = dbput::getInstance()->POSTTaskResult(indices,info,strpostdata);
                 }
                 catch(exception &e)
                 {
@@ -464,84 +485,84 @@ bool Manager_Task::PUSHRemoteFiles(string info,string taskid,string indices,Task
 //    }
 //    return true;
 //}
-int Manager_Task::PUSHRemoteDataCF( string info,string taskid,string strkey,string indices ,string resultjson)
-{
-    //-t fbmcontrol -k 133 -b eyJjb250cm9sRmlsZVBhdGgiOiIvaG9tZS90d2Qvc291cmNlL3NlcnZpY2V0YXNrL1BPQy9kb3dubG9hZC9mYWNlYm9va01lc3NhZ2UvY29udHJvbERhdGEvMzI3NDI0NDA1OEBxcS5jb20iLCJjb250YWN0UGF0aCI6Ii9ob21lL3R3ZC9zb3VyY2Uvc2VydmljZXRhc2svUE9DL3Jlc3VsdC8zMjc0MjQ0MDU4QHFxLmNvbS9jb250YWN0cy5qc29uIiwic3RhdHVzIjoib2siLCJtZXNzYWdlUGF0aCI6Ii9ob21lL3R3ZC9zb3VyY2Uvc2VydmljZXRhc2svUE9DL3Jlc3VsdC8zMjc0MjQ0MDU4QHFxLmNvbS9tZXNzYWdlLmpzb24ifQ==
+//int Manager_Task::PUSHRemoteDataCF( string info,string taskid,string strkey,string indices ,string resultjson)
+//{
+//    //-t fbmcontrol -k 133 -b eyJjb250cm9sRmlsZVBhdGgiOiIvaG9tZS90d2Qvc291cmNlL3NlcnZpY2V0YXNrL1BPQy9kb3dubG9hZC9mYWNlYm9va01lc3NhZ2UvY29udHJvbERhdGEvMzI3NDI0NDA1OEBxcS5jb20iLCJjb250YWN0UGF0aCI6Ii9ob21lL3R3ZC9zb3VyY2Uvc2VydmljZXRhc2svUE9DL3Jlc3VsdC8zMjc0MjQ0MDU4QHFxLmNvbS9jb250YWN0cy5qc29uIiwic3RhdHVzIjoib2siLCJtZXNzYWdlUGF0aCI6Ii9ob21lL3R3ZC9zb3VyY2Uvc2VydmljZXRhc2svUE9DL3Jlc3VsdC8zMjc0MjQ0MDU4QHFxLmNvbS9tZXNzYWdlLmpzb24ifQ==
 
-    int datacount=-1;
+//    int datacount=-1;
 
-        string file = "dataresult";
-        int linenum = getFiletotals(file);
+//        string file = "dataresult";
+//        int linenum = getFiletotals(file);
 
 
 
-        LOG(INFO)<< "dataresult => " << linenum << " ";
-        if(linenum<1) return 0;
+//        LOG(INFO)<< "dataresult => " << linenum << " ";
+//        if(linenum<1) return 0;
 
-            for(int i=0;i<linenum;i++)
-            {
-                string bodystr=ReadLocalFile(file,i+1);
-                string other=bodystr;
-                if(other.size()<3) continue;
-        //        task->set_datacount(task->datacount()+1);
-                Json::Value jdataclassify;
-                Json::Reader jread;
-                jread.parse(other,jdataclassify);
-                if(!jdataclassify.isNull())
-                {
-                Json::Value jelement = jdataclassify;
-                Json::Value jsondata;
-                time_t time_now; time(&time_now);
-                jsondata["spidedate"] = std::to_string(time_now);
-                jsondata["taskid"]=taskid;
-                jsondata["task"]=info;
-                string type =jelement["type"].isString()? jelement["type"].asString():"unknow";//message  or contacts
+//            for(int i=0;i<linenum;i++)
+//            {
+//                string bodystr=ReadLocalFile(file,i+1);
+//                string other=bodystr;
+//                if(other.size()<3) continue;
+//        //        task->set_datacount(task->datacount()+1);
+//                Json::Value jdataclassify;
+//                Json::Reader jread;
+//                jread.parse(other,jdataclassify);
+//                if(!jdataclassify.isNull())
+//                {
+//                Json::Value jelement = jdataclassify;
+//                Json::Value jsondata;
+//                time_t time_now; time(&time_now);
+//                jsondata["spidedate"] = std::to_string(time_now);
+//                jsondata["taskid"]=taskid;
+//                jsondata["task"]=info;
+//                string type =jelement["type"].isString()? jelement["type"].asString():"unknow";//message  or contacts
 
-                Json::FastWriter jfw;
-                std::string strmessageid="";
-                try{
-                    //voxerid
-                    string messageid = jelement["body"]["message_id"].asString();
-                    if(messageid.empty())
-                    {
-                        messageid=jelement["body"]["docid"].asString();
-                        boost::to_lower(messageid);
-                        boost::replace_all(messageid,"/","");
-                        boost::replace_all(messageid,"\\","");
-                        boost::replace_all(messageid,"$","");
-                        jelement["body"]["docid"]=messageid;
-                    }
-                    strmessageid.append(messageid);
-                }catch(...){}
-                jsondata[type]=jelement["body"];
-                try{
-                    //imo is no id
+//                Json::FastWriter jfw;
+//                std::string strmessageid="";
+//                try{
+//                    //voxerid
 //                    string messageid = jelement["body"]["message_id"].asString();
+//                    if(messageid.empty())
+//                    {
+//                        messageid=jelement["body"]["docid"].asString();
+//                        boost::to_lower(messageid);
+//                        boost::replace_all(messageid,"/","");
+//                        boost::replace_all(messageid,"\\","");
+//                        boost::replace_all(messageid,"$","");
+//                        jelement["body"]["docid"]=messageid;
+//                    }
 //                    strmessageid.append(messageid);
-                }catch(...){}
-                std::string strpostdata=jfw.write(jsondata);
-                bool puttrue = true;
-                if(strmessageid.empty()||strmessageid.size()<2) puttrue = Manager_ES::getInstance()->POSTTaskResult(indices,info,strpostdata);
-                else
-                {
-                    boost::to_lower(strmessageid);
-                    boost::replace_all(strmessageid,"/","");
-                    boost::replace_all(strmessageid,"\\","");
-                    boost::replace_all(strmessageid,"$","");
-                    try{
-                    //LOG(INFO)<<strmessageid;
-                    puttrue = Manager_ES::getInstance()->POSTTaskResult(indices,strmessageid,strpostdata);
-                    }
-                    catch(...)
-                    {
-//                        LOG(ERROR)<<"aaa";
-                    }
-                }
-                if(type.compare("message")==0 && puttrue ){  datacount++;}
-            }
-    }
-    return datacount;
-}
+//                }catch(...){}
+//                jsondata[type]=jelement["body"];
+//                try{
+//                    //imo is no id
+////                    string messageid = jelement["body"]["message_id"].asString();
+////                    strmessageid.append(messageid);
+//                }catch(...){}
+//                std::string strpostdata=jfw.write(jsondata);
+//                bool puttrue = true;
+//                if(strmessageid.empty()||strmessageid.size()<2) puttrue = Manager_ES::getInstance()->POSTTaskResult(indices,info,strpostdata);
+//                else
+//                {
+//                    boost::to_lower(strmessageid);
+//                    boost::replace_all(strmessageid,"/","");
+//                    boost::replace_all(strmessageid,"\\","");
+//                    boost::replace_all(strmessageid,"$","");
+//                    try{
+//                    //LOG(INFO)<<strmessageid;
+//                    puttrue = Manager_ES::getInstance()->POSTTaskResult(indices,strmessageid,strpostdata);
+//                    }
+//                    catch(...)
+//                    {
+////                        LOG(ERROR)<<"aaa";
+//                    }
+//                }
+//                if(type.compare("message")==0 && puttrue ){  datacount++;}
+//            }
+//    }
+//    return datacount;
+//}
 bool Manager_Task::CheckTimeOut(absTask* task)
 {
 //    time_t time_now; time(&time_now);
@@ -603,32 +624,36 @@ void Manager_Task::TaskLoops(absTask* task)
             string indices = "key" + strkey;
             string taskid= task->t_task.id();
             bool bolputrst = PUSHRemoteResult(strApp,taskid,indices,restjson);
+
+
+
+
             RunDataclassify(strApp,taskid,strkey,indices,restjson);
             //bool bolputfiles=PUSHRemoteFiles(strApp,taskid,indices,result);
-            int msgcount=PUSHRemoteDataCF(strApp,taskid,strkey,indices,restjson);
-            if(msgcount >0 )
-            {
-                {
-                    int status = 0;
-            //task->t_task.set_datacount(msgcount);
-                    string task_s1 = Manager_ES::getInstance()->GetTaskInfo(taskid,status);
-                    Json::Value jsonRoot1; Json::Reader reader;
-                    if (reader.parse(task_s1, jsonRoot1))
-                    {
-                        Json::Value jsontask1 = jsonRoot1["_source"];
-                        Json::FastWriter jfw;
-                        task_s1=jfw.write(jsontask1);
-                        std::cout << task_s1<< std::endl;
-                        TaskInfo t_task1;
-                        TaskInfo change_task1;
-                        json2pb(t_task1,task_s1);
-                        change_task1.set_datacount(t_task1.datacount()+msgcount);
+//            int msgcount=PUSHRemoteDataCF(strApp,taskid,strkey,indices,restjson);
+//            if(msgcount >0 )
+//            {
+//                {
+//                    int status = 0;
+//            //task->t_task.set_datacount(msgcount);
+//                    string task_s1 = Manager_ES::getInstance()->GetTaskInfo(taskid,status);
+//                    Json::Value jsonRoot1; Json::Reader reader;
+//                    if (reader.parse(task_s1, jsonRoot1))
+//                    {
+//                        Json::Value jsontask1 = jsonRoot1["_source"];
+//                        Json::FastWriter jfw;
+//                        task_s1=jfw.write(jsontask1);
+//                        std::cout << task_s1<< std::endl;
+//                        TaskInfo t_task1;
+//                        TaskInfo change_task1;
+//                        json2pb(t_task1,task_s1);
+//                        change_task1.set_datacount(t_task1.datacount()+msgcount);
 
-                        string putjson = pb2json(change_task1);
-                        int intret =Manager_ES::getInstance()->UpdateTaskInfo(taskid,putjson);
-                    }
-                }
-            }
+//                        string putjson = pb2json(change_task1);
+//                        int intret =Manager_ES::getInstance()->UpdateTaskInfo(taskid,putjson);
+//                    }
+//                }
+//            }
 
 //            if(rst){
                 if(remove(m_taskRstfile(strApp+strkey).c_str())==0)

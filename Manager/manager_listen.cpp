@@ -10,6 +10,8 @@
 #include "taskinfo.pb.h"
 #include "jsoncpp2pb.h"
 #include <unistd.h>
+#include "expclassify.h"
+
 
 Manager_Listen* Manager_Listen::m_listenMNG = new Manager_Listen;
 Manager_Listen::Manager_Listen()
@@ -55,29 +57,42 @@ void *Manager_Listen::thread_classify(void *threadid)
                 DataClassify dc;
                 dc.Go(strbody,strtype,strkey);
 
-                int msgcount=Manager_Task::getInstance()->PUSHRemoteDataCF(strtype,taskid,strkey,indices,strbody);
-                if(msgcount >=0 )
-                {
-                    int status = 0;
-            //task->t_task.set_datacount(msgcount);
-                    string task_s = Manager_ES::getInstance()->GetTaskInfo(taskid,status);
-                    Json::Value jsonRoot; Json::Reader reader;
-                    if (reader.parse(task_s, jsonRoot))
-                    {
-                        Json::Value jsontask = jsonRoot["_source"];
-                        Json::FastWriter jfw;
-                        task_s=jfw.write(jsontask);
-                        std::cout << task_s<< std::endl;
-                        TaskInfo t_task,*p_task;
-                        p_task = &t_task;
-                        TaskInfo change_task;
-                        json2pb(t_task,task_s);
-                        change_task.set_datacount(t_task.datacount()+msgcount);
 
-                        string putjson = pb2json(change_task);
-                        int intret =Manager_ES::getInstance()->UpdateTaskInfo(taskid,putjson);
-                    }
-                }
+                expclassify exdc;
+
+                boost::trim_left(strkey);//去掉字符串左边空格
+                boost::trim_right(strkey);//去掉字符串右边空格
+                Json::Value args;
+                args["result"]=strbody;
+                args["key"]=strkey;
+                args["info"]=strtype;
+                args["taskid"]=taskid;
+                if(!strkey.empty()){string strtmp = strkey; boost::to_lower(strtmp);args["indices"]="key"+strtmp;}
+
+                exdc.Go(args);
+//                int msgcount=Manager_Task::getInstance()->PUSHRemoteDataCF(strtype,taskid,strkey,indices,strbody);
+//                if(msgcount >=0 )
+//                {
+//                    int status = 0;
+//            //task->t_task.set_datacount(msgcount);
+//                    string task_s = Manager_ES::getInstance()->GetTaskInfo(taskid,status);
+//                    Json::Value jsonRoot; Json::Reader reader;
+//                    if (reader.parse(task_s, jsonRoot))
+//                    {
+//                        Json::Value jsontask = jsonRoot["_source"];
+//                        Json::FastWriter jfw;
+//                        task_s=jfw.write(jsontask);
+//                        std::cout << task_s<< std::endl;
+//                        TaskInfo t_task,*p_task;
+//                        p_task = &t_task;
+//                        TaskInfo change_task;
+//                        json2pb(t_task,task_s);
+//                        change_task.set_datacount(t_task.datacount()+msgcount);
+
+//                        string putjson = pb2json(change_task);
+//                        int intret =Manager_ES::getInstance()->UpdateTaskInfo(taskid,putjson);
+//                    }
+//                }
             }
 
 

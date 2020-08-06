@@ -22,8 +22,8 @@ public:
     bool deleteLock4taskid(string taskid);
     string getLock4taskid(string taskid);
 
-    bool POSTTaskResult(string indices, string apptype, string strpostjson);
-    bool POSTTaskResult(string indices, string apptype, string id,string strpostdata);
+//    bool POSTTaskResult(string indices, string apptype, string strpostjson);
+//    bool POSTTaskResult(string indices, string apptype, string id,string strpostdata);
 
     elasticlient::SameIndexBulkData& POSTBulkStart(string indices);
     bool POSTBulkdata(string indices,string docid,string data);

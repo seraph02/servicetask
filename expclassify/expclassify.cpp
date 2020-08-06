@@ -39,7 +39,7 @@ void expclassify::Go(Json::Value args)//string result,string appname,string key)
                 Json::Value jsontask1 = jsonRoot1["_source"];
                 Json::FastWriter jfw;
                 task_s1=jfw.write(jsontask1);
-                LOG(INFO)<< task_s1<< std::endl;
+                //LOG(INFO)<< task_s1<< std::endl;
                 TaskInfo t_task1;
                 TaskInfo change_task1;
                 json2pb(t_task1,task_s1);
@@ -113,7 +113,8 @@ int expclassify::PUSHRemoteDataCF( string info,string taskid,string strkey,strin
 //                    strmessageid.append(messageid);
                 }catch(...){}
                 std::string strpostdata=jfw.write(jsondata);
-                if(strmessageid.empty()||strmessageid.size()<2) dbput::getInstance()->POSTTaskResult(indices,strpostdata);
+                bool puttrue = true;
+                if(strmessageid.empty()||strmessageid.size()<2) puttrue = dbput::getInstance()->POSTTaskResult(indices,info,strpostdata);
                 else
                 {
 //                    if(strmessageid.find("oAAAAABh2uHo_CTVeEwAAAB4zAKEx")!=string::npos)
@@ -126,14 +127,14 @@ int expclassify::PUSHRemoteDataCF( string info,string taskid,string strkey,strin
                     boost::replace_all(strmessageid,"$","");
                     try{
                     //LOG(INFO)<<strmessageid;
-                    dbput::getInstance()->POSTTaskResult(indices,strmessageid,strpostdata);
+                        puttrue = dbput::getInstance()->POSTTaskResult(indices,info,strmessageid,strpostdata);
                     }
                     catch(...)
                     {
 //                        LOG(ERROR)<<"aaa";
                     }
                 }
-                if(type.compare("message")==0){  datacount++;}
+                if(type.compare("message")==0 && puttrue ){  datacount++;}
             }        
     }
     return datacount;

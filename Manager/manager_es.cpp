@@ -305,76 +305,76 @@ string Manager_ES::GetTaskInfo(string docid,int& statuscode)
     }
     return strret;
 }
-bool Manager_ES::POSTTaskResult(string indices,string apptype,string strpostdata)
-{
-    return POSTTaskResult(indices,apptype,"",strpostdata);
-}
+//bool Manager_ES::POSTTaskResult(string indices,string apptype,string strpostdata)
+//{
+//    return POSTTaskResult(indices,apptype,"",strpostdata);
+//}
 
-bool Manager_ES::POSTTaskResult(string indices, string apptype, string id,string strpostdata)
-{
-    bool bolret=false;//lowercase
-    transform(indices.begin(), indices.end(), indices.begin(), towlower);
-    indices = UrlEncode(indices.c_str());
-    if(id.empty()||id.length()<2){
-        Json::Value resjson; Json::Reader jrd;
-        if(!jrd.parse(strpostdata,resjson)||resjson.isNull())
-        {
-            id = md5(strpostdata);
-        }
-        else{
-            resjson.removeMember("spidedate");
-	    if(apptype.find("control")!=string::npos && apptype.find("_r")==string::npos )
-            {
-                resjson.removeMember("taskid");
-            }
-            Json::FastWriter jfw;
-            std::string strtmpdata=jfw.write(resjson);
-            //LOG(INFO)<<strtmpdata;
-            id = md5(strtmpdata);
-            //LOG(INFO)<<"id: "<<id;
-        }
+//bool Manager_ES::POSTTaskResult(string indices, string apptype, string id,string strpostdata)
+//{
+//    bool bolret=false;//lowercase
+//    transform(indices.begin(), indices.end(), indices.begin(), towlower);
+//    indices = UrlEncode(indices.c_str());
+//    if(id.empty()||id.length()<2){
+//        Json::Value resjson; Json::Reader jrd;
+//        if(!jrd.parse(strpostdata,resjson)||resjson.isNull())
+//        {
+//            id = md5(strpostdata);
+//        }
+//        else{
+//            resjson.removeMember("spidedate");
+//	    if(apptype.find("control")!=string::npos && apptype.find("_r")==string::npos )
+//            {
+//                resjson.removeMember("taskid");
+//            }
+//            Json::FastWriter jfw;
+//            std::string strtmpdata=jfw.write(resjson);
+//            //LOG(INFO)<<strtmpdata;
+//            id = md5(strtmpdata);
+//            //LOG(INFO)<<"id: "<<id;
+//        }
 
-    }
-    string doc_id = apptype + id;
+//    }
+//    string doc_id = apptype + id;
 
-    cpr::Response crsp;
-    try
-    {
-        Client es(m_hosts);
+//    cpr::Response crsp;
+//    try
+//    {
+//        Client es(m_hosts);
 
-        crsp = es.get(indices,"data","_search");
-        if(crsp.status_code==404)
-        {
-            string newdevdate="{ \"settings\" : { \"index\" : { \"number_of_shards\" : 1}}}";
-            try{
-                es.performRequest(Client::HTTPMethod::PUT,indices,newdevdate);
-            }
-            catch(...){}
-        }
-        if(!id.empty())
-        {
-            cpr::Response crsp_getdoc = es.get(indices,"data",doc_id);
-            if(crsp_getdoc.status_code==200)
-            {
-                bolret = false;
-                return bolret;
-            }
-            crsp = es.index(indices,"data",doc_id+"?pretty=true",strpostdata);
-            if(crsp.status_code==404)
-            {
+//        crsp = es.get(indices,"data","_search");
+//        if(crsp.status_code==404)
+//        {
+//            string newdevdate="{ \"settings\" : { \"index\" : { \"number_of_shards\" : 1}}}";
+//            try{
+//                es.performRequest(Client::HTTPMethod::PUT,indices,newdevdate);
+//            }
+//            catch(...){}
+//        }
+//        if(!id.empty())
+//        {
+//            cpr::Response crsp_getdoc = es.get(indices,"data",doc_id);
+//            if(crsp_getdoc.status_code==200)
+//            {
+//                bolret = false;
+//                return bolret;
+//            }
+//            crsp = es.index(indices,"data",doc_id+"?pretty=true",strpostdata);
+//            if(crsp.status_code==404)
+//            {
 
 
-            }
-        }
+//            }
+//        }
 
-        bolret = true;
-    }
-    catch(exception &e)
-    {
-        LOG(ERROR)<<e.what()<<crsp.status_code;
-    }
-    return bolret;
-}
+//        bolret = true;
+//    }
+//    catch(exception &e)
+//    {
+//        LOG(ERROR)<<e.what()<<crsp.status_code;
+//    }
+//    return bolret;
+//}
 
 bool Manager_ES::POSTBulkdata(string indices,string docid,string data)
 {

@@ -5,7 +5,8 @@ aux_source_directory(. EXPClassifySRC_LIST)
 find_package(CURL)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-
+file(GLOB EXPCLASSIFY_INCLUDE_DIRS ./*.h)
+set(EXPCLASSIFY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 if(NOT SERVICE_FIND)
 #定义COMM_DIR位置
@@ -43,6 +44,9 @@ INCLUDE_DIRECTORIES(
 
 )
 
-add_executable(${PROJECT_NAME} ${EXPClassifySRC_LIST} )
-target_link_libraries(${PROJECT_NAME} comm glog jsoncpp ${CPR_LIBRARIES} ${ELASTICLIENT_LIBRARIES} base)
-
+#add_executable(${PROJECT_NAME} ${EXPClassifySRC_LIST} )
+#target_link_libraries(${PROJECT_NAME} comm glog jsoncpp ${CPR_LIBRARIES} ${ELASTICLIENT_LIBRARIES} base)
+add_library (lib${PROJECT_NAME} "dbput.cpp" "expclassify.cpp")
+add_executable(${PROJECT_NAME} "main.cpp")
+target_link_libraries(lib${PROJECT_NAME} comm glog jsoncpp ${CPR_LIBRARIES} ${ELASTICLIENT_LIBRARIES} base)
+target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME})

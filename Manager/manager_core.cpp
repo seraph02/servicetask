@@ -10,6 +10,7 @@
 #include "myselfinfo.h"
 #include <glog/logging.h>
 #include <boost/algorithm/string.hpp>
+#include "dbput.h"
 using namespace SCPROTO;
 
 
@@ -28,8 +29,8 @@ bool Manager_Core::Init()
 
         //cout<<vec[i]<<endl;
     }
+    dbput::getInstance()->ChangeHosts(vec);
     Manager_ES::getInstance()->ChangeHosts(vec);
-
     MyHealth::getInstance()->Attach(Manager_Info::getInstance());
     m_SelfTimer->AsyncLoop(10000,SelfCHK_Heartbeat_Thread,this);//
 
