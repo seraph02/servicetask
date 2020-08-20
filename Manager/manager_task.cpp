@@ -19,7 +19,7 @@ using namespace boost::algorithm;
 Manager_Task* Manager_Task::m_taskMNG = new Manager_Task;
 //MyHealth* Manager_Task::b_info = new MyHealth;
 bool Manager_Task::m_IsStop=true;
-string Manager_Task::dcfexename ="dataclassify";
+//string Manager_Task::dcfexename ="dataclassify";
 
 
 
@@ -320,9 +320,9 @@ bool Manager_Task::RunDataclassify( string info,string taskid,string strkey,stri
         string body = b64_encode(resultjson);
         string strtype = info;
         string strbody = body;
-        ostringstream sscmd;
-        sscmd<< "./"+dcfexename+" ";
-        sscmd<<" -t " << info << " -k "<< strkey << " -b " <<body;
+//        ostringstream sscmd;
+//        sscmd<< "./"+dcfexename+" ";
+//        sscmd<<" -t " << info << " -k "<< strkey << " -b " <<body;
 
 //        string DataClassifycmd;
 //        DataClassifycmd = sscmd.str();

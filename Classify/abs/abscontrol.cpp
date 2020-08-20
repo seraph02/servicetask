@@ -188,7 +188,7 @@ void absControl::ProcessArray(Json::Value jbody,string tname,int mode)
         for(int ind =0;ind<jbody.size();ind++)
         {
             Json::Value jones = jbody[ind];
-            if(jones.isNull() || !jones.isObject()) continue;
+            if(jones.isNull() || !jones.isObject()) continue;            
             Json::Value jelement;
             jelement["type"]=tname;
             jelement["tag"]= dt;

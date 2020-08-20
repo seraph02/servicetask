@@ -74,9 +74,18 @@ string dbput::getJson2md5(string strpostdata,string apptype)
 {
     string t_id;
     Json::Value resjson; Json::Reader jrd;
+    //LOG(INFO)<<strpostdata;
     if(!jrd.parse(strpostdata,resjson)||resjson.isNull())
     {
         t_id = md5(strpostdata);
+    }
+    else if(apptype.find("fbmcontrol")!=string::npos && !resjson["message"].isNull())
+    {
+        Json::Value mesg = resjson["message"];
+        if(!mesg["msgId"].isNull())
+        {
+            t_id = mesg["msgId"].asString();
+        }
     }
     else{
         //resjson.removeMember("spidedate");
@@ -88,7 +97,7 @@ string dbput::getJson2md5(string strpostdata,string apptype)
         }
         Json::FastWriter jfw;
         std::string strtmpdata=jfw.write(resjson);
-        //LOG(INFO)<<strtmpdata;
+        LOG(INFO)<<strtmpdata;
         t_id = md5(strtmpdata);
         //LOG(INFO)<<"id: "<<id;
     }
@@ -119,7 +128,7 @@ bool dbput::POSTTaskResult(string indices,string apptype,string id,string strpos
             }
             catch(...){}
         }
-        if(!id.empty())
+        if(!doc_id.empty())
         {
             cpr::Response crsp_getdoc = es.get(indices,"data",doc_id);
             if(crsp_getdoc.status_code==200)

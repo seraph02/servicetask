@@ -18,9 +18,13 @@ void expclassify::Go(Json::Value args)//string result,string appname,string key)
 {
     string localip=::GetLocalIP();
     string esport="9200";
-    dbput::getInstance()->ChangeHosts({"http://"+localip+":"+esport+"/"});
+    if(dbput::getInstance()->HostsSize()<1)
+    {
+        dbput::getInstance()->ChangeHosts({"http://"+localip+":"+esport+"/"});
+        LOG(INFO)<<"ES CONNECT "<<"http://"+localip+":"+esport+"/";
+    }
 
-    LOG(INFO)<<"ES CONNECT "<<"http://"+localip+":"+esport+"/";
+
     string info=args["info"].asString();
     string taskid=args["taskid"].asString();
     string indices =args["indices"].asString();
@@ -33,6 +37,7 @@ void expclassify::Go(Json::Value args)//string result,string appname,string key)
             int status = 0;
     //task->t_task.set_datacount(msgcount);
             string task_s1 = dbput::getInstance()->GetTaskInfo(taskid,status);
+            LOG(INFO)<<"es_task: " << task_s1;
             Json::Value jsonRoot1; Json::Reader reader;
             if (reader.parse(task_s1, jsonRoot1))
             {
@@ -46,7 +51,9 @@ void expclassify::Go(Json::Value args)//string result,string appname,string key)
                 change_task1.set_datacount(t_task1.datacount()+msgcount);
 
                 string putjson = pb2json(change_task1);
-                int intret =dbput::getInstance()->UpdateTaskInfo(taskid,putjson);
+                //LOG(INFO)<<"change: " << putjson;
+                //int intret =
+                dbput::getInstance()->UpdateTaskInfo(taskid,putjson);
             }
         }
     }
@@ -61,7 +68,7 @@ int expclassify::PUSHRemoteDataCF( string info,string taskid,string strkey,strin
     //strkey=133
     //indices=key133
     //{"args":"-o=twd1q2w3e4r","contactPath":"/home/twd/source/POC/result/1194093570@qq.com/contacts.json","status":"ok"}
-    int datacount=-1;
+    int datacount=0;
 
         string file = "dataresult";
         int linenum = getFiletotals(file);
@@ -114,7 +121,10 @@ int expclassify::PUSHRemoteDataCF( string info,string taskid,string strkey,strin
                 }catch(...){}
                 std::string strpostdata=jfw.write(jsondata);
                 bool puttrue = true;
-                if(strmessageid.empty()||strmessageid.size()<2) puttrue = dbput::getInstance()->POSTTaskResult(indices,info,strpostdata);
+                if(strmessageid.empty()||strmessageid.size()<2)
+                {
+                    puttrue = dbput::getInstance()->POSTTaskResult(indices,info,strpostdata);
+                }
                 else
                 {
 //                    if(strmessageid.find("oAAAAABh2uHo_CTVeEwAAAB4zAKEx")!=string::npos)
@@ -134,6 +144,8 @@ int expclassify::PUSHRemoteDataCF( string info,string taskid,string strkey,strin
 //                        LOG(ERROR)<<"aaa";
                     }
                 }
+                //LOG(INFO)<<"type: " << type;
+                //LOG(INFO)<<"PUTTRUE: " << puttrue;
                 if(type.compare("message")==0 && puttrue ){  datacount++;}
             }        
     }

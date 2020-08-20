@@ -18,6 +18,9 @@ public:
     {
         m_hosts.push_back(host);
     }
+    static int HostsSize(){
+        return m_hosts.size();
+    }
     static void ChangeHosts(vector<std::string> hosts)
     {
         m_hosts.clear();

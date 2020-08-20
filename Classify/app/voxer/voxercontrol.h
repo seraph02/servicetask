@@ -8,6 +8,7 @@ class VOXERControl:public absControl
 public:
     VOXERControl(VOXER* voxer):app(voxer){}
 private:
+    virtual void ProcessMessage(Json::Value jbody);
     virtual void filtermessage(Json::Value& jones);
     virtual void filteravatar(Json::Value& jones);
 

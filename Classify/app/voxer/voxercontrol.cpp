@@ -21,6 +21,36 @@ void VOXERControl::filteravatar(Json::Value& jones)
 
     }
 }
+void VOXERControl::ProcessMessage(Json::Value jbody)
+{
+    if(jbody.isArray())
+    {
+        Json::Value jarray;
+        for(int ind =0;ind<jbody.size();ind++)
+        {
+            Json::Value jones = jbody[ind];
+            //LOG(INFO)<<jones.toStyledString();
+            Json::Value j_content_type = jones["content_type"];
+            if(!j_content_type.isNull())
+            {
+                string content_type = j_content_type.asString();
+                if(content_type.find("receipt")!=string::npos||content_type.find("complete")!=string::npos||content_type.find("recall_messages")!=string::npos)
+                {
+                    continue;
+                }
+                else if(content_type.find("profile")!=string::npos){
+                    ProcessArray(jarray,"profile",0);
+                }
+
+                jarray.append(jones);
+            }
+        }
+        ProcessArray(jarray,"message",0);
+    }
+
+
+
+}
 void VOXERControl::filtermessage(Json::Value& jones)
 {
 //    Json::Value content = jones["content_json"];
@@ -43,4 +73,5 @@ void VOXERControl::filtermessage(Json::Value& jones)
 
 //    }
 //    else{}
+    absControl::filtermessage(jones);
 }

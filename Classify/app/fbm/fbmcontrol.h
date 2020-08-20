@@ -17,7 +17,7 @@ private:
     //virtual void work();
     virtual void filteravatar(Json::Value&);
     virtual void ProcessFile(string file, string filename, string fileext);
-//    virtual void filtermessage(Json::Value&);
+    virtual void ProcessMessage(Json::Value jbody);
 };
 
 #endif // FBMCONTROL_H

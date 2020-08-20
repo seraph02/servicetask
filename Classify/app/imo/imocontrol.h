@@ -8,7 +8,8 @@ class IMOControl:public absControl
 public:
     IMOControl(IMO* imo):app(imo){}
 private:
-    void filteravatar(Json::Value& jones);
+    virtual void filteravatar(Json::Value& jones);
+    virtual void ProcessMessage(Json::Value jbody);
     IMO* app;
 };
 #endif // IMOCONTROL_H
