@@ -26,6 +26,8 @@ public:
     void Update(int state);
     virtual void run();
     virtual ~Manager_Info();
+    void DevStart();
+    void DevEnd();
     void DevProcess();
     void DevComplete();
     void DevError();

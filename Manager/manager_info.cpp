@@ -35,6 +35,7 @@ void Manager_Info::run()
         MyHealth::getInstance()->SetState(NetDisk,netdisk.status);
 #endif
         CStatus netinfo;
+        DevEnd();
         //get net info
         try
         {
@@ -451,7 +452,18 @@ bool Manager_Info::GetNetDiskInfo(CStatus* info)
     if(diskpath.size()<1) return ret;
     if(access(diskpath.c_str(), 0 ) != -1)
     {
-        ret = true;        info->status=On;
+        ret = true;
+        string strcmd="";
+        ostringstream ocmd;
+        ocmd << "mount | grep glusterfs";
+        strcmd = ocmd.str();
+        string strret= RunShell(strcmd.c_str());
+        if(strret.length()<2){  info->status=Off;   }
+        else
+        {
+            //LOG(INFO)<<strret;
+            info->status=On;
+        }
     }
     else
     {
@@ -459,8 +471,22 @@ bool Manager_Info::GetNetDiskInfo(CStatus* info)
     }
     return ret;
 }
+void Manager_Info::DevStart()
+{
+    MyHealth::getInstance()->b_dev->set_running(1);
+    string updaterunning = "{\"running\":"+to_string(MyHealth::getInstance()->b_dev->running())+"}";
+    Manager_ES::getInstance()->UpdateDevInfo(MyHealth::getInstance()->b_dev->nodeid(),updaterunning);
+
+}
+void Manager_Info::DevEnd()
+{
+    MyHealth::getInstance()->b_dev->set_running(0);
+    string updaterunning = "{\"running\":"+to_string(MyHealth::getInstance()->b_dev->running())+"}";
+    Manager_ES::getInstance()->UpdateDevInfo(MyHealth::getInstance()->b_dev->nodeid(),updaterunning);
+}
 void Manager_Info::DevProcess()
 {
+    DevStart();
     MyHealth::getInstance()->b_dev->set_process(MyHealth::getInstance()->b_dev->process()+1);
     MyHealth::getInstance()->SetState(Dev,On);
 }
@@ -468,6 +494,7 @@ void Manager_Info::DevComplete()
 {
     MyHealth::getInstance()->b_dev->set_complete(MyHealth::getInstance()->b_dev->complete()+1);
     MyHealth::getInstance()->SetState(Dev,On);
+    DevEnd();
 }
 void Manager_Info::DevError()
 {

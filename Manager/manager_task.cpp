@@ -144,10 +144,12 @@ void Manager_Task::TaskProcess(absTask* task)
             args<<t;
         }
         strargs = args.str();
+        ConfInfo* conf = Manager_conf::getInstance();
+        string strdiskpath = conf->netdiskpath();
         string filename = TaskBegin(strApp,strargs);
         string strkey = task->GetKey();
         string strip = Manager_conf::getInstance()->eshost();
-        ocmd << strApp <<" -ip="<< strip << " -t=" +strApp << " -k=" << strkey << " -j=" << strtaskid << " " <<strargs;
+        ocmd << strApp <<" -b=" << strdiskpath <<" -ip="<< strip << " -t=" +strApp << " -k=" << strkey << " -j=" << strtaskid << " " <<strargs ;
         strcmd = ocmd.str();
         string strret;
         bool Isretry=true;

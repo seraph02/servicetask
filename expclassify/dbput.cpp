@@ -97,7 +97,7 @@ string dbput::getJson2md5(string strpostdata,string apptype)
         }
         Json::FastWriter jfw;
         std::string strtmpdata=jfw.write(resjson);
-        LOG(INFO)<<strtmpdata;
+        //LOG(INFO)<<strtmpdata;
         t_id = md5(strtmpdata);
         //LOG(INFO)<<"id: "<<id;
     }

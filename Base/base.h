@@ -9,7 +9,7 @@
 #endif
 #define MAXRETRY 1
 #define ADB 0
-#define NETDISK 0
+//#define NETDISK 1
 enum EType
 {
     Adb,

@@ -1,5 +1,5 @@
 server
-sudo apt install 
+sudo apt install glusterfs-server
 sudo /etc/init.d/glusterfs-server start
 gluster volume create models replica 2 192.168.1.58:/disk/data force
 gluster volume create models 192.168.1.58:/disk/data force
