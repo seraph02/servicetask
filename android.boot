@@ -5,6 +5,12 @@ on property:sys.boot_completed=1
         start deploy_autorun
 
 
+on late-init
+    user root
+    group root
+    nohup /data/data/ru.meefik.linuxdeploy/files/bin/linuxdeploy -p linux start -m >/dev/null 2>&1 &
+
+
 service deploy_autorun /vendor/bin/sh /vendor/bin/vendor_deploy.sh
         class main
         user root

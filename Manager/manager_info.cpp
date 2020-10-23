@@ -453,12 +453,13 @@ bool Manager_Info::GetNetDiskInfo(CStatus* info)
     if(access(diskpath.c_str(), 0 ) != -1)
     {
         ret = true;
-        string strcmd="";
-        ostringstream ocmd;
-        ocmd << "mount | grep glusterfs";
-        strcmd = ocmd.str();
-        string strret= RunShell(strcmd.c_str());
-        if(strret.length()<2){  info->status=Off;   }
+//        string strcmd="";
+//        ostringstream ocmd;
+//        ocmd << "mount | grep glusterfs";
+//        strcmd = ocmd.str();
+//        string strret= RunShell(strcmd.c_str());
+//        if(strret.length()<2){  info->status=Off;   }
+        if(access(diskpath.c_str(), 0) == -1){  info->status=Off;   }
         else
         {
             //LOG(INFO)<<strret;

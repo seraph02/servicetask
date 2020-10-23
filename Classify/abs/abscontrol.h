@@ -46,4 +46,6 @@ private:
 };
 int DOWNLOAD_FILE(const char*  url,const char* outfilename);
 vector<string> path2files(string path);
+int upload(string url, string& body, string* response);
+
 #endif // ABSCONTROL_H

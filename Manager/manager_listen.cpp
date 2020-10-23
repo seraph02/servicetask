@@ -20,6 +20,7 @@ Manager_Listen::Manager_Listen()
 }
 void *Manager_Listen::thread_classify(void *threadid)
 {
+
     while(true)
     {
         if(msglist.size()>0)
@@ -103,7 +104,7 @@ void *Manager_Listen::thread_classify(void *threadid)
         }
 
     }
-   pthread_exit(NULL);
+   //pthread_exit(NULL);
 }
 void Manager_Listen::Init(int port)
 {
@@ -122,6 +123,7 @@ void Manager_Listen::Init(int port)
       int rc;
       rc = pthread_create(&threads, NULL,Manager_Listen::thread_classify, (void *)0);
       io_service.run();
+
     }
     catch (std::exception& e)
     {

@@ -10,6 +10,10 @@ MyHealth::MyHealth()
     jobs_map["com.whatsapp"]="whatsapp";
     jobs_map["com.viber.voip"]="viber";
     jobs_map["jp.naver.line.android"]="line";
+    jobs_map["com.kakao.talk"]="kakaotalk";
+    jobs_map["com.facebook.orca"]="facebook";
+    jobs_map["com.skype.raider"]="skype,skypecontrol";
+    jobs_map["com.instagram.android"]="instagram";
 
     //init jobs_list
     std::map<string, string>::iterator iter;

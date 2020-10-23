@@ -1,0 +1,95 @@
+#!/bin/sh
+for i in $* ; do
+        arg=${i%=*}
+
+        if [ "$arg" = "-l" ];then           
+			crack=1
+        fi
+done
+while getopts ":b:k:t:o:c:q:i:d:e:f:j:" opt
+do
+    case $opt in
+        b)
+        	basepath=${OPTARG#*=}
+        ;;
+        k)
+			key=${OPTARG#*=}
+        ;;
+        t)
+			type=${OPTARG#*=}
+        ;;
+        o)		
+			pass=`echo ${OPTARG#*=}|base64`
+		;;
+		c)
+			control=${OPTARG#*=}
+        ;;
+		l)
+			crack=1
+        ;;
+		q)
+			q=${OPTARG#*=}
+        ;;
+		i)
+			ip=${OPTARG#*=}
+        ;;
+        d)
+        btime=${OPTARG#*=}
+        ;;
+	e)
+        etime=${OPTARG#*=}
+        ;;
+        f)
+        file=${OPTARG#*=}
+        ;;
+	    j)
+        task=${OPTARG#*=}
+        ;;
+        ?)
+       
+        ;;
+    esac
+done
+if [ -n "$file" ]; then
+     mv $file ./$q$key'.session'
+
+fi
+args=""
+if [ -n "$basepath" ]; then
+	args="$args -d $basepath"
+fi
+if [ -n "$ip" ]; then
+	args="$args -ip $ip"
+fi
+if [ -n "$control" ]; then
+	args="$args -ty $control"
+fi
+if [ -n "$q" ]; then
+	args="$args -q $q"
+fi
+if [ -n "$key" ]; then
+	args="$args -k $q$key"
+fi
+if [ -n "$btime" ]; then
+	args="$args  -st $btime"
+fi
+if [ -n "$task" ]; then
+	args="$args  -task $task"
+fi
+if [ -n "$pass" ]; then
+
+	args="$args -o "$pass
+fi
+if [ -n "$etime" ]; then
+     args = "$args -et $etime "
+fi
+if [ -n "$crack" ]; then
+	args="$args -l"
+fi
+#echo $args
+python3 ../POC/skypecontrol.py $args
+
+
+
+
+

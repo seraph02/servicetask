@@ -9,7 +9,7 @@
 #include "devinfo.pb.h"
 using namespace std;
 using namespace SCPROTO;
-#define def_jobs "export,telegramcontrol,telegram,fbmcontrol,voxercontrol,"
+#define def_jobs "export,telegramcontrol,telegram,fbmcontrol,voxercontrol,twittercontrol,"
 class MyHealth : public IHealth
 {
 
