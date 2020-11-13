@@ -47,6 +47,7 @@ void Manager_Info::run()
            LOG(ERROR)<<e.what();
            return ;
         }
+
         if(adb.status == On )
         {
             CStatus es;
@@ -76,8 +77,12 @@ void Manager_Info::run()
                     changedev.set_etime(time_now);
                     long ltime = retdev.etime();
                     string ip_str = MyHealth::getInstance()->b_dev->ip();
+                    string ip_proxy_str = MyHealth::getInstance()->b_dev->proxyip();
+                    string proxy_addr_str = MyHealth::getInstance()->b_dev->proxyaddr();
                     string job_str = MyHealth::getInstance()->b_dev->jobs();
                     if(retdev.ip().compare(MyHealth::getInstance()->b_dev->ip()) !=0 ){changedev.set_ip(ip_str);}
+                    if(retdev.proxyip().compare(MyHealth::getInstance()->b_dev->proxyip()) !=0 ){changedev.set_proxyip(ip_proxy_str);}
+                    if(retdev.proxyaddr().compare(MyHealth::getInstance()->b_dev->proxyaddr()) !=0 ){changedev.set_proxyaddr(proxy_addr_str);}
                     if(retdev.jobs().compare(MyHealth::getInstance()->b_dev->jobs()) !=0 ){changedev.set_jobs(job_str);}
 
                     std::tm tmtoday = gettm(time_now*1000);
@@ -121,7 +126,7 @@ void Manager_Info::run()
                      
 
     #endif
-
+            //LOG(INFO)<<MyHealth::getInstance()->GetProxyIP();
         }
         else
         {
@@ -213,30 +218,7 @@ void Manager_Info::Updatetasklist(string appname)
         LOG(ERROR)<<e.what();
     }
 }
-size_t receive_data(void *contents, size_t size, size_t nmemb, void *stream){
-    string *str = (string*)stream;
-    (*str).append((char*)contents, size*nmemb);
-    return size * nmemb;
-}
-CURLcode HttpGet(const std::string & strUrl, std::string & strResponse,int nTimeout){
-    CURLcode res;
-    CURL* pCURL = curl_easy_init();
 
-    if (pCURL == NULL) {
-        return CURLE_FAILED_INIT;
-    }
-
-    curl_easy_setopt(pCURL, CURLOPT_URL, strUrl.c_str());
-    //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-    curl_easy_setopt(pCURL, CURLOPT_NOSIGNAL, 1L);
-    curl_easy_setopt(pCURL, CURLOPT_TIMEOUT, nTimeout);
-    curl_easy_setopt(pCURL, CURLOPT_NOPROGRESS, 1L);
-    curl_easy_setopt(pCURL, CURLOPT_WRITEFUNCTION, receive_data);
-    curl_easy_setopt(pCURL, CURLOPT_WRITEDATA, (void*)&strResponse);
-    res = curl_easy_perform(pCURL);
-    curl_easy_cleanup(pCURL);
-    return res;
-}
 
 bool Manager_Info::GetNetInfo(CStatus* info)
 {
@@ -274,7 +256,7 @@ bool Manager_Info::GetProxyInfo(CStatus* info)
     bool ret = false;
   try
     {
-
+    MyHealth::getInstance()->GetProxyIP();
     string response;
     CURLcode nRes =HttpGet(GoogleURL,response,500);
     if(nRes==CURLE_OK)

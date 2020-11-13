@@ -16,4 +16,6 @@ message DevInfo {
 	optional int32  flag=13;
 	optional string jobs=14;
 	optional int32  running=15;
+	optional string proxyip=16;
+	optional string proxyaddr=17;
 }

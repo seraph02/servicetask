@@ -16,6 +16,7 @@ using std::stringstream;
 using std::ofstream;
 #include <sys/time.h>
 #include <unistd.h>
+
 //void Binarycout(int n)
 //{
 // for (int i=31;i>=0;i--)
@@ -45,7 +46,30 @@ void trim(char *str)
     }
     strncpy(str ,p1 ,p2-p1+1);
 }
+size_t receive_data(void *contents, size_t size, size_t nmemb, void *stream){
+    string *str = (string*)stream;
+    (*str).append((char*)contents, size*nmemb);
+    return size * nmemb;
+}
+CURLcode HttpGet(const std::string & strUrl, std::string & strResponse,int nTimeout){
+    CURLcode res;
+    CURL* pCURL = curl_easy_init();
 
+    if (pCURL == NULL) {
+        return CURLE_FAILED_INIT;
+    }
+
+    curl_easy_setopt(pCURL, CURLOPT_URL, strUrl.c_str());
+    //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(pCURL, CURLOPT_NOSIGNAL, 1L);
+    curl_easy_setopt(pCURL, CURLOPT_TIMEOUT, nTimeout);
+    curl_easy_setopt(pCURL, CURLOPT_NOPROGRESS, 1L);
+    curl_easy_setopt(pCURL, CURLOPT_WRITEFUNCTION, receive_data);
+    curl_easy_setopt(pCURL, CURLOPT_WRITEDATA, (void*)&strResponse);
+    res = curl_easy_perform(pCURL);
+    curl_easy_cleanup(pCURL);
+    return res;
+}
 std::string RunShell(const char* cmd)
 {
 //    LOG(INFO) <<"runshell-->"<< cmd << endl;

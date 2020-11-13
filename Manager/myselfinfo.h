@@ -20,11 +20,13 @@ private:
     string GetIMEI();
     string GetMAC();
     string GetLocalIP();
-    string GetProxyIP();
+    //string GetProxyIP();
     string GetDevName();
     string GetJobs();
 public:
     DevInfo* b_dev = NULL;
+    string GetProxyIP();
+    string GetProxyIPAdr(string ip);
 public:
 
     MyHealth();

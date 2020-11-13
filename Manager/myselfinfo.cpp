@@ -1,5 +1,6 @@
 #include "myselfinfo.h"
 #include "jsoncpp2pb.h"
+#include "manager_es.h"
 #include <boost/algorithm/string.hpp>
 MyHealth* MyHealth::health = new MyHealth;
 MyHealth::MyHealth()
@@ -190,10 +191,9 @@ string MyHealth::GetLocalIP()
 }
 string MyHealth::GetProxyIP()
 {
-    string strcmd = "adb shell ifconfig tun0 2> /dev/null |sed -n '/inet addr:/p' |sed 's/.*addr:\\([0-9.]*\\).*/\\1/g'";
-    string strret= RunShell(strcmd.c_str());
-    LOG(INFO)<<"runshell :"<<strcmd.c_str()<< " => " << strret;
-    if(strret.compare("-1")!=0 &&strret.size()>1)
+    string strret;
+    CURLcode nRes =HttpGet("http://bot.whatismyipaddress.com",strret,500);
+    if(nRes==CURLE_OK)
     {
         strret.erase(strret.find_last_not_of("\n") + 1);
     }
@@ -201,8 +201,17 @@ string MyHealth::GetProxyIP()
     {
         strret = "127.0.0.1";
     }
+    this->b_dev->set_proxyip(strret);
+    this->b_dev->set_proxyaddr(GetProxyIPAdr(strret));
     return strret;
 }
+string MyHealth::GetProxyIPAdr(string ip){
+
+    string str = Manager_ES::getInstance()->IP2location(ip);
+    return str;
+
+}
+
 string MyHealth::GetDevName()
 {
 #ifdef AMD64

@@ -13,6 +13,8 @@ using namespace std;
 using namespace elasticlient;
 Manager_ES* Manager_ES::esMNG = new Manager_ES;
 std::vector<std::string> Manager_ES::m_hosts;
+#include <arpa/inet.h>
+
 bool Manager_ES::IsAction()
 {
     bool bolret =false;
@@ -149,6 +151,93 @@ int Manager_ES::UpdateTaskInfo(string taskid,string putstrjson,int version)
         LOG(ERROR)<<"CURL ERROR :"<<e.what();
     }
     return 0;
+}
+
+string Manager_ES::IP2location(string ip)
+{
+
+    std::string strret;
+    cpr::Response crsp;
+    try
+    {
+        Client es(m_hosts);
+        unsigned int ipnum=ntohl(inet_addr(ip.c_str()));
+
+        stringstream bodystream;
+        bodystream << "{   \"query\" : {     \"term\" : {       \"ipnum\": {         \"value\": "<<ipnum<<"      }    }  }}";
+        string body = bodystream.str();
+        crsp = es.search("ip2location","_doc",body);
+        if(crsp.status_code > 300 ||crsp.status_code <200)
+        {
+           LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
+        }
+        strret = "";
+        try
+        {
+            Json::Value jsonRoot; Json::Reader reader;
+            if (!reader.parse(crsp.text, jsonRoot)) return "";
+            Json::Value hitslist = jsonRoot["hits"]["hits"];
+
+            if(hitslist.size()>0)
+            {
+                Json::Value jsonite = hitslist[0]["_source"];
+                stringstream retstream;
+                retstream<<jsonite["country_code"].asString()<<","<<jsonite["region_name"].asString();
+                if(jsonite["country_code"].asString() == "-" || jsonite["region_name"].asString()=="-"){
+                    string rep;
+                    HttpGet("http://ip-api.com/json/" + ip,rep,30);
+                    Json::Value jsonRep; Json::Reader reader;
+                    if (!reader.parse(rep, jsonRep)) return retstream.str();
+                    string status = jsonRep["status"].asString();
+                    if(status == "success"){
+                        string country_code = jsonRep["countryCode"].asString();
+                        string city_name = jsonRep["city"].asString();
+                        string region_name = jsonRep["regionName"].asString();
+                        string country_name;
+                        if(country_code=="HK"){
+                            country_name = "China";
+                        }else {
+                            country_name = jsonRep["country"].asString();
+                        }
+                        Json::Value docUp;
+                        docUp["country_code"] = Json::Value(country_code);
+                        docUp["city_name"] = Json::Value(city_name);
+                        docUp["region_name"] = Json::Value(region_name);
+                        docUp["country_name"] = Json::Value(country_name);
+                        Json::Value ipnum_jobj;
+                        ipnum_jobj["gte"] = Json::Value(ipnum);
+                        ipnum_jobj["lte"] = Json::Value(ipnum);
+                        Json::Value location_jobj;
+                        location_jobj["lat"] = Json::Value(jsonRep["lat"]);
+                        location_jobj["lon"] = Json::Value(jsonRep["lon"]);
+                        docUp["ipnum"] = ipnum_jobj;
+                        docUp["location"] = location_jobj;
+                        stringstream me_id_st;
+                        me_id_st<<ipnum<<"_000_"<<ipnum;
+                        string _doc_m_id = me_id_st.str();
+                        crsp = es.index("ip2location","_doc",_doc_m_id,str1);
+                        retstream.str("");
+                        retstream<<country_code<<","<<city_name;
+                        if(crsp.status_code > 300 ||crsp.status_code <200)
+                        {
+                           LOG(ERROR)<<crsp.url<<"--"<<crsp.text;
+                        }
+                    }
+                }
+                return retstream.str();
+            }
+
+        }
+        catch(exception &cndoerr)
+        {
+            LOG(ERROR)<<cndoerr.what();
+        }
+    }
+    catch(exception &e)
+    {
+        LOG(ERROR)<<e.what()<<crsp.url<<"--"<<strret;
+    }
+    return strret;
 }
 //get remote task
 vector<string> Manager_ES::GetNewTaskId()
@@ -411,7 +500,7 @@ void Manager_ES::startbulk(string indices)
     Manager_ES::getInstance()->ChangeHosts(m_hosts);
     std::shared_ptr<elasticlient::Client> es = std::make_shared<elasticlient::Client>(
            std::vector<std::string>(m_hosts));
-    bulk == std::make_shared<elasticlient::SameIndexBulkData>(indices,5000);
+    std::make_shared<elasticlient::SameIndexBulkData>(indices,5000);
 
 }
 

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <curl/curl.h>
 
 using std::string;
 using std::vector;
@@ -26,4 +27,5 @@ vector<string> getFiles(string cate_dir);
 string GetLocalIP();
 void printtime();
 string ReadLine(string filename,int line);
+CURLcode HttpGet(const std::string & strUrl, std::string & strResponse,int nTimeout);
 #endif // COMM_H

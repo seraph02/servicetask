@@ -13,6 +13,7 @@ public:
     string GetESInfo();
     string GetDevInfo(string nodeid);
     string GetTaskInfo(string docid,int& statuscode);
+    string IP2location(string ip);
     vector<string> GetNewTaskId();
     int UpdateTaskInfo(string taskid,string putstrjson);
     int UpdateTaskInfo(string taskid,string putstrjson,int version);
